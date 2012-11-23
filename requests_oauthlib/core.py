@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from oauthlib import (
-    Client, SIGNATURE_HMAC, SIGNATURE_TYPE_AUTH_HEADER, extract_params
-)
+from oauthlib.oauth1 import rfc5849
+from oauthlib.common import extract_params
+from oauthlib.oauth1.rfc5849 import (Client, SIGNATURE_HMAC, SIGNATURE_TYPE_AUTH_HEADER)
 
 CONTENT_TYPE_FORM_URLENCODED = 'application/x-www-form-urlencoded'
 CONTENT_TYPE_MULTI_PART = 'multipart/form-data'
