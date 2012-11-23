@@ -10,7 +10,7 @@ except ImportError:
     from distutils.core import setup
 
 
-APP_NAME = 'requests_oauthlib'
+APP_NAME = 'requests-oauthlib'
 VERSION = '0.2.0'
 
 settings = dict()
