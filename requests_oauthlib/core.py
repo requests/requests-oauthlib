@@ -38,7 +38,7 @@ class OAuth1(object):
         contenttype = r.headers.get('Content-Type', '').split(";")[0].lower()
         # extract_params will not give params unless the body is a properly
         # formatted string, a dictionary or a list of 2-tuples.
-        decoded_body = extract_params(r.data)
+        decoded_body = extract_params(r.body)
 
         # extract_params can only check the present r.data and does not know
         # of r.files, thus an extra check is performed. We know that
@@ -47,7 +47,7 @@ class OAuth1(object):
         # a mimetype of multipart/form-data and if this is not the case
         # we assume the correct header will be set later.
         _oauth_signed = True
-        if r.files and contenttype == CONTENT_TYPE_MULTI_PART:
+        if hasattr(r, 'files') and contenttype == CONTENT_TYPE_MULTI_PART:
             # Omit body data in the signing and since it will always
             # be empty (cant add paras to body if multipart) and we wish
             # to preserve body.
