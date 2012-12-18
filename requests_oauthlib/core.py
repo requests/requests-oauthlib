@@ -33,7 +33,7 @@ class OAuth1(object):
         """Add OAuth parameters to the request.
 
         Parameters may be included from the body if the content-type is
-        urlencoded, if no content type is set an educated guess is made.
+        urlencoded, if no content type is set a guess is made.
         """
         # Overwriting url is safe here as request will not modify it past
         # this point.
@@ -41,13 +41,11 @@ class OAuth1(object):
                 r.headers.get('Content-Type', ''))
 
         if is_form_encoded or extract_params(r.body):
-            print 'aaaaT', r.body
             r.headers['Content-Type'] = CONTENT_TYPE_FORM_URLENCODED
             r.url, r.headers, r.data = self.client.sign(
                 unicode(r.url), unicode(r.method), r.body or '', r.headers)
         else:
             # Omit body data in the signing of non form-encoded requests
-            print 'WOOOT', r.body
             r.url, r.headers, _ = self.client.sign(
                 unicode(r.url), unicode(r.method), None, r.headers)
 
