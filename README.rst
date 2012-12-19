@@ -9,7 +9,7 @@ Usage
 OAuth takes many forms, so let's take a look at a few different forms::
 
     import requests
-    from requests_authlib import OAuth1
+    from requests_oauthlib import OAuth1
 
     url = u'https://api.twitter.com/1/account/settings.json'
 
