@@ -5,6 +5,9 @@ from oauthlib.oauth1 import (Client, SIGNATURE_HMAC, SIGNATURE_TYPE_AUTH_HEADER)
 CONTENT_TYPE_FORM_URLENCODED = 'application/x-www-form-urlencoded'
 CONTENT_TYPE_MULTI_PART = 'multipart/form-data'
 
+import sys
+if sys.version > "3":
+    unicode = str
 
 # OBS!: Correct signing of requests are conditional on invoking OAuth1
 # as the last step of preparing a request, or at least having the
