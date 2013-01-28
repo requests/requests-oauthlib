@@ -3,9 +3,12 @@ from __future__ import unicode_literals
 import mock
 import requests
 import requests_oauthlib
-import StringIO
 import unittest
 
+try:
+    import StringIO
+except ImportError:
+    from io import StringIO
 
 @mock.patch('oauthlib.oauth1.rfc5849.generate_timestamp')
 @mock.patch('oauthlib.oauth1.rfc5849.generate_nonce')
