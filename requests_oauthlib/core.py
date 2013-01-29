@@ -67,4 +67,7 @@ class OAuth1(object):
             del r.headers[u_header]
             r.headers['Authorization'] = auth_header
 
+        # the same goes for the URL. It is turned into unicode by the signing, too.
+        r.url = r.url.encode('utf-8')
+
         return r
