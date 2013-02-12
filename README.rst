@@ -32,7 +32,7 @@ less awkward since you can simply redirect).
    At this stage you will only need your client key and secret.::
 
     >>> oauth = OAuth1(client_key, client_secret=client_secret)
-    >>> request_token_url = https://api.twitter.com/oauth/request_token
+    >>> request_token_url = 'https://api.twitter.com/oauth/request_token'
     >>> r = requests.post(url=request_token_url, auth=oauth)
     >>> r.content
     "oauth_token=Z6eEdO8MOmk394WozF5oKyuAv855l4Mlqo7hhlSLik&oauth_token_secret=Kd75W4OQfb2oJTV0vzGzeXftVAwgMnEK9MumzYcM"
