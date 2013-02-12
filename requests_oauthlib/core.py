@@ -49,23 +49,22 @@ class OAuth1(object):
                 unicode(r.url), unicode(r.method), r.body or '', r.headers)
         else:
             # Omit body data in the signing of non form-encoded requests
-            signed_url, signed_headers, _ = self.client.sign(
+            r.url, r.headers, _ = self.client.sign(
                 unicode(r.url), unicode(r.method), None, r.headers)
                 
-            # Having the authorization header, key or value, in unicode will
-            # result in UnicodeDecodeErrors when the request is concatenated
-            # by httplib. This can easily be seen when attaching files.
-            # Note that simply encoding the value is not enough since Python
-            # saves the type of first key set. Thus we remove and re-add.
-            # >>> d = {u'a':u'foo'}
-            # >>> d['a'] = 'foo'
-            # >>> d
-            # { u'a' : 'foo' }
-            # Since the signing turns url and all headers into unicode values,
-            # we simply build the complete values from the signed ones by
-            # encoding everything in UTF-8
-            r.url = signed_url.encode('utf-8')
-            for header, value in signed_headers.iteritems():
-                r.headers[header.encode('utf-8')] = value.encode('utf-8')
+        # Having the authorization header, key or value, in unicode will
+        # result in UnicodeDecodeErrors when the request is concatenated
+        # by httplib. This can easily be seen when attaching files.
+        # Note that simply encoding the value is not enough since Python
+        # saves the type of first key set. Thus we remove and re-add.
+        # >>> d = {u'a':u'foo'}
+        # >>> d['a'] = 'foo'
+        # >>> d
+        # { u'a' : 'foo' }
+        u_header = unicode('Authorization')
+        if u_header in r.headers:
+            auth_header = r.headers[u_header].encode('utf-8')
+            del r.headers[u_header]
+            r.headers['Authorization'] = auth_header
 
         return r
