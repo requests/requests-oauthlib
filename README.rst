@@ -61,7 +61,7 @@ less awkward since you can simply redirect).
                        resource_owner_key=resource_owner_key,
                        resource_owner_secret=resource_owner_secret,
                        verifier=verifier)
-    >>> access_token_url = https://api.twitter.com/oauth/access_token
+    >>> access_token_url = 'https://api.twitter.com/oauth/access_token'
     >>> r = requests.post(url=access_token_url, auth=oauth)
     >>> r.content
     "oauth_token=6253282-eWudHldSbIaelX7swmsiHImEL4KinwaGloHANdrY&oauth_token_secret=2EEfA6BG3ly3sR3RjE0IBSnlQu4ZrUzPiYKmrkVU"
