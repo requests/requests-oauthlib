@@ -21,7 +21,8 @@ class OAuth1(object):
             callback_uri=None,
             signature_method=SIGNATURE_HMAC,
             signature_type=SIGNATURE_TYPE_AUTH_HEADER,
-            rsa_key=None, verifier=None):
+            rsa_key=None, verifier=None,
+            decoding=None):
 
         try:
             signature_type = signature_type.upper()
@@ -30,7 +31,7 @@ class OAuth1(object):
 
         self.client = Client(client_key, client_secret, resource_owner_key,
             resource_owner_secret, callback_uri, signature_method,
-            signature_type, rsa_key, verifier)
+            signature_type, rsa_key, verifier, decoding=decoding)
 
     def __call__(self, r):
         """Add OAuth parameters to the request.
@@ -51,7 +52,7 @@ class OAuth1(object):
             # Omit body data in the signing of non form-encoded requests
             r.url, r.headers, _ = self.client.sign(
                 unicode(r.url), unicode(r.method), None, r.headers)
-
+                
         # Having the authorization header, key or value, in unicode will
         # result in UnicodeDecodeErrors when the request is concatenated
         # by httplib. This can easily be seen when attaching files.
