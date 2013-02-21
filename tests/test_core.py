@@ -3,7 +3,10 @@ from __future__ import unicode_literals
 import mock
 import requests
 import requests_oauthlib
-import StringIO
+try:
+    from io import StringIO # python 3
+except ImportError:
+    from StringIO import StringIO # python 2
 import unittest
 
 
@@ -54,7 +57,7 @@ class OAuth1Test(unittest.TestCase):
                 b.headers.get('Authorization'))
 
         r = requests.Request(method='GET', url='http://a.b/path?query=retain',
-                auth=oauth, files={'test': StringIO.StringIO('hello')})
+                auth=oauth, files={'test': StringIO('hello')})
         c = r.prepare()
 
         self.assertEqual(b.headers.get('Authorization'),
