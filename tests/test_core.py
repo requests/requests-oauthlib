@@ -3,12 +3,12 @@ from __future__ import unicode_literals
 import mock
 import requests
 import requests_oauthlib
+try:
+    from io import StringIO # python 3
+except ImportError:
+    from StringIO import StringIO # python 2
 import unittest
 
-try:
-    import StringIO
-except ImportError:
-    from io import StringIO
 
 @mock.patch('oauthlib.oauth1.rfc5849.generate_timestamp')
 @mock.patch('oauthlib.oauth1.rfc5849.generate_nonce')
@@ -20,7 +20,7 @@ class OAuth1Test(unittest.TestCase):
         generate_timestamp.return_value = '1'
         oauth = requests_oauthlib.OAuth1('client_key')
         headers = {'Content-type': 'application/x-www-form-urlencoded'}
-        r = requests.Request(method='GET', url='http://a.b/path?query=retain',
+        r = requests.Request(method='POST', url='http://a.b/path?query=retain',
                 auth=oauth, data='this=really&is=&+form=encoded', headers=headers)
         a = r.prepare()
 
@@ -29,7 +29,7 @@ class OAuth1Test(unittest.TestCase):
         self.assertEqual(a.headers.get('Content-Type'), 'application/x-www-form-urlencoded')
 
         # guess content-type
-        r = requests.Request(method='GET', url='http://a.b/path?query=retain',
+        r = requests.Request(method='POST', url='http://a.b/path?query=retain',
                 auth=oauth, data='this=really&is=&+form=encoded')
         b = r.prepare()
         self.assertEqual(b.url, 'http://a.b/path?query=retain')
@@ -57,7 +57,7 @@ class OAuth1Test(unittest.TestCase):
                 b.headers.get('Authorization'))
 
         r = requests.Request(method='GET', url='http://a.b/path?query=retain',
-                auth=oauth, files={'test': StringIO.StringIO('hello')})
+                auth=oauth, files={'test': StringIO('hello')})
         c = r.prepare()
 
         self.assertEqual(b.headers.get('Authorization'),
