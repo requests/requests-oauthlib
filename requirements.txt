@@ -1,2 +1,2 @@
 requests
-oauthlib
+oauthlib>=0.3.8
