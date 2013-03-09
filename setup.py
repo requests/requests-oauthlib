@@ -11,7 +11,7 @@ except ImportError:
 
 
 APP_NAME = 'requests-oauthlib'
-VERSION = '0.2.0'
+VERSION = '0.3.0'
 
 settings = dict()
 
