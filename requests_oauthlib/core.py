@@ -52,7 +52,7 @@ class OAuth1(object):
             # Omit body data in the signing of non form-encoded requests
             r.url, r.headers, _ = self.client.sign(
                 unicode(r.url), unicode(r.method), None, r.headers)
-                
+
         # Having the authorization header, key or value, in unicode will
         # result in UnicodeDecodeErrors when the request is concatenated
         # by httplib. This can easily be seen when attaching files.
@@ -67,5 +67,21 @@ class OAuth1(object):
             auth_header = r.headers[u_header].encode('utf-8')
             del r.headers[u_header]
             r.headers['Authorization'] = auth_header
+
+        # OAuthLib returns a unicode url, and it needs to be bytes.
+        r.url = r.url.encode('utf-8')
+
+        # You can encounter problems in Python 2 if the headers aren't bytes.
+        temp_headers = {}
+
+        for key, value in r.headers.items():
+            if isinstance(key, unicode):
+                key = key.encode('latin1')
+            if isinstance(value, unicode):
+                value = value.encode('latin1')
+
+            temp_headers[key] = value
+
+        r.headers = temp_headers
 
         return r
