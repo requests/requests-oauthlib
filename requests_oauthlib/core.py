@@ -22,7 +22,7 @@ class OAuth1(object):
             signature_method=SIGNATURE_HMAC,
             signature_type=SIGNATURE_TYPE_AUTH_HEADER,
             rsa_key=None, verifier=None,
-            decoding=None):
+            decoding='utf-8'):
 
         try:
             signature_type = signature_type.upper()
@@ -67,21 +67,5 @@ class OAuth1(object):
             auth_header = r.headers[u_header].encode('utf-8')
             del r.headers[u_header]
             r.headers['Authorization'] = auth_header
-
-        # OAuthLib returns a unicode url, and it needs to be bytes.
-        r.url = r.url.encode('utf-8')
-
-        # You can encounter problems in Python 2 if the headers aren't bytes.
-        temp_headers = {}
-
-        for key, value in r.headers.items():
-            if isinstance(key, unicode):
-                key = key.encode('latin1')
-            if isinstance(value, unicode):
-                value = value.encode('latin1')
-
-            temp_headers[key] = value
-
-        r.headers = temp_headers
 
         return r
