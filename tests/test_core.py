@@ -45,18 +45,18 @@ class OAuth1Test(unittest.TestCase):
         generate_timestamp.return_value = '1'
         oauth = requests_oauthlib.OAuth1('client_key')
 
-        r = requests.Request(method='GET', url='http://a.b/path?query=retain',
+        r = requests.Request(method='POST', url='http://a.b/path?query=retain',
                 auth=oauth, data='this really is not form encoded')
         a = r.prepare()
 
-        r = requests.Request(method='GET', url='http://a.b/path?query=retain',
+        r = requests.Request(method='POST', url='http://a.b/path?query=retain',
                 auth=oauth)
         b = r.prepare()
 
         self.assertEqual(a.headers.get('Authorization'),
                 b.headers.get('Authorization'))
 
-        r = requests.Request(method='GET', url='http://a.b/path?query=retain',
+        r = requests.Request(method='POST', url='http://a.b/path?query=retain',
                 auth=oauth, files={'test': StringIO('hello')})
         c = r.prepare()
 
