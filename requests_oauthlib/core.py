@@ -42,7 +42,7 @@ class OAuth1(object):
         # Overwriting url is safe here as request will not modify it past
         # this point.
         is_form_encoded = (CONTENT_TYPE_FORM_URLENCODED in
-                r.headers.get('Content-Type', ''))
+                str(r.headers.get('Content-Type', '')))
 
         if is_form_encoded or extract_params(r.body):
             r.headers['Content-Type'] = CONTENT_TYPE_FORM_URLENCODED
