@@ -6,20 +6,22 @@ This project provides first-class OAuth library support for `Requests <http://py
 The OAuth workflow
 ------------------
 
-OAuth can seem overly complicated and it sure has its quirks. Luckily, 
+OAuth can seem overly complicated and it sure has its quirks. Luckily,
 requests_oauthlib hides most of these and let you focus at the task at hand.
 
 You will be forced to go through a few steps when you are using OAuth. Below is an
 example of the most common OAuth workflow using HMAC-SHA1 signed requests where
 the signature is supplied in the Authorization header.
 
-The example assumes an interactive prompt which is good for demonstration but in 
+The example assumes an interactive prompt which is good for demonstration but in
 practice you will likely be using a web application (which makes authorizing much
 less awkward since you can simply redirect).
 
 0. Manual client signup with the OAuth provider (i.e. Google, Twitter) to get
    a set of client credentials. Usually a client key and secret. Client might sometimes
-   be referred to as consumer::
+   be referred to as consumer. For example:
+
+.. code-block:: pycon
 
     >>> from __future__ import unicode_literals
     >>> import requests
@@ -29,7 +31,9 @@ less awkward since you can simply redirect).
     >>> client_secret = '...'
 
 1. Obtain a request token which will identify you (the client) in the next step.
-   At this stage you will only need your client key and secret.::
+   At this stage you will only need your client key and secret.
+
+.. code-block:: pycon
 
     >>> oauth = OAuth1(client_key, client_secret=client_secret)
     >>> request_token_url = 'https://api.twitter.com/oauth/request_token'
@@ -43,9 +47,11 @@ less awkward since you can simply redirect).
 
 2. Obtain authorization from the user (resource owner) to access their protected
    resources (images, tweets, etc.). This is commonly done by redirecting the
-   user to a specific url to which you add the request token as a query parameter. 
+   user to a specific url to which you add the request token as a query parameter.
    Note that not all services will give you a verifier even if they should. Also
-   the oauth_token given here will be the same as the one in the previous step::
+   the oauth_token given here will be the same as the one in the previous step.
+
+.. code-block:: pycon
 
     >>> authorize_url = 'https://api.twitter.com/oauth/authorize?oauth_token='
     >>> authorize_url = authorize_url + resource_owner_key
@@ -54,7 +60,9 @@ less awkward since you can simply redirect).
 
 3. Obtain an access token from the OAuth provider. Save this token as it can be
    re-used later. In this step we will re-use most of the credentials obtained
-   uptil this point::
+   uptil this point.
+
+.. code-block:: pycon
 
     >>> oauth = OAuth1(client_key,
                        client_secret=client_secret,
@@ -70,8 +78,10 @@ less awkward since you can simply redirect).
     >>> resource_owner_secret = credentials.get('oauth_token_secret')
 
 4. Access protected resources. OAuth1 access tokens typically do not expire
-   and may be re-used until revoked by the user or you::
-   
+   and may be re-used until revoked by the user or yourself.
+
+.. code-block:: pycon
+
     >>> oauth = OAuth1(client_key,
                        client_secret=client_secret,
                        resource_owner_key=resource_owner_key,
@@ -84,7 +94,9 @@ less awkward since you can simply redirect).
 Signature placement - header, query or body?
 --------------------------------------------
 
-OAuth takes many forms, so let's take a look at a few different forms::
+OAuth takes many forms, so let's take a look at a few different forms:
+
+.. code-block:: python
 
     import requests
     from requests_oauthlib import OAuth1
@@ -97,7 +109,9 @@ OAuth takes many forms, so let's take a look at a few different forms::
     resource_owner_secret = u'...'
 
 
-Header signing (recommended)::
+Header signing (recommended):
+
+.. code-block:: python
 
     headeroauth = OAuth1(client_key, client_secret,
                          resource_owner_key, resource_owner_secret,
@@ -106,7 +120,9 @@ Header signing (recommended)::
 
 
 
-Query signing::
+Query signing:
+
+.. code-block:: python
 
     queryoauth = OAuth1(client_key, client_secret,
                         resource_owner_key, resource_owner_secret,
@@ -114,7 +130,9 @@ Query signing::
     r = requests.get(url, auth=queryoauth)
 
 
-Body signing::
+Body signing:
+
+.. code-block:: python
 
     bodyoauth = OAuth1(client_key, client_secret,
                        resource_owner_key, resource_owner_secret,
@@ -127,11 +145,13 @@ Signature types - HMAC (most common), RSA, Plaintext
 ----------------------------------------------------
 
 OAuth1 defaults to using HMAC and examples can be found in the previous
-sections. 
+sections.
 
 Plaintext work on the same credentials as HMAC and the only change you will
 need to make when using it is to add signature_type='PLAINTEXT'
-to the OAuth1 constructor::
+to the OAuth1 constructor:
+
+.. code-block:: python
 
     headeroauth = OAuth1(client_key, client_secret,
                          resource_owner_key, resource_owner_secret,
@@ -140,10 +160,12 @@ to the OAuth1 constructor::
 RSA is different in that it does not use client_secret nor
 resource_owner_secret. Instead it uses public and private keys. The public key
 is provided to the OAuth provider during client registration. The private key
-is used to sign requests. The previous section can be summarized as::
+is used to sign requests. The previous section can be summarized as:
+
+.. code-block:: python
 
     key = open("your_rsa_key.pem").read()
-     
+
     queryoauth = OAuth1(client_key, signature_method=SIGNATURE_RSA,
                         rsa_key=key, signature_type='query')
     headeroauth = OAuth1(client_key, signature_method=SIGNATURE_RSA,
@@ -155,7 +177,9 @@ is used to sign requests. The previous section can be summarized as::
 Installation
 -------------
 
-To install requests and requests_oauthlib you can use pip::
+To install requests and requests_oauthlib you can use pip:
+
+.. code-block:: bash
 
     $ pip install requests requests_oauthlib
 
