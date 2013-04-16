@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from oauthlib.common import extract_params
 from oauthlib.oauth1 import (Client, SIGNATURE_HMAC, SIGNATURE_TYPE_AUTH_HEADER)
 
@@ -41,8 +42,12 @@ class OAuth1(object):
         """
         # Overwriting url is safe here as request will not modify it past
         # this point.
-        is_form_encoded = (CONTENT_TYPE_FORM_URLENCODED in
-                r.headers.get('Content-Type', ''))
+
+        content_type = r.headers.get('Content-Type'.encode('utf-8'), '')
+        if not isinstance(content_type, unicode):
+            content_type = content_type.decode('utf-8')
+
+        is_form_encoded = (CONTENT_TYPE_FORM_URLENCODED in content_type)
 
         if is_form_encoded or extract_params(r.body):
             r.headers['Content-Type'] = CONTENT_TYPE_FORM_URLENCODED
