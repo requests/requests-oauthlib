@@ -1,0 +1,5 @@
+python-requests-oauthlib (0.3.0-1+cts1) precise; urgency=low
+
+  * Initial release 
+
+ -- Adam Stokes <adam.stokes@ubuntu.com>  Mon, 15 Apr 2013 16:51:12 -0400

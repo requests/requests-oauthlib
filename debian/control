@@ -1,0 +1,15 @@
+Source: python-requests-oauthlib
+Priority: optional
+Maintainer: Adam Stokes <adam.stokes@ubuntu.com>
+Build-Depends: debhelper (>= 9), python (>=2.7), python-nose, python-requests (>= 1.1.0)
+Standards-Version: 3.9.4
+Section: python
+Homepage: https://github.com/requests/requests-oauthlib
+Vcs-Git: https://github.com/requests/requests-oauthlib.git
+Vcs-Browser: https://github.com/requests/requests-oauthlib
+
+Package: python-requests-oauthlib
+Architecture: any
+Depends: ${python:Depends}, ${misc:Depends}, python-requests
+Description: OAuthlib support for python-requests
+ This project provides first-class OAuth library support for Requests.
