@@ -71,6 +71,6 @@ class OAuth1(object):
         if u_header in r.headers:
             auth_header = r.headers[u_header].encode('utf-8')
             del r.headers[u_header]
-            r.headers['Authorization'] = auth_header
+            r.headers['Authorization'.encode('utf-8')] = auth_header
 
         return r
