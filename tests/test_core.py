@@ -78,3 +78,21 @@ class OAuth1Test(unittest.TestCase):
 
         self.assertEqual(b.headers.get('Authorization'),
                 c.headers.get('Authorization'))
+
+    def testNoUnicodeInAuthorizationHeader(self, generate_nonce, generate_timestamp):
+        """
+        If we have an unicode Authorization key or value, httplib will raise an
+        UnicodeDecodeError in _send_output
+        """
+        generate_nonce.return_value = 'abc'
+        generate_timestamp.return_value = '1'
+        r = requests.Request(
+            method='POST',
+            url='http://a.b',
+            files={'test': StringIO(u'é')},
+            auth=requests_oauthlib.OAuth1("client_key")
+        ).prepare()
+        for key, value in r.headers.items():
+            if key == "Authorization":
+                self.assertTrue(isinstance(key, bytes_type))
+                self.assertTrue(isinstance(value, bytes_type))
