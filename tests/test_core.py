@@ -4,6 +4,7 @@ import mock
 import sys
 import requests
 import requests_oauthlib
+import os.path
 try:
     from io import StringIO # python 3
 except ImportError:
@@ -78,3 +79,20 @@ class OAuth1Test(unittest.TestCase):
 
         self.assertEqual(b.headers.get('Authorization'),
                 c.headers.get('Authorization'))
+
+    def testCanPostBinaryData(self, generate_nonce, generate_timestamp):
+        """
+        Test we can post binary data. Should prevent regression of the
+        UnicodeDecodeError issue.
+        """
+        generate_nonce.return_value = 'abc'
+        generate_timestamp.return_value = '1'
+        oauth = requests_oauthlib.OAuth1('client_key')
+        dirname = os.path.dirname(__file__)
+        fname = os.path.join(dirname, 'test.bin')
+
+        with open(fname, 'rb') as f:
+            r = requests.post('http://httpbin.org/post', data={'hi': 'there'},
+                              files={'media': (os.path.basename(f.name), f)},
+                              auth=oauth)
+            self.assertEqual(r.status_code, 200)
