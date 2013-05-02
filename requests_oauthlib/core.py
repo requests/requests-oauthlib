@@ -58,19 +58,4 @@ class OAuth1(object):
             r.url, r.headers, _ = self.client.sign(
                 unicode(r.url), unicode(r.method), None, r.headers)
 
-        # Having the authorization header, key or value, in unicode will
-        # result in UnicodeDecodeErrors when the request is concatenated
-        # by httplib. This can easily be seen when attaching files.
-        # Note that simply encoding the value is not enough since Python
-        # saves the type of first key set. Thus we remove and re-add.
-        # >>> d = {u'a':u'foo'}
-        # >>> d['a'] = 'foo'
-        # >>> d
-        # { u'a' : 'foo' }
-        u_header = unicode('Authorization')
-        if u_header in r.headers:
-            auth_header = r.headers[u_header].encode('utf-8')
-            del r.headers[u_header]
-            r.headers['Authorization'] = auth_header
-
         return r
