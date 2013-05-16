@@ -122,7 +122,7 @@ class OAuth2Session(requests.Session):
                 password=password, **kwargs)
         # (ib-lundgren) All known, to me, token requests use POST.
         r = self.post(token_url, data=dict(urldecode(body)))
-        self._client.parse_request_body_response(r.content, scope=self.scope)
+        self._client.parse_request_body_response(r.text, scope=self.scope)
         self.token = self._client.token
         return self.token
 
@@ -161,7 +161,7 @@ class OAuth2Session(requests.Session):
         body = self._client.prepare_refresh_body(body=body,
                 refresh_token=refresh_token, scope=self.scope, **kwargs)
         r = self.post(token_url, data=dict(urldecode(body)))
-        self.token = self._client.parse_request_body_response(r.content, scope=self.scope)
+        self.token = self._client.parse_request_body_response(r.text, scope=self.scope)
         if not 'refresh_token' in self.token:
             self.token['refresh_token'] = refresh_token
         return self.token
