@@ -10,6 +10,12 @@ import sys
 if sys.version > "3":
     unicode = str
 
+    def to_native_str(string):
+        return string.decode('utf-8')
+else:
+    def to_native_str(string):
+        return string
+
 # OBS!: Correct signing of requests are conditional on invoking OAuth1
 # as the last step of preparing a request, or at least having the
 # content-type set properly.
@@ -57,5 +63,7 @@ class OAuth1(object):
             # Omit body data in the signing of non form-encoded requests
             r.url, r.headers, _ = self.client.sign(
                 unicode(r.url), unicode(r.method), None, r.headers)
+
+        r.url = to_native_str(r.url)
 
         return r
