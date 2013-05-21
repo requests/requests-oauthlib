@@ -96,3 +96,14 @@ class OAuth1Test(unittest.TestCase):
                               files={'media': (os.path.basename(f.name), f)},
                               auth=oauth)
             self.assertEqual(r.status_code, 200)
+
+    def test_url_is_native_str(self, generate_nonce, generate_timestamp):
+        """
+        Test that the URL is always a native string.
+        """
+        generate_nonce.return_value = 'abc'
+        generate_timestamp.return_value = '1'
+        oauth = requests_oauthlib.OAuth1('client_key')
+
+        r = requests.get('http://httpbin.org/get', auth=oauth)
+        self.assertTrue(isinstance(r.request.url, str))
