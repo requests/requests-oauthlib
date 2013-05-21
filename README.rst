@@ -42,8 +42,8 @@ less awkward since you can simply redirect).
     "oauth_token=Z6eEdO8MOmk394WozF5oKyuAv855l4Mlqo7hhlSLik&oauth_token_secret=Kd75W4OQfb2oJTV0vzGzeXftVAwgMnEK9MumzYcM"
     >>> from urlparse import parse_qs
     >>> credentials = parse_qs(r.content)
-    >>> resource_owner_key = credentials.get('oauth_token')
-    >>> resource_owner_secret = credentials.get('oauth_token_secret')
+    >>> resource_owner_key = credentials.get('oauth_token')[0]
+    >>> resource_owner_secret = credentials.get('oauth_token_secret')[0]
 
 2. Obtain authorization from the user (resource owner) to access their protected
    resources (images, tweets, etc.). This is commonly done by redirecting the
@@ -74,8 +74,8 @@ less awkward since you can simply redirect).
     >>> r.content
     "oauth_token=6253282-eWudHldSbIaelX7swmsiHImEL4KinwaGloHANdrY&oauth_token_secret=2EEfA6BG3ly3sR3RjE0IBSnlQu4ZrUzPiYKmrkVU"
     >>> credentials = parse_qs(r.content)
-    >>> resource_owner_key = credentials.get('oauth_token')
-    >>> resource_owner_secret = credentials.get('oauth_token_secret')
+    >>> resource_owner_key = credentials.get('oauth_token')[0]
+    >>> resource_owner_secret = credentials.get('oauth_token_secret')[0]
 
 4. Access protected resources. OAuth1 access tokens typically do not expire
    and may be re-used until revoked by the user or yourself.
