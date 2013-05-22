@@ -3,15 +3,26 @@
 
 import os
 import sys
+import re
 
 try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
 
+# Get the version
+version_regex = r'__version__ = ["\']([^"\']*)["\']'
+with open('requests_oauthlib/__init__.py', 'r') as f:
+    text = f.read()
+    match = re.search(version_regex, text)
+
+    if match:
+        VERSION = match.group(1)
+    else:
+        raise RuntimeError("No version number found!")
+
 
 APP_NAME = 'requests-oauthlib'
-VERSION = '0.3.2'
 
 settings = dict()
 
@@ -44,7 +55,5 @@ settings.update(
         'Programming Language :: Python :: 2.7',
     ),
 )
-
-
 
 setup(**settings)
