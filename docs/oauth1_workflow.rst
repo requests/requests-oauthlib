@@ -9,13 +9,23 @@ The example assumes an interactive prompt which is good for demonstration but in
 practice you will likely be using a web application (which makes authorizing much
 less awkward since you can simply redirect).
 
+The guide will show two ways of carrying out the OAuth1 workflow. One using the
+authentication helper OAuth1 and the alternative using OAuth1Session. The latter
+is usually more convenient and requires less code.
+
+Workflow example showing use of both OAuth1 and OAuth1Session
+-------------------------------------------------------------
+
 0. Manual client signup with the OAuth provider (i.e. Google, Twitter) to get
    a set of client credentials. Usually a client key and secret. Client might sometimes
    be referred to as consumer. For example:
 
 .. code-block:: pycon
 
-    >>> from __future__ import unicode_literals
+    >>> # Using OAuth1Session
+    >>> from requests_oauthlib import OAuth1Session
+
+    >>> # Using OAuth1 auth helper
     >>> import requests
     >>> from requests_oauthlib import OAuth1
 
@@ -27,8 +37,18 @@ less awkward since you can simply redirect).
 
 .. code-block:: pycon
 
-    >>> oauth = OAuth1(client_key, client_secret=client_secret)
     >>> request_token_url = 'https://api.twitter.com/oauth/request_token'
+
+    >>> # Using OAuth1Session
+    >>> oauth = OAuth1Session(client_key, client_secret=client_secret)
+    >>> oauth.fetch_request_token(request_token_url)
+    {
+        "oauth_token": "Z6eEdO8MOmk394WozF5oKyuAv855l4Mlqo7hhlSLik",
+        "oauth_token_secret": "Kd75W4OQfb2oJTV0vzGzeXftVAwgMnEK9MumzYcM"
+    }
+
+    >>> # Using OAuth1 auth helper
+    >>> oauth = OAuth1(client_key, client_secret=client_secret)
     >>> r = requests.post(url=request_token_url, auth=oauth)
     >>> r.content
     "oauth_token=Z6eEdO8MOmk394WozF5oKyuAv855l4Mlqo7hhlSLik&oauth_token_secret=Kd75W4OQfb2oJTV0vzGzeXftVAwgMnEK9MumzYcM"
@@ -45,7 +65,20 @@ less awkward since you can simply redirect).
 
 .. code-block:: pycon
 
-    >>> authorize_url = 'https://api.twitter.com/oauth/authorize?oauth_token='
+    >>> base_authorization_url = 'https://api.twitter.com/oauth/authorize'
+
+    >>> # Using OAuth1Session
+    >>> authorization_url = oauth.authorization_url(
+    >>> print 'Please go here and authorize,', authorize_url
+    >>> redirect_response = raw_input('Paste the full redirect URL here.')
+    >>> oauth_session.parse_authorization_response(redirect_response)
+    {
+        "oauth_token": "Z6eEdO8MOmk394WozF5oKyuAv855l4Mlqo7hhlSLik",
+        "oauth_verifier": "sdflk3450FASDLJasd2349dfs"
+    }
+
+    >>> # Using OAuth1 auth helper
+    >>> authorize_url = base_authorization_url + '?oauth_token='
     >>> authorize_url = authorize_url + resource_owner_key
     >>> print 'Please go here and authorize,', authorize_url
     >>> verifier = raw_input('Please input the verifier')
@@ -56,12 +89,26 @@ less awkward since you can simply redirect).
 
 .. code-block:: pycon
 
+    >>> access_token_url = 'https://api.twitter.com/oauth/access_token'
+
+    >>> # Using OAuth1Session
+    >>> oauth = OAuth1Session(client_key,
+                              client_secret=client_secret,
+                              resource_owner_key=resource_owner_key,
+                              resource_owner_secret=resource_owner_secret,
+                              verifier=verifier)
+    >>> oauth.fetch_access_token(access_token_url)
+    {
+        "oauth_token": "6253282-eWudHldSbIaelX7swmsiHImEL4KinwaGloHANdrY",
+        "oauth_token_secret": "2EEfA6BG3ly3sR3RjE0IBSnlQu4ZrUzPiYKmrkVU"
+    }
+
+    >>> # Using OAuth1 auth helper
     >>> oauth = OAuth1(client_key,
                        client_secret=client_secret,
                        resource_owner_key=resource_owner_key,
                        resource_owner_secret=resource_owner_secret,
                        verifier=verifier)
-    >>> access_token_url = 'https://api.twitter.com/oauth/access_token'
     >>> r = requests.post(url=access_token_url, auth=oauth)
     >>> r.content
     "oauth_token=6253282-eWudHldSbIaelX7swmsiHImEL4KinwaGloHANdrY&oauth_token_secret=2EEfA6BG3ly3sR3RjE0IBSnlQu4ZrUzPiYKmrkVU"
@@ -74,13 +121,21 @@ less awkward since you can simply redirect).
 
 .. code-block:: pycon
 
+    >>> protected_url = 'https://api.twitter.com/1/account/settings.json'
+
+    >>> # Using OAuth1Session
+    >>> oauth = OAuth1Session(client_key,
+                              client_secret=client_secret,
+                              resource_owner_key=resource_owner_key,
+                              resource_owner_secret=resource_owner_secret)
+    >>> r = oauth.get(protected_url)
+
+    >>> # Using OAuth1 auth helper
     >>> oauth = OAuth1(client_key,
                        client_secret=client_secret,
                        resource_owner_key=resource_owner_key,
                        resource_owner_secret=resource_owner_secret)
-    >>> url = 'https://api.twitter.com/1/account/settings.json'
-    >>> r = requests.get(url=url, auth=oauth)
-    >>> # Enjoy =)
+    >>> r = requests.get(url=protected_url, auth=oauth)
 
 
 Signature placement - header, query or body?
