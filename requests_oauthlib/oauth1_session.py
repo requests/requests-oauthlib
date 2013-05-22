@@ -148,6 +148,7 @@ class OAuth1Session(requests.Session):
         'https://api.twitter.com/oauth/authorize?oauth_token=sdf0o9823sjdfsdf&foo=bar'
 
         An example using an explicit callback URI.
+
         >>> request_token_url = 'https://api.twitter.com/oauth/request_token'
         >>> authorization_url = 'https://api.twitter.com/oauth/authorize'
         >>> oauth_session = OAuth1Session('client-key', client_secret='secret', callback_uri='https://127.0.0.1/callback')
