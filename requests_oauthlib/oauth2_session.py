@@ -20,10 +20,10 @@ class OAuth2Session(requests.Session):
     Can be used to create authorization urls, fetch tokens and access proteced
     resources using the :class:`requests.Session` interface you are used to.
 
-    :class:`oauthlib.oauth2.WebApplicationClient` (default), Authorization Code Grant
-    :class:`oauthlib.oauth2.MobileApplicationClient`, Implicit Grant
-    :class:`oauthlib.oauth2.LegacyApplicationClient`, Password Credentials Grant
-    :class:`oauthlib.oauth2.BackendApplicationClient`, Client Credentials Grant
+    - :class:`oauthlib.oauth2.WebApplicationClient` (default): Authorization Code Grant
+    - :class:`oauthlib.oauth2.MobileApplicationClient`: Implicit Grant
+    - :class:`oauthlib.oauth2.LegacyApplicationClient`: Password Credentials Grant
+    - :class:`oauthlib.oauth2.BackendApplicationClient`: Client Credentials Grant
 
     Note that the only time you will be using Implicit Grant from python is if
     you are driving a user agent able to obtain URL fragments.
