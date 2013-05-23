@@ -121,7 +121,8 @@ class OAuth2Session(requests.Session):
                 redirect_uri=self.redirect_uri, username=username,
                 password=password, **kwargs)
         # (ib-lundgren) All known, to me, token requests use POST.
-        r = self.post(token_url, data=dict(urldecode(body)))
+        r = self.post(token_url, data=dict(urldecode(body)),
+            headers={'Accept': 'application/json'})
         self._client.parse_request_body_response(r.text, scope=self.scope)
         self.token = self._client.token
         return self.token
