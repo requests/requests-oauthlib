@@ -13,6 +13,7 @@ Contents:
 
    bitbucket_tutorial
    github_tutorial
+   google_tutorial
 
    api
 
