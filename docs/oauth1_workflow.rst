@@ -68,9 +68,9 @@ Workflow example showing use of both OAuth1 and OAuth1Session
     >>> base_authorization_url = 'https://api.twitter.com/oauth/authorize'
 
     >>> # Using OAuth1Session
-    >>> authorization_url = oauth.authorization_url(
-    >>> print 'Please go here and authorize,', authorize_url
-    >>> redirect_response = raw_input('Paste the full redirect URL here.')
+    >>> authorization_url = oauth.authorization_url(base_authorization_url)
+    >>> print 'Please go here and authorize,', authoriation_url
+    >>> redirect_response = raw_input('Paste the full redirect URL here: ')
     >>> oauth_session.parse_authorization_response(redirect_response)
     {
         "oauth_token": "Z6eEdO8MOmk394WozF5oKyuAv855l4Mlqo7hhlSLik",
