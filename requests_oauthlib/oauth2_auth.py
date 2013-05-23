@@ -9,7 +9,7 @@ class OAuth2(object):
         """Construct a new OAuth 2 authorization object.
 
         :param client_id: Client id obtained during registration
-        :param client: oauthlib.oauth2.Client to be used. Default is
+        :param client: :class:`oauthlib.oauth2.Client` to be used. Default is
                        WebApplicationClient which is useful for any
                        hosted application but not mobile or desktop.
         :param token: Token dictionary, must include access_token

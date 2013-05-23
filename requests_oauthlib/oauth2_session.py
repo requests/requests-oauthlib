@@ -14,16 +14,16 @@ class TokenUpdated(Warning):
 class OAuth2Session(requests.Session):
     """Versitile OAuth 2 extension to :class:`requests.Session`.
 
-    Supports any grant type adhering to oauthlib.oauth2.Client spec including
-    the four core OAuth 2 grants.
+    Supports any grant type adhering to :class:`oauthlib.oauth2.Client` spec
+    including the four core OAuth 2 grants.
 
     Can be used to create authorization urls, fetch tokens and access proteced
     resources using the :class:`requests.Session` interface you are used to.
 
-    oauthlib.oauth2.WebApplicationClient (default), Authorization Code Grant
-    oauthlib.oauth2.MobileApplicationClient, Implicit Grant
-    oauthlib.oauth2.LegacyApplicationClient, Password Credentials Grant
-    oauthlib.oauth2.BackendApplicationClient, Client Credentials Grant
+    :class:`oauthlib.oauth2.WebApplicationClient` (default), Authorization Code Grant
+    :class:`oauthlib.oauth2.MobileApplicationClient`, Implicit Grant
+    :class:`oauthlib.oauth2.LegacyApplicationClient`, Password Credentials Grant
+    :class:`oauthlib.oauth2.BackendApplicationClient`, Client Credentials Grant
 
     Note that the only time you will be using Implicit Grant from python is if
     you are driving a user agent able to obtain URL fragments.
@@ -35,7 +35,7 @@ class OAuth2Session(requests.Session):
         """Construct a new OAuth 2 client session.
 
         :param client_id: Client id obtained during registration
-        :param client: oauthlib.oauth2.Client to be used. Default is
+        :param client: :class:`oauthlib.oauth2.Client` to be used. Default is
                        WebApplicationClient which is useful for any
                        hosted application but not mobile or desktop.
         :param scope: List of scopes you wish to request access to
