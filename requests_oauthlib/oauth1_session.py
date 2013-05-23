@@ -11,6 +11,12 @@ import requests
 
 from . import OAuth1
 
+import sys
+if sys.version > "3":
+    unicode = str
+
+to_unicode = lambda s: s if isinstance(s, unicode) else s.decode('utf-8')
+
 
 class OAuth1Session(requests.Session):
     """Request signing and convenience methods for the oauth dance.
@@ -160,7 +166,7 @@ class OAuth1Session(requests.Session):
         >>> oauth_session.authorization_url(authorization_url)
         'https://api.twitter.com/oauth/authorize?oauth_token=sdf0o9823sjdfsdf&oauth_callback=https%3A%2F%2F127.0.0.1%2Fcallback'
         """
-        kwargs['oauth_token'] = request_token or self._client.resource_owner_key
+        kwargs['oauth_token'] = request_token or self._client.client.resource_owner_key
         return add_params_to_uri(url, kwargs.items())
 
     def fetch_request_token(self, url):
@@ -244,13 +250,16 @@ class OAuth1Session(requests.Session):
 
     def _populate_attributes(self, token):
         if 'oauth_token' in token:
-            self._client.resource_owner_key = token['oauth_token']
+            self._client.client.resource_owner_key = to_unicode(
+                    token['oauth_token'])
         else:
             raise ValueError('Response does not contain a token. %s', token)
         if 'oauth_token_secret' in token:
-            self._client.resource_owner_secret = token['oauth_token_secret']
+            self._client.client.resource_owner_secret = to_unicode(
+                    token['oauth_token_secret'])
         if 'oauth_verifier' in token:
-            self._client.verifier = token['oauth_verifier']
+            self._client.client.verifier = to_unicode(
+                    token['oauth_verifier'])
 
     def _fetch_token(self, url):
         token = dict(parse_qsl(self.post(url).content))
