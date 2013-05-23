@@ -12,13 +12,13 @@ class TokenUpdated(Warning):
 
 
 class OAuth2Session(requests.Session):
-    """Versitile OAuth 2 extension to requests.Session.
+    """Versitile OAuth 2 extension to :class:`requests.Session`.
 
     Supports any grant type adhering to oauthlib.oauth2.Client spec including
     the four core OAuth 2 grants.
 
     Can be used to create authorization urls, fetch tokens and access proteced
-    resources using the requests.Session interface you are used to.
+    resources using the :class:`requests.Session` interface you are used to.
 
     oauthlib.oauth2.WebApplicationClient (default), Authorization Code Grant
     oauthlib.oauth2.MobileApplicationClient, Implicit Grant
