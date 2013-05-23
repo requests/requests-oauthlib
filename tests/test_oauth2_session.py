@@ -66,21 +66,22 @@ class OAuth2SessionTest(unittest.TestCase):
         self.assertIn('response_type=token', auth_url)
 
     def test_refresh_token_request(self):
-        self.token['expires_in'] = '-1'
+        self.expired_token = dict(self.token)
+        self.expired_token['expires_in'] = '-1'
 
         def fake_refresh(r, **kwargs):
             resp = mock.MagicMock()
-            resp.content = json.dumps(self.token)
+            resp.text = json.dumps(self.token)
             return resp
 
         # No auto refresh setup
         for client in self.clients:
-            auth = OAuth2Session(client=client, token=self.token)
+            auth = OAuth2Session(client=client, token=self.expired_token)
             self.assertRaises(TokenExpiredError, auth.get, 'https://i.b')
 
         # Auto refresh but no auto update
         for client in self.clients:
-            auth = OAuth2Session(client=client, token=self.token,
+            auth = OAuth2Session(client=client, token=self.expired_token,
                     auto_refresh_url='https://i.b/refresh')
             auth.send = fake_refresh
             self.assertRaises(TokenUpdated, auth.get, 'https://i.b')
@@ -90,7 +91,7 @@ class OAuth2SessionTest(unittest.TestCase):
             self.assertEqual(token, self.token)
 
         for client in self.clients:
-            auth = OAuth2Session(client=client, token=self.token,
+            auth = OAuth2Session(client=client, token=self.expired_token,
                     auto_refresh_url='https://i.b/refresh',
                     token_updater=token_updater)
             auth.send = fake_refresh
@@ -106,7 +107,7 @@ class OAuth2SessionTest(unittest.TestCase):
         def fake_token(token):
             def fake_send(r, **kwargs):
                 resp = mock.MagicMock()
-                resp.content = json.dumps(token)
+                resp.text = json.dumps(token)
                 return resp
             return fake_send
         url = 'https://example.com/token'
