@@ -12,6 +12,7 @@ Contents:
    :maxdepth: 2
 
    bitbucket_tutorial
+   github_tutorial
 
    api
 
