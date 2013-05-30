@@ -17,7 +17,7 @@ class OAuth2Session(requests.Session):
     Supports any grant type adhering to :class:`oauthlib.oauth2.draft25.Client` spec
     including the four core OAuth 2 grants.
 
-    Can be used to create authorization urls, fetch tokens and access proteced
+    Can be used to create authorization urls, fetch tokens and access protected
     resources using the :class:`requests.Session` interface you are used to.
 
     - :class:`oauthlib.oauth2.draft25.WebApplicationClient` (default): Authorization Code Grant
