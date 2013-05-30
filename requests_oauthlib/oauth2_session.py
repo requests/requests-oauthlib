@@ -12,7 +12,7 @@ class TokenUpdated(Warning):
 
 
 class OAuth2Session(requests.Session):
-    """Versitile OAuth 2 extension to :class:`requests.Session`.
+    """Versatile OAuth 2 extension to :class:`requests.Session`.
 
     Supports any grant type adhering to :class:`oauthlib.oauth2.draft25.Client` spec
     including the four core OAuth 2 grants.
