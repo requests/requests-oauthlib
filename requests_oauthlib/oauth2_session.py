@@ -14,16 +14,16 @@ class TokenUpdated(Warning):
 class OAuth2Session(requests.Session):
     """Versatile OAuth 2 extension to :class:`requests.Session`.
 
-    Supports any grant type adhering to :class:`oauthlib.oauth2.draft25.Client` spec
+    Supports any grant type adhering to :class:`oauthlib.oauth2.Client` spec
     including the four core OAuth 2 grants.
 
     Can be used to create authorization urls, fetch tokens and access protected
     resources using the :class:`requests.Session` interface you are used to.
 
-    - :class:`oauthlib.oauth2.draft25.WebApplicationClient` (default): Authorization Code Grant
-    - :class:`oauthlib.oauth2.draft25.MobileApplicationClient`: Implicit Grant
-    - :class:`oauthlib.oauth2.draft25.LegacyApplicationClient`: Password Credentials Grant
-    - :class:`oauthlib.oauth2.draft25.BackendApplicationClient`: Client Credentials Grant
+    - :class:`oauthlib.oauth2.WebApplicationClient` (default): Authorization Code Grant
+    - :class:`oauthlib.oauth2.MobileApplicationClient`: Implicit Grant
+    - :class:`oauthlib.oauth2.LegacyApplicationClient`: Password Credentials Grant
+    - :class:`oauthlib.oauth2.BackendApplicationClient`: Client Credentials Grant
 
     Note that the only time you will be using Implicit Grant from python is if
     you are driving a user agent able to obtain URL fragments.
