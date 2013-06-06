@@ -17,6 +17,9 @@ if sys.version > "3":
 
 to_unicode = lambda s: s if isinstance(s, unicode) else s.decode('utf-8')
 
+_uparse_qsl = lambda qsl: ((to_unicode(key), to_unicode(value))
+                           for key, value in parse_qsl(qsl))
+
 
 class OAuth1Session(requests.Session):
     """Request signing and convenience methods for the oauth dance.
@@ -244,24 +247,22 @@ class OAuth1Session(requests.Session):
             'oauth_verifier: 'w34o8967345',
         }
         """
-        token = dict(parse_qsl(urlparse(url).query))
+        token = dict(_uparse_qsl(urlparse(url).query))
         self._populate_attributes(token)
         return token
 
     def _populate_attributes(self, token):
         if 'oauth_token' in token:
-            self._client.client.resource_owner_key = to_unicode(
-                    token['oauth_token'])
+            self._client.client.resource_owner_key = token['oauth_token']
         else:
             raise ValueError('Response does not contain a token. %s', token)
         if 'oauth_token_secret' in token:
-            self._client.client.resource_owner_secret = to_unicode(
-                    token['oauth_token_secret'])
+            self._client.client.resource_owner_secret = (
+                token['oauth_token_secret'])
         if 'oauth_verifier' in token:
-            self._client.client.verifier = to_unicode(
-                    token['oauth_verifier'])
+            self._client.client.verifier = token['oauth_verifier']
 
     def _fetch_token(self, url):
-        token = dict(parse_qsl(self.post(url).content))
+        token = dict(_uparse_qsl(self.post(url).content))
         self._populate_attributes(token)
         return token
