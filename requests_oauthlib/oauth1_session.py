@@ -169,7 +169,7 @@ class OAuth1Session(requests.Session):
         kwargs['oauth_token'] = request_token or self._client.client.resource_owner_key
         return add_params_to_uri(url, kwargs.items())
 
-    def fetch_request_token(self, url):
+    def fetch_request_token(self, url, realm=None):
         """Fetch a request token.
 
         This is the first step in the OAuth 1 workflow. A request token is
@@ -178,6 +178,7 @@ class OAuth1Session(requests.Session):
         to be used to construct an authorization url.
 
         :param url: The request token endpoint URL.
+        :param realm: A list of realms to request access to.
         :returns: The response in dict format.
 
         Note that a previously set callback_uri will be reset for your
@@ -192,8 +193,10 @@ class OAuth1Session(requests.Session):
             'oauth_token_secret': '2kjshdfp92i34asdasd',
         }
         """
+        self._client.client.realm = ' '.join(realm) if realm else None
         token = self._fetch_token(url)
         self._client.client.callback_uri = None
+        self._client.client.realm = None
         return token
 
     def fetch_access_token(self, url):
