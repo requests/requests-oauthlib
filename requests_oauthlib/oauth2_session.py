@@ -45,8 +45,7 @@ class OAuth2Session(requests.Session):
         :param state: State string used to prevent CSRF. This will be given
                       when creating the authorization url and must be supplied
                       when parsing the authorization response.
-        :param state_generator: A no argument function used to generate a
-                                state string, must be unguessable.
+                      Can be either a string or a no argument callable.
         :auto_refresh_url: Refresh token endpoint URL, must be HTTPS. Supply
                            this if you wish the client to automatically refresh
                            your access tokens.
@@ -64,8 +63,8 @@ class OAuth2Session(requests.Session):
         self.scope = scope
         self.redirect_uri = redirect_uri
         self.token = token or {}
-        self.state_generator = state_generator or generate_token
-        self.state = state
+        self.state = state or generate_token
+        self._state = None
         self.auto_refresh_url = auto_refresh_url
         self.auto_refresh_kwargs = auto_refresh_kwargs or {}
         self.token_updater = token_updater
@@ -74,8 +73,11 @@ class OAuth2Session(requests.Session):
 
     def new_state(self):
         """Generates a state string to be used in authorizations."""
-        self.state = self.state_generator()
-        return self.state
+        try:
+            self._state = self.state()
+        except TypeError:
+            self._state = self.state
+        return self._state
 
     def authorization_url(self, url, **kwargs):
         """Form an authorization URL.
@@ -115,7 +117,7 @@ class OAuth2Session(requests.Session):
 
         if not code and authorization_response:
             self._client.parse_request_uri_response(authorization_response,
-                    state=self.state)
+                    state=self._state)
             code = self._client.code
         body = self._client.prepare_request_body(code=code, body=body,
                 redirect_uri=self.redirect_uri, username=username,
@@ -134,7 +136,7 @@ class OAuth2Session(requests.Session):
         :return: A token dict
         """
         self._client.parse_request_uri_response(authorization_response,
-                state=self.state)
+                state=self._state)
         self.token = self._client.token
         return self.token
 
