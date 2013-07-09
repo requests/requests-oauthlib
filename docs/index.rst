@@ -13,6 +13,8 @@ Contents:
 
    oauth1_workflow
    oauth2_workflow
+   tutorials/tutorials
+
    api
 
 
