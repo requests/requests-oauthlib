@@ -1,9 +1,16 @@
 OAuth 2 Workflow
 ================
 
-The steps below outline how to use the default WebApplication flow to
+.. contents::
+    :depth: 3
+    :local:
+
+Web Application Flow
+--------------------
+
+The steps below outline how to use the default Authorization Grant Type flow to
 obtain an access token and fetch a protected resource. In this example
-the provider is Google and the procted resource the user profile.
+the provider is Google and the protected resource the user profile.
 
 0. Obtaining credentials from your OAuth provider manually. You will need
    at minimum a ``client_id`` but likely also a ``client_secret``. During
@@ -134,8 +141,8 @@ is necessary but refreshing is done manually.
     >>> client = OAuth2Session(client_id, token=token)
     >>> r = client.get(protected_url)
 
-(Second) Define automatic refresh is automatic but update token manually
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+(Second) Define automatic token refresh automatic but update manually
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This is the, arguably awkward, middle between the basic and convenient refresh
 methods in which a token is automatically refreshed, but saving the new token
@@ -151,8 +158,8 @@ is done manually.
     >>> except TokenUpdated as e:
     ...     token_saver(e.token)
 
-(Third, Recommended) Define automatic refresh and update
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+(Third, Recommended) Define automatic token refresh and update
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The third and recommended method will automatically fetch refresh tokens and
 save them. It requires no exception catching and results in clean code. Remember
