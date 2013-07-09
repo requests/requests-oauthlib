@@ -89,7 +89,8 @@ not defined.
 If you are not interested in token refreshing, always pass in a positive value
 for ``expires_in`` or omit it entirely.
 
-**0. The token we will use throughout the three examples.**.
+(ALL) Define the token, token saver and needed credentials
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: pycon
         
@@ -114,7 +115,8 @@ for ``expires_in`` or omit it entirely.
     >>> def token_saver(token):
     ...     # save token in database / session
 
-**1. Need to refresh is indicated through a raised error.**
+(First) Define Try-Catch TokenExpiredError on each request
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This is the most basic version in which an error is raised when refresh
 is necessary but refreshing is done manually.
@@ -132,7 +134,8 @@ is necessary but refreshing is done manually.
     >>> client = OAuth2Session(client_id, token=token)
     >>> r = client.get(protected_url)
 
-**2. Automatic refresh is indicated through a raised error.**
+(Second) Define automatic refresh is automatic but update token manually
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This is the, arguably awkward, middle between the basic and convenient refresh
 methods in which a token is automatically refreshed, but saving the new token
@@ -148,7 +151,8 @@ is done manually.
     >>> except TokenUpdated as e:
     ...     token_saver(e.token)
 
-**3. (Recommended) Automatic refresh and token update, no errors, no worries.**
+(Third, Recommended) Define automatic refresh and update
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The third and recommended method will automatically fetch refresh tokens and
 save them. It requires no exception catching and results in clean code. Remember
