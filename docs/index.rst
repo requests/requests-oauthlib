@@ -11,6 +11,8 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   oauth1_workflow
+   oauth2_workflow
    api
 
 
