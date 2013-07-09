@@ -11,9 +11,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   bitbucket_tutorial
-   github_tutorial
-   google_tutorial
+   tutorials/tutorials
 
    api
 
