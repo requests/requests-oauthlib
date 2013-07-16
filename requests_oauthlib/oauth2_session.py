@@ -94,7 +94,7 @@ class OAuth2Session(requests.Session):
                 **kwargs), state
 
     def fetch_token(self, token_url, code=None, authorization_response=None,
-            body='', username=None, password=None, **kwargs):
+            body='', auth=None, username=None, password=None, **kwargs):
         """Generic method for fetching an access token from the token endpoint.
 
         If you are using the MobileApplicationClient you will want to use
@@ -107,6 +107,7 @@ class OAuth2Session(requests.Session):
                                        WebApplicationClients instead of code.
         :param body: Optional application/x-www-form-urlencoded body to add the
                      include in the token request. Prefer kwargs over body.
+        :param auth: An auth tuple or method as accepted by requests.
         :param username: Username used by LegacyApplicationClients.
         :param password: Password used by LegacyApplicationClients.
         :param kwargs: Extra parameters to include in the token request.
@@ -124,7 +125,7 @@ class OAuth2Session(requests.Session):
                 password=password, **kwargs)
         # (ib-lundgren) All known, to me, token requests use POST.
         r = self.post(token_url, data=dict(urldecode(body)),
-            headers={'Accept': 'application/json'})
+            headers={'Accept': 'application/json'}, auth=auth)
         self._client.parse_request_body_response(r.text, scope=self.scope)
         self.token = self._client.token
         return self.token
