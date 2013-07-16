@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+import os
 import requests
 from oauthlib.common import generate_token, urldecode
 from oauthlib.oauth2 import WebApplicationClient, InsecureTransportError
@@ -113,13 +114,20 @@ class OAuth2Session(requests.Session):
         :param kwargs: Extra parameters to include in the token request.
         :return: A token dict
         """
-        if not token_url.startswith('https://'):
+        if 'DEBUG' not in os.environ and not token_url.startswith('https://'):
             raise InsecureTransportError()
 
         if not code and authorization_response:
             self._client.parse_request_uri_response(authorization_response,
                     state=self._state)
+            code = self._client.client.code
+        elif not code and isinstance(self._client, WebApplicationClient):
             code = self._client.code
+            if not code:
+                raise ValueError('Please supply either code or '
+                                 'authorization_code parameters.')
+
+
         body = self._client.prepare_request_body(code=code, body=body,
                 redirect_uri=self.redirect_uri, username=username,
                 password=password, **kwargs)
@@ -156,7 +164,7 @@ class OAuth2Session(requests.Session):
         if not token_url:
             raise ValueError('No token endpoint set for auto_refresh.')
 
-        if not token_url.startswith('https://'):
+        if 'DEBUG' not in os.environ and not token_url.startswith('https://'):
             raise InsecureTransportError()
 
         # Need to nullify token to prevent it from being added to the request
@@ -174,7 +182,7 @@ class OAuth2Session(requests.Session):
 
     def request(self, method, url, data=None, headers=None, **kwargs):
         """Intercept all requests and add the OAuth 2 token if present."""
-        if not url.startswith('https://'):
+        if 'DEBUG' not in os.environ and not url.startswith('https://'):
             raise InsecureTransportError()
         if self.token:
             try:
