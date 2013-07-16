@@ -141,13 +141,15 @@ class OAuth2Session(requests.Session):
         self.token = self._client.token
         return self.token
 
-    def refresh_token(self, token_url, refresh_token=None, body='', **kwargs):
+    def refresh_token(self, token_url, refresh_token=None, body='', auth=None,
+                      **kwargs):
         """Fetch a new access token using a refresh token.
 
         :param token_url: The token endpoint, must be HTTPS.
         :param refresh_token: The refresh_token to use.
         :param body: Optional application/x-www-form-urlencoded body to add the
                      include in the token request. Prefer kwargs over body.
+        :param auth: An auth tuple or method as accepted by requests.
         :param kwargs: Extra parameters to include in the token request.
         :return: A token dict
         """
@@ -164,7 +166,7 @@ class OAuth2Session(requests.Session):
         kwargs.update(self.auto_refresh_kwargs)
         body = self._client.prepare_refresh_body(body=body,
                 refresh_token=refresh_token, scope=self.scope, **kwargs)
-        r = self.post(token_url, data=dict(urldecode(body)))
+        r = self.post(token_url, data=dict(urldecode(body)), auth=auth)
         self.token = self._client.parse_request_body_response(r.text, scope=self.scope)
         if not 'refresh_token' in self.token:
             self.token['refresh_token'] = refresh_token
