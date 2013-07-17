@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 import os
 import requests
-from oauthlib.common import generate_token, urldecode
+from oauthlib.common import log, generate_token, urldecode
 from oauthlib.oauth2 import WebApplicationClient, InsecureTransportError
 from oauthlib.oauth2 import TokenExpiredError
 
@@ -76,8 +76,10 @@ class OAuth2Session(requests.Session):
         """Generates a state string to be used in authorizations."""
         try:
             self._state = self.state()
+            log.debug('Generated new state %s.', self._state)
         except TypeError:
             self._state = self.state
+            log.debug('Re-using previously supplied state %s.', self._state)
         return self._state
 
     def authorization_url(self, url, **kwargs):
@@ -120,7 +122,7 @@ class OAuth2Session(requests.Session):
         if not code and authorization_response:
             self._client.parse_request_uri_response(authorization_response,
                     state=self._state)
-            code = self._client.client.code
+            code = self._client.code
         elif not code and isinstance(self._client, WebApplicationClient):
             code = self._client.code
             if not code:
@@ -134,8 +136,14 @@ class OAuth2Session(requests.Session):
         # (ib-lundgren) All known, to me, token requests use POST.
         r = self.post(token_url, data=dict(urldecode(body)),
             headers={'Accept': 'application/json'}, auth=auth)
+        log.debug('Prepared fetch token request body %s', body)
+        log.debug('Request to fetch token completed with status %s.',
+                  r.status_code)
+        log.debug('Response headers were %s and content %s.',
+                  r.headers, r.text)
         self._client.parse_request_body_response(r.text, scope=self.scope)
         self.token = self._client.token
+        log.debug('Obtained token %s.', self.token)
         return self.token
 
     def token_from_fragment(self, authorization_response):
@@ -171,12 +179,20 @@ class OAuth2Session(requests.Session):
         refresh_token = refresh_token or self.token.get('refresh_token')
         self.token = {}
 
+        log.debug('Adding auto refresh key word arguments %s.',
+                  self.auto_refresh_kwargs)
         kwargs.update(self.auto_refresh_kwargs)
         body = self._client.prepare_refresh_body(body=body,
                 refresh_token=refresh_token, scope=self.scope, **kwargs)
+        log.debug('Prepared refresh token request body %s', body)
         r = self.post(token_url, data=dict(urldecode(body)), auth=auth)
+        log.debug('Request to refresh token completed with status %s.',
+                  r.status_code)
+        log.debug('Response headers were %s and content %s.',
+                  r.headers, r.text)
         self.token = self._client.parse_request_body_response(r.text, scope=self.scope)
         if not 'refresh_token' in self.token:
+            log.debug('No new refresh token given. Re-using old.')
             self.token['refresh_token'] = refresh_token
         return self.token
 
@@ -185,14 +201,19 @@ class OAuth2Session(requests.Session):
         if 'DEBUG' not in os.environ and not url.startswith('https://'):
             raise InsecureTransportError()
         if self.token:
+            log.debug('Adding token %s to request.', self.token)
             try:
                 url, headers, data = self._client.add_token(url,
                         http_method=method, body=data, headers=headers)
             # Attempt to retrieve and save new access token if expired
             except TokenExpiredError:
                 if self.auto_refresh_url:
+                    log.debug('Auto refresh is set, attempting to refresh at %s.',
+                              self.auto_refresh_url)
                     token = self.refresh_token(self.auto_refresh_url)
                     if self.token_updater:
+                        log.debug('Updating token to %s using %s.',
+                                  token, self.token_updater)
                         self.token_updater(token)
                         url, headers, data = self._client.add_token(url,
                                 http_method=method, body=data, headers=headers)
@@ -201,5 +222,8 @@ class OAuth2Session(requests.Session):
                 else:
                     raise
 
+        log.debug('Requesting url %s using method %s.', url, method)
+        log.debug('Supplying headers %s and data %s', headers, data)
+        log.debug('Passing through key word arguments %s.', kwargs)
         return super(OAuth2Session, self).request(method, url,
                 headers=headers, data=data, **kwargs)
