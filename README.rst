@@ -38,7 +38,7 @@ Fetching a protected resource after obtaining an access token can be as simple a
 .. code-block:: pycon
 
     >>> from requests_oauthlib import OAuth2Session
-    >>> google = OAuth2Session('client_id', token='token')
+    >>> google = OAuth2Session(r'client_id', token=r'token')
     >>> url = 'https://www.googleapis.com/oauth2/v1/userinfo'
     >>> r = google.get(url)
 
