@@ -19,8 +19,8 @@ the provider is Google and the protected resource the user profile.
 
 .. code-block:: pycon
 
-    >>> client_id = 'your_client_id'
-    >>> client_secret = 'your_client_secret'
+    >>> client_id = r'your_client_id'
+    >>> client_secret = r'your_client_secret'
     >>> redirect_uri = 'https://your.callback/uri'
 
 1. User authorization through redirection. First we will create an
@@ -107,7 +107,7 @@ for ``expires_in`` or omit it entirely.
     ...     'token_type': 'Bearer',
     ...     'expires_in': '-30',     # initially 3600, need to be updated by you
     ...  }
-    >>> client_id = 'foo'
+    >>> client_id = r'foo'
     >>> refresh_url = 'https://provider.com/token'
     >>> protected_url = 'https://provider.com/secret'
 
@@ -115,7 +115,7 @@ for ``expires_in`` or omit it entirely.
     >>> # when refreshing tokens, usually for authentication purposes.
     >>> extra = {
     ...     'client_id': client_id,
-    ...     'client_secret': 'potato',
+    ...     'client_secret': r'potato',
     ... }
 
     >>> # After updating the token you will most likely want to save it.
