@@ -1,2 +1,2 @@
 requests
-oauthlib>=0.4.2
+oauthlib[rsa]>=0.4.2
