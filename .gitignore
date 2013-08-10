@@ -13,6 +13,10 @@ requests_oauthlib.egg-info/
 *.swp
 *~
 env/
+build/
+dist/
+tox.ini
+.tox/
 
 .workon
 
