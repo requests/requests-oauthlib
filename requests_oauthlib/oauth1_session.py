@@ -1,11 +1,11 @@
 from __future__ import unicode_literals
 
 try:
-    from urlparse import parse_qsl, urlparse
+    from urlparse import urlparse
 except ImportError:
-    from urllib.parse import parse_qsl, urlparse
+    from urllib.parse import urlparse
 
-from oauthlib.common import add_params_to_uri
+from oauthlib.common import add_params_to_uri, urldecode
 from oauthlib.oauth1 import SIGNATURE_HMAC, SIGNATURE_TYPE_AUTH_HEADER
 import requests
 
@@ -14,8 +14,6 @@ from . import OAuth1
 import sys
 if sys.version > "3":
     unicode = str
-
-to_unicode = lambda s: s if isinstance(s, unicode) else s.decode('utf-8')
 
 
 class OAuth1Session(requests.Session):
@@ -247,24 +245,22 @@ class OAuth1Session(requests.Session):
             'oauth_verifier: 'w34o8967345',
         }
         """
-        token = dict(parse_qsl(urlparse(url).query))
+        token = dict(urldecode(urlparse(url).query))
         self._populate_attributes(token)
         return token
 
     def _populate_attributes(self, token):
         if 'oauth_token' in token:
-            self._client.client.resource_owner_key = to_unicode(
-                    token['oauth_token'])
+            self._client.client.resource_owner_key = token['oauth_token']
         else:
             raise ValueError('Response does not contain a token. %s', token)
         if 'oauth_token_secret' in token:
-            self._client.client.resource_owner_secret = to_unicode(
-                    token['oauth_token_secret'])
+            self._client.client.resource_owner_secret = (
+                token['oauth_token_secret'])
         if 'oauth_verifier' in token:
-            self._client.client.verifier = to_unicode(
-                    token['oauth_verifier'])
+            self._client.client.verifier = token['oauth_verifier']
 
     def _fetch_token(self, url):
-        token = dict(parse_qsl(self.post(url).content))
+        token = dict(urldecode(self.post(url).content))
         self._populate_attributes(token)
         return token

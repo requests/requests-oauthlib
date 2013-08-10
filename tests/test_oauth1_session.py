@@ -13,8 +13,10 @@ except ImportError:
     from io import StringIO
 
 if sys.version[0] == '3':
+    unicode_type = str
     bytes_type = bytes
 else:
+    unicode_type = unicode
     bytes_type = str
 
 
@@ -134,18 +136,27 @@ class OAuth1SessionTest(unittest.TestCase):
         resp = auth.parse_authorization_response(url)
         self.assertEqual(resp['oauth_token'], 'foo')
         self.assertEqual(resp['oauth_verifier'], 'bar')
+        for k, v in resp.items():
+            self.assertTrue(isinstance(k, unicode_type))
+            self.assertTrue(isinstance(v, unicode_type))
 
     def test_fetch_request_token(self):
         auth = OAuth1Session('foo')
         auth.send = self.fake_body('oauth_token=foo')
         resp = auth.fetch_request_token('https://example.com/token')
         self.assertEqual(resp['oauth_token'], 'foo')
+        for k, v in resp.items():
+            self.assertTrue(isinstance(k, unicode_type))
+            self.assertTrue(isinstance(v, unicode_type))
 
     def test_fetch_access_token(self):
         auth = OAuth1Session('foo', verifier='bar')
         auth.send = self.fake_body('oauth_token=foo')
         resp = auth.fetch_access_token('https://example.com/token')
         self.assertEqual(resp['oauth_token'], 'foo')
+        for k, v in resp.items():
+            self.assertTrue(isinstance(k, unicode_type))
+            self.assertTrue(isinstance(v, unicode_type))
 
     def verify_signature(self, signature):
         def fake_send(r, **kwargs):
