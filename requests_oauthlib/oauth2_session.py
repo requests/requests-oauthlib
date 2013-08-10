@@ -72,6 +72,12 @@ class OAuth2Session(requests.Session):
         self._client = client or WebApplicationClient(client_id, token=token)
         self._client._populate_attributes(token or {})
 
+        # Allow customizations for non compliant providers through various
+        # hooks to adjust requests and responses.
+        self.compliance_hook = {
+            'access_token_response': [],
+        }
+
     def new_state(self):
         """Generates a state string to be used in authorizations."""
         try:
@@ -141,6 +147,12 @@ class OAuth2Session(requests.Session):
                   r.status_code)
         log.debug('Response headers were %s and content %s.',
                   r.headers, r.text)
+        log.debug('Invoking %d token response hooks.',
+                  len(self.compliance_hook['access_token_response']))
+        for hook in self.compliance_hook['access_token_response']:
+            log.debug('Invoking hook %s.', hook)
+            r = hook(r)
+
         self._client.parse_request_body_response(r.text, scope=self.scope)
         self.token = self._client.token
         log.debug('Obtained token %s.', self.token)
@@ -227,3 +239,17 @@ class OAuth2Session(requests.Session):
         log.debug('Passing through key word arguments %s.', kwargs)
         return super(OAuth2Session, self).request(method, url,
                 headers=headers, data=data, **kwargs)
+
+    def register_compliance_hook(self, hook_type, hook):
+        """Register a hook for request/response tweaking.
+
+        Available hooks are:
+            access_token_response invoked before token parsing.
+
+        If you find a new hook is needed please send a GitHub PR request
+        or open an issue.
+        """
+        if hook_type not in self.compliance_hook:
+            raise ValueError('Hook type %s is not in %s.',
+                             hook_type, self.compliance_hook)
+        self.compliance_hook[hook_type].append(hook)
