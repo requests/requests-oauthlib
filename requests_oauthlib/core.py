@@ -50,20 +50,22 @@ class OAuth1(object):
         # this point.
 
         content_type = r.headers.get('Content-Type'.encode('utf-8'), '')
+        if not content_type and extract_params(r.body):
+            content_type = CONTENT_TYPE_FORM_URLENCODED
         if not isinstance(content_type, unicode):
             content_type = content_type.decode('utf-8')
 
         is_form_encoded = (CONTENT_TYPE_FORM_URLENCODED in content_type)
 
-        if is_form_encoded or extract_params(r.body):
+        if is_form_encoded:
             r.headers['Content-Type'] = CONTENT_TYPE_FORM_URLENCODED
-            r.url, r.headers, r.body = self.client.sign(
+            r.url, headers, r.body = self.client.sign(
                 unicode(r.url), unicode(r.method), r.body or '', r.headers)
         else:
             # Omit body data in the signing of non form-encoded requests
-            r.url, r.headers, _ = self.client.sign(
+            r.url, headers, _ = self.client.sign(
                 unicode(r.url), unicode(r.method), None, r.headers)
 
+        r.headers.update(headers)
         r.url = to_native_str(r.url)
-
         return r

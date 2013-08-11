@@ -107,3 +107,19 @@ class OAuth1Test(unittest.TestCase):
 
         r = requests.get('http://httpbin.org/get', auth=oauth)
         self.assertTrue(isinstance(r.request.url, str))
+
+    def test_content_type_override(self, generate_nonce, generate_timestamp):
+        """
+        Content type should only be guessed if none is given.
+        """
+        generate_nonce.return_value = 'abc'
+        generate_timestamp.return_value = '1'
+        oauth = requests_oauthlib.OAuth1('client_key')
+        data = 'a'
+        r = requests.post('http://httpbin.org/get', data=data, auth=oauth)
+        self.assertEqual(r.request.headers.get('Content-Type'),
+                         'application/x-www-form-urlencoded')
+        r = requests.post('http://httpbin.org/get', auth=oauth, data=data,
+                          headers={'Content-type': 'application/json'})
+        self.assertEqual(r.request.headers.get('Content-Type'.encode('utf-8')),
+                         'application/json')
