@@ -261,6 +261,6 @@ class OAuth1Session(requests.Session):
             self._client.client.verifier = token['oauth_verifier']
 
     def _fetch_token(self, url):
-        token = dict(urldecode(self.post(url).content))
+        token = dict(urldecode(self.post(url).text))
         self._populate_attributes(token)
         return token

@@ -173,6 +173,6 @@ class OAuth1SessionTest(unittest.TestCase):
         def fake_send(r, **kwargs):
             resp = mock.MagicMock()
             resp.cookes = []
-            resp.content = body
+            resp.text = body
             return resp
         return fake_send
