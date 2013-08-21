@@ -41,11 +41,13 @@ Workflow example showing use of both OAuth1 and OAuth1Session
 
     >>> # Using OAuth1Session
     >>> oauth = OAuth1Session(client_key, client_secret=client_secret)
-    >>> oauth.fetch_request_token(request_token_url)
+    >>> fetch_response = oauth.fetch_request_token(request_token_url)
     {
         "oauth_token": "Z6eEdO8MOmk394WozF5oKyuAv855l4Mlqo7hhlSLik",
         "oauth_token_secret": "Kd75W4OQfb2oJTV0vzGzeXftVAwgMnEK9MumzYcM"
     }
+    >>> resource_owner_key = fetch_response.get('oauth_token')
+    >>> resource_owner_secret = fetch_response.get('oauth_token_secret')
 
     >>> # Using OAuth1 auth helper
     >>> oauth = OAuth1(client_key, client_secret=client_secret)
@@ -69,13 +71,14 @@ Workflow example showing use of both OAuth1 and OAuth1Session
 
     >>> # Using OAuth1Session
     >>> authorization_url = oauth.authorization_url(base_authorization_url)
-    >>> print 'Please go here and authorize,', authoriation_url
+    >>> print 'Please go here and authorize,', authorization_url
     >>> redirect_response = raw_input('Paste the full redirect URL here: ')
-    >>> oauth_session.parse_authorization_response(redirect_response)
+    >>> oauth_response = oauth.parse_authorization_response(redirect_response)
     {
         "oauth_token": "Z6eEdO8MOmk394WozF5oKyuAv855l4Mlqo7hhlSLik",
         "oauth_verifier": "sdflk3450FASDLJasd2349dfs"
     }
+    >>> verifier = oauth_response.get('oauth_verifier')
 
     >>> # Using OAuth1 auth helper
     >>> authorize_url = base_authorization_url + '?oauth_token='
@@ -97,11 +100,13 @@ Workflow example showing use of both OAuth1 and OAuth1Session
                               resource_owner_key=resource_owner_key,
                               resource_owner_secret=resource_owner_secret,
                               verifier=verifier)
-    >>> oauth.fetch_access_token(access_token_url)
+    >>> oauth_tokens = oauth.fetch_access_token(access_token_url)
     {
         "oauth_token": "6253282-eWudHldSbIaelX7swmsiHImEL4KinwaGloHANdrY",
         "oauth_token_secret": "2EEfA6BG3ly3sR3RjE0IBSnlQu4ZrUzPiYKmrkVU"
     }
+    >>> resource_owner_key = oauth_tokens.get('oauth_token')
+    >>> resource_owner_secret = oauth_tokens.get('oauth_token_secret')
 
     >>> # Using OAuth1 auth helper
     >>> oauth = OAuth1(client_key,
