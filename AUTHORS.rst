@@ -12,6 +12,7 @@ Patches and Suggestions
 - Cory Benfield <cory@lukasa.co.uk>
 - Ib Lundgren <ib.lundgren@gmail.com>
 - Devin Sevilla <dasevilla@gmail.com>
+- Imad Mouhtassem <mouhtasi@gmail.com>
 - Johan Euphrosine <proppy@google.com>
 - Johannes Spielmann <js@shezi.de>
 - Martin Trigaux <me@mart-e.be>
@@ -20,4 +21,3 @@ Patches and Suggestions
 - Paul Bonser <misterpib@gmail.com>
 - Vinay Raikar <rockraikar@gmail.com>
 - kracekumar <me@kracekumar.com>
-- Imad Mouhtassem <mouhtasi@gmail.com>
