@@ -24,7 +24,7 @@ Enter a call back url (can just be http://www.tumblr.com/dashboard) and get the 
 
     >>> # Link user to authorization page
     >>> authorization_url = tumblr.authorization_url(base_authorization_url)
-	>>> print 'Please go here and authorize,', authorization_url
+    >>> print 'Please go here and authorize,', authorization_url
 
     >>> # Get the verifier code from the URL
     >>> redirect_response = raw_input('Paste the full redirect URL here: ')
