@@ -20,3 +20,4 @@ Patches and Suggestions
 - Paul Bonser <misterpib@gmail.com>
 - Vinay Raikar <rockraikar@gmail.com>
 - kracekumar <me@kracekumar.com>
+- Imad Mouhtassem <mouhtasi@gmail.com>
