@@ -19,7 +19,7 @@ and the Client Credentials Grant (or Backend Application Flow).
 
 
 Available Workflows
--------------------
+~~~~~~~~~~~~~~~~~~~
 
 There are four core work flows:
 
