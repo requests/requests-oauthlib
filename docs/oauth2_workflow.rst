@@ -5,17 +5,45 @@ OAuth 2 Workflow
     :depth: 3
     :local:
 
+
+Introduction
+------------
+
+The following sections provide some example code that demonstrates some of the
+possible OAuth2 flows you can use with requests-oauthlib. We provide four
+examples: one for each of the grant types defined by the OAuth2 RFC. These
+grant types (or workflows) are the Authorization Code Grant (or Web Application
+Flow), the Implicit Grant (or Mobile Application Flow), the Resource Owner
+Password Credentials Grant (or, more succinctly, the Legacy Application Flow),
+and the Client Credentials Grant (or Backend Application Flow).
+
+
+Available Workflows
+-------------------
+
+There are four core work flows:
+
+1. :ref:`Authorization Code Grant <web-application-flow>` (Web Application
+   Flow).
+2. :ref:`Implicit Grant <mobile-application-flow>` (Mobile Application flow).
+3. :ref:`Resource Owner Password Credentials Grant <legacy-application-flow>`
+   (Legacy Application flow).
+4. :ref:`Client Credentials Grant <backend-application-flow>` (Backend
+   Application flow).
+
+
+.. _web-application-flow:
 Web Application Flow
 --------------------
 
 The steps below outline how to use the default Authorization Grant Type flow to
 obtain an access token and fetch a protected resource. In this example
-the provider is Google and the protected resource the user profile.
+the provider is Google and the protected resource is the user's profile.
 
-0. Obtaining credentials from your OAuth provider manually. You will need
-   at minimum a ``client_id`` but likely also a ``client_secret``. During
-   this process you might also be required to register a default redirect
-   URI to be used by your application:
+0. Obtain credentials from your OAuth provider manually. At minimum you will
+   need a ``client_id`` but likely also a ``client_secret``. During this
+   process you might also be required to register a default redirect URI to be
+   used by your application. Save these things in your Python script:
 
 .. code-block:: pycon
 
@@ -26,7 +54,7 @@ the provider is Google and the protected resource the user profile.
 1. User authorization through redirection. First we will create an
    authorization url from the base URL given by the provider and
    the credentials previously obtained. In addition most providers will
-   request that you ask for access to a certain scope, in this example
+   request that you ask for access to a certain scope. In this example
    we will ask Google for access to the email address of the user and the
    users profile.
 
@@ -40,11 +68,11 @@ the provider is Google and the protected resource the user profile.
     >>> authorization_url, state = oauth.authorization_url(
             'https://accounts.google.com/o/oauth2/auth',
             # access_type and approval_prompt are Google specific extra
-            # parameters. 
+            # parameters.
             access_type="offline", approval_prompt="force")
 
     >>> print 'Please go to %s and authorize access.' % authorization_url
-    >>> authorization_response = raw_input('Enter the full callback URL') 
+    >>> authorization_response = raw_input('Enter the full callback URL')
 
 2. Fetch an access token from the provider using the authorization code
    obtained during user authorization.
@@ -67,15 +95,26 @@ the provider is Google and the protected resource the user profile.
     >>> # Enjoy =)
 
 
-Available workflows
--------------------
+.. _mobile-application-flow:
+Mobile Application Flow
+-----------------------
 
-There are four core work flows:
+Documentation coming soon. Want to help? Why not `write this section`_?
 
-1. Authorization Code Grant (WebApplication flow) - see section above.
-2. Implicit Grant (MobileApplication flow) - docs coming soon.
-3. Resource Owner Password Credentials Grant (LegacyApplication flow) - docs coming soon.
-4. Client Credentials Grant (BackendApplication flow) - docs coming soon.
+
+.. _legacy-application-flow:
+Legacy Application Flow
+-----------------------
+
+Documentation coming soon. Want to help? Why not `write this section`_?
+
+
+.. _backend-application-flow:
+Backend Application Flow
+------------------------
+
+Documentation coming soon. Want to help? Why not `write this section`_?
+
 
 Refreshing tokens
 -----------------
@@ -100,7 +139,7 @@ for ``expires_in`` or omit it entirely.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: pycon
-        
+
     >>> token = {
     ...     'access_token': 'eswfld123kjhn1v5423',
     ...     'refresh_token': 'asdfkljh23490sdf',
@@ -171,3 +210,5 @@ however that you still need to update ``expires_in`` to trigger the refresh.
     >>> client = OAuth2Session(client_id, token=token, auto_refresh_url=refresh_url,
     ...     auto_refresh_kwargs=extra, token_updater=token_saver)
     >>> r = client.get(protected_url)
+
+.. _write this section: https://github.com/requests/requests-oauthlib/issues/48
