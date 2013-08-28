@@ -33,6 +33,7 @@ There are four core work flows:
 
 
 .. _web-application-flow:
+
 Web Application Flow
 --------------------
 
@@ -96,6 +97,7 @@ the provider is Google and the protected resource is the user's profile.
 
 
 .. _mobile-application-flow:
+
 Mobile Application Flow
 -----------------------
 
@@ -103,6 +105,7 @@ Documentation coming soon. Want to help? Why not `write this section`_?
 
 
 .. _legacy-application-flow:
+
 Legacy Application Flow
 -----------------------
 
@@ -110,6 +113,7 @@ Documentation coming soon. Want to help? Why not `write this section`_?
 
 
 .. _backend-application-flow:
+
 Backend Application Flow
 ------------------------
 
