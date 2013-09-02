@@ -1,6 +1,8 @@
 from __future__ import unicode_literals
 from oauthlib.oauth2 import WebApplicationClient, InsecureTransportError
 
+from .utils import is_secure_transport
+
 
 class OAuth2(object):
     """Adds proof of authorization (OAuth2 token) to the request."""
@@ -27,7 +29,7 @@ class OAuth2(object):
         a token type that allows for plain HTTP in the future and then this
         should be updated to allow plain HTTP on a white list basis.
         """
-        if not r.url.startswith('https://'):
+        if not is_secure_transport(r.url):
             raise InsecureTransportError()
         r.url, r.headers, r.body = self._client.add_token(r.url,
                 http_method=r.method, body=r.body, headers=r.headers)
