@@ -5,6 +5,8 @@ from oauthlib.common import log, generate_token, urldecode
 from oauthlib.oauth2 import WebApplicationClient, InsecureTransportError
 from oauthlib.oauth2 import TokenExpiredError
 
+from .utils import is_secure_transport
+
 
 class TokenUpdated(Warning):
     def __init__(self, token):
@@ -122,7 +124,7 @@ class OAuth2Session(requests.Session):
         :param kwargs: Extra parameters to include in the token request.
         :return: A token dict
         """
-        if 'DEBUG' not in os.environ and not token_url.startswith('https://'):
+        if not is_secure_transport(token_url):
             raise InsecureTransportError()
 
         if not code and authorization_response:
@@ -184,7 +186,7 @@ class OAuth2Session(requests.Session):
         if not token_url:
             raise ValueError('No token endpoint set for auto_refresh.')
 
-        if 'DEBUG' not in os.environ and not token_url.startswith('https://'):
+        if not is_secure_transport(token_url):
             raise InsecureTransportError()
 
         # Need to nullify token to prevent it from being added to the request
@@ -210,7 +212,7 @@ class OAuth2Session(requests.Session):
 
     def request(self, method, url, data=None, headers=None, **kwargs):
         """Intercept all requests and add the OAuth 2 token if present."""
-        if 'DEBUG' not in os.environ and not url.startswith('https://'):
+        if not is_secure_transport(url):
             raise InsecureTransportError()
         if self.token:
             log.debug('Adding token %s to request.', self.token)
