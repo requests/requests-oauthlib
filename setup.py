@@ -5,6 +5,8 @@ import os
 import sys
 import re
 
+from setuptools import find_packages
+
 try:
     from setuptools import setup
 except ImportError:
@@ -41,7 +43,7 @@ settings.update(
     author='Kenneth Reitz',
     author_email='me@kennethreitz.com',
     url='https://github.com/requests/requests-oauthlib',
-    packages=['requests_oauthlib'],
+    packages=find_packages(),
     install_requires=['oauthlib>=0.4.2', 'requests>=1.0.0'],
     license='ISC',
     classifiers=(
