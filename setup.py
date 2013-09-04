@@ -41,7 +41,7 @@ settings.update(
     author='Kenneth Reitz',
     author_email='me@kennethreitz.com',
     url='https://github.com/requests/requests-oauthlib',
-    packages=['requests_oauthlib'],
+    packages=['requests_oauthlib', 'requests_oauthlib.compliance_fixes'],
     install_requires=['oauthlib>=0.4.2', 'requests>=1.0.0'],
     license='ISC',
     classifiers=(
