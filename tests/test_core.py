@@ -15,6 +15,7 @@ if sys.version[0] == '3':
     bytes_type = bytes
 else:
     bytes_type = str
+FORM_ENCODED = 'application/x-www-form-urlencoded'
 
 
 @mock.patch('oauthlib.oauth1.rfc5849.generate_timestamp')
@@ -43,7 +44,7 @@ class OAuth1Test(unittest.TestCase):
 
         self.assertEqual(a.url, 'http://a.b/path?query=retain')
         self.assertEqual(a.body, 'this=really&is=&+form=encoded')
-        self.assertEqual(a.headers.get('Content-Type'.encode('utf-8')), 'application/x-www-form-urlencoded')
+        self.assertEqual(a.headers.get('Content-Type'), FORM_ENCODED)
 
         # guess content-type
         r = requests.Request(method='POST', url='http://a.b/path?query=retain',
@@ -51,7 +52,7 @@ class OAuth1Test(unittest.TestCase):
         b = r.prepare()
         self.assertEqual(b.url, 'http://a.b/path?query=retain')
         self.assertEqual(b.body, 'this=really&is=&+form=encoded')
-        self.assertEqual(b.headers.get('Content-Type'.encode('utf-8')), 'application/x-www-form-urlencoded')
+        self.assertEqual(b.headers.get('Content-Type'), FORM_ENCODED)
 
         self.assertEqual(a.headers.get('Authorization'.encode('utf-8')),
                 b.headers.get('Authorization'.encode('utf-8')))
@@ -108,6 +109,21 @@ class OAuth1Test(unittest.TestCase):
         r = requests.get('http://httpbin.org/get', auth=oauth)
         self.assertTrue(isinstance(r.request.url, str))
 
+    def test_headers_are_native_str(self, generate_nonce, generate_timestamp):
+        """
+        Ensure headers are native strings. This also prevents duplicate
+        headers, see issue #73.
+        """
+        generate_nonce.return_value = 'abc'
+        generate_timestamp.return_value = '1'
+        oauth = requests_oauthlib.OAuth1('client_key')
+        headers={'Content-type': FORM_ENCODED}
+        r = requests.Request('POST', 'https://example.com', auth=oauth,
+                             headers=headers).prepare()
+        for k, v in r.headers.items():
+            self.assertTrue(isinstance(k, str))
+            self.assertTrue(isinstance(v, str))
+
     def test_content_type_override(self, generate_nonce, generate_timestamp):
         """
         Content type should only be guessed if none is given.
@@ -117,9 +133,8 @@ class OAuth1Test(unittest.TestCase):
         oauth = requests_oauthlib.OAuth1('client_key')
         data = 'a'
         r = requests.post('http://httpbin.org/get', data=data, auth=oauth)
-        self.assertEqual(r.request.headers.get('Content-Type'),
-                         'application/x-www-form-urlencoded')
+        self.assertEqual(r.request.headers.get('Content-Type'), FORM_ENCODED)
         r = requests.post('http://httpbin.org/get', auth=oauth, data=data,
                           headers={'Content-type': 'application/json'})
-        self.assertEqual(r.request.headers.get('Content-Type'.encode('utf-8')),
+        self.assertEqual(r.request.headers.get('Content-Type'),
                          'application/json')

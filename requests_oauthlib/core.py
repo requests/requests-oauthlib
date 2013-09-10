@@ -66,6 +66,11 @@ class OAuth1(object):
             r.url, headers, _ = self.client.sign(
                 unicode(r.url), unicode(r.method), None, r.headers)
 
-        r.headers.update(headers)
+
+        headers = dict((to_native_str(k), to_native_str(v))
+                       for k, v in headers.items())
+        # Replace rather than update to avoid duplicates due to different
+        # string types, bytes and unicode.
+        r.headers = r.headers.__class__(headers)
         r.url = to_native_str(r.url)
         return r
