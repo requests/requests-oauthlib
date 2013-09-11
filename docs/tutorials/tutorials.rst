@@ -8,3 +8,5 @@ Tutorials
    github
    google
    facebook
+   tumblr
+   real_world_example
