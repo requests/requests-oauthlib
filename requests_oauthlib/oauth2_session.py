@@ -78,6 +78,7 @@ class OAuth2Session(requests.Session):
         # hooks to adjust requests and responses.
         self.compliance_hook = {
             'access_token_response': [],
+            'protected_request': [],
         }
 
     def new_state(self):
@@ -215,6 +216,12 @@ class OAuth2Session(requests.Session):
         if not is_secure_transport(url):
             raise InsecureTransportError()
         if self.token:
+            log.debug('Invoking %d protected resource request hooks.',
+                      len(self.compliance_hook['protected_request']))
+            for hook in self.compliance_hook['protected_request']:
+                log.debug('Invoking hook %s.', hook)
+                url, headers, data = hook(url, headers, data)
+
             log.debug('Adding token %s to request.', self.token)
             try:
                 url, headers, data = self._client.add_token(url,
