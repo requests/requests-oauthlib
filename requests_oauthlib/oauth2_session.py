@@ -78,6 +78,7 @@ class OAuth2Session(requests.Session):
         # hooks to adjust requests and responses.
         self.compliance_hook = {
             'access_token_response': [],
+            'refresh_token_response': [],
             'protected_request': [],
         }
 
@@ -205,6 +206,12 @@ class OAuth2Session(requests.Session):
                   r.status_code)
         log.debug('Response headers were %s and content %s.',
                   r.headers, r.text)
+        log.debug('Invoking %d token response hooks.',
+                  len(self.compliance_hook['refresh_token_response']))
+        for hook in self.compliance_hook['refresh_token_response']:
+            log.debug('Invoking hook %s.', hook)
+            r = hook(r)
+
         self.token = self._client.parse_request_body_response(r.text, scope=self.scope)
         if not 'refresh_token' in self.token:
             log.debug('No new refresh token given. Re-using old.')
@@ -254,6 +261,8 @@ class OAuth2Session(requests.Session):
 
         Available hooks are:
             access_token_response invoked before token parsing.
+            refresh_token_response invoked before refresh token parsing.
+            protected_request invoked before making a request.
 
         If you find a new hook is needed please send a GitHub PR request
         or open an issue.
