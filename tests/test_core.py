@@ -43,7 +43,7 @@ class OAuth1Test(unittest.TestCase):
 
         self.assertEqual(a.url, 'http://a.b/path?query=retain')
         self.assertEqual(a.body, 'this=really&is=&+form=encoded')
-        self.assertEqual(a.headers.get('Content-Type'.encode('utf-8')), 'application/x-www-form-urlencoded')
+        self.assertEqual(a.headers.get('Content-Type'), 'application/x-www-form-urlencoded')
 
         # guess content-type
         r = requests.Request(method='POST', url='http://a.b/path?query=retain',
@@ -51,10 +51,10 @@ class OAuth1Test(unittest.TestCase):
         b = r.prepare()
         self.assertEqual(b.url, 'http://a.b/path?query=retain')
         self.assertEqual(b.body, 'this=really&is=&+form=encoded')
-        self.assertEqual(b.headers.get('Content-Type'.encode('utf-8')), 'application/x-www-form-urlencoded')
+        self.assertEqual(b.headers.get('Content-Type'), 'application/x-www-form-urlencoded')
 
-        self.assertEqual(a.headers.get('Authorization'.encode('utf-8')),
-                b.headers.get('Authorization'.encode('utf-8')))
+        self.assertEqual(a.headers.get('Authorization'),
+                b.headers.get('Authorization'))
 
     def testNonFormEncoded(self, generate_nonce, generate_timestamp):
         """OAuth signature only depend on body if it is form encoded."""
@@ -121,5 +121,5 @@ class OAuth1Test(unittest.TestCase):
                          'application/x-www-form-urlencoded')
         r = requests.post('http://httpbin.org/get', auth=oauth, data=data,
                           headers={'Content-type': 'application/json'})
-        self.assertEqual(r.request.headers.get('Content-Type'.encode('utf-8')),
+        self.assertEqual(r.request.headers.get('Content-Type'),
                          'application/json')
