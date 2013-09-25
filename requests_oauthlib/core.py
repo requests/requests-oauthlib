@@ -49,7 +49,7 @@ class OAuth1(object):
         # Overwriting url is safe here as request will not modify it past
         # this point.
 
-        content_type = r.headers.get('Content-Type'.encode('utf-8'), '')
+        content_type = r.headers.get('Content-Type', '')
         if not content_type and extract_params(r.body):
             content_type = CONTENT_TYPE_FORM_URLENCODED
         if not isinstance(content_type, unicode):
@@ -66,6 +66,6 @@ class OAuth1(object):
             r.url, headers, _ = self.client.sign(
                 unicode(r.url), unicode(r.method), None, r.headers)
 
-        r.headers.update(headers)
+        r.prepare_headers(headers)
         r.url = to_native_str(r.url)
         return r

@@ -40,7 +40,7 @@ class OAuth1SessionTest(unittest.TestCase):
             return fake_send
 
         header = OAuth1Session('foo')
-        header.send = verify_signature(lambda r: r.headers['Authorization'.encode('utf-8')])
+        header.send = verify_signature(lambda r: r.headers['Authorization'])
         header.post('https://i.b')
 
         query = OAuth1Session('foo', signature_type=SIGNATURE_TYPE_QUERY)
@@ -160,7 +160,7 @@ class OAuth1SessionTest(unittest.TestCase):
 
     def verify_signature(self, signature):
         def fake_send(r, **kwargs):
-            auth_header = r.headers['Authorization'.encode('utf-8')]
+            auth_header = r.headers['Authorization']
             if isinstance(auth_header, bytes_type):
                 auth_header = auth_header.decode('utf-8')
             self.assertEqual(auth_header, signature)
