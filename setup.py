@@ -37,7 +37,8 @@ settings.update(
     name=APP_NAME,
     version=VERSION,
     description='OAuthlib authentication support for Requests.',
-    long_description=open('README.rst').read(),
+    long_description=open('README.rst').read() + '\n\n' +
+                     open('HISTORY.rst').read(),
     author='Kenneth Reitz',
     author_email='me@kennethreitz.com',
     url='https://github.com/requests/requests-oauthlib',
