@@ -3,11 +3,10 @@
 Web App Example of OAuth 2 web application flow
 ===============================================
 
-OAuth is commonly used by web applications and not command line applications
-like the other examples show case. The example below shows what such
-a web application might look like using an imaginary web framework and
-GitHub as a provider. It should be easily transferrable to any
-web framework.
+OAuth is commonly used by web applications. The example below shows what such
+a web application might look like using the `Flask web framework
+<http://flask.pocoo.org/>_` and GitHub as a provider. It should be easily
+transferrable to any web framework.
 
 .. code-block:: python
 
@@ -19,7 +18,8 @@ web framework.
     app = Flask(__name__)
 
 
-    # This information is obtained upon registration of a new GitHub
+    # This information is obtained upon registration of a new GitHub OAuth
+    # application here: https://github.com/settings/applications/new
     client_id = "<your client key>"
     client_secret = "<your client secret>"
     authorization_base_url = 'https://github.com/login/oauth/authorize'
