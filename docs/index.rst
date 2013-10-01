@@ -61,7 +61,7 @@ Getting Started:
 
    oauth1_workflow
    oauth2_workflow
-   tutorials/tutorials
+   examples/examples
 
    api
 

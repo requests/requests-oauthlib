@@ -2,7 +2,7 @@ Web App Example of OAuth 2 web application flow
 ==================================================
 
 OAuth is commonly used by web applications and not command line applications
-like the other tutorials show case. The example below shows what such
+like the other examples show case. The example below shows what such
 a web application might look like using an imaginary web framework and
 GitHub as a provider. It should be easily transferrable to any
 web framework.
