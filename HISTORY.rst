@@ -12,3 +12,4 @@ v0.4.0 (29 September 2013)
 - Content type guessing should only be done when no content type is given
 - OAuth1 now updates r.headers instead of replacing it with non case insensitive dict
 - Remove last use of Response.content (in OAuth1Session). #44.
+- State param can now be supplied in OAuth2Session.authorize_url

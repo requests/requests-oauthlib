@@ -34,7 +34,7 @@ class OAuth2Session(requests.Session):
 
     def __init__(self, client_id=None, client=None, auto_refresh_url=None,
             auto_refresh_kwargs=None, scope=None, redirect_uri=None, token=None,
-            state=None, state_generator=None, token_updater=None, **kwargs):
+            state=None, token_updater=None, **kwargs):
         """Construct a new OAuth 2 client session.
 
         :param client_id: Client id obtained during registration
@@ -92,14 +92,16 @@ class OAuth2Session(requests.Session):
             log.debug('Re-using previously supplied state %s.', self._state)
         return self._state
 
-    def authorization_url(self, url, **kwargs):
+    def authorization_url(self, url, state=None, **kwargs):
         """Form an authorization URL.
 
         :param url: Authorization endpoint url, must be HTTPS.
+        :param state: An optional state string for CSRF protection. If not
+                      given it will be generated for you.
         :param kwargs: Extra parameters to include.
         :return: authorization_url, state
         """
-        state = self.new_state()
+        state = state or self.new_state()
         return self._client.prepare_request_uri(url,
                 redirect_uri=self.redirect_uri,
                 scope=self.scope,
