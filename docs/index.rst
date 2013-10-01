@@ -7,8 +7,8 @@ Requests-OAuthlib: OAuth for Humans
 ===================================
 
 Requests-OAuthlib uses the Python
-`Requests <https://github.com/idan/oauthlib>`_ and
-`OAuthlib <https://github.com/idan/oauthlib>`_ libraries to provide an
+`Requests <https://github.com/kennethreitz/requests/>`_ and
+`OAuthlib <https://github.com/idan/oauthlib/>`_ libraries to provide an
 easy-to-use Python interface for building OAuth1 and OAuth2 clients.
 
 
@@ -50,7 +50,7 @@ approximately like this:
 
 
 The above is a truncated example. A full working example is available here:
-`<https://gist.github.com/ib-lundgren/6507798>`_
+:ref:`real_example`
 
 
 Getting Started:
