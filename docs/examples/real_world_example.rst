@@ -5,7 +5,7 @@ Web App Example of OAuth 2 web application flow
 
 OAuth is commonly used by web applications. The example below shows what such
 a web application might look like using the `Flask web framework
-<http://flask.pocoo.org/>_` and GitHub as a provider. It should be easily
+<http://flask.pocoo.org/>`_ and GitHub as a provider. It should be easily
 transferrable to any web framework.
 
 .. code-block:: python
