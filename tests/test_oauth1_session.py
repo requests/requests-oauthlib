@@ -158,6 +158,15 @@ class OAuth1SessionTest(unittest.TestCase):
             self.assertTrue(isinstance(k, unicode_type))
             self.assertTrue(isinstance(v, unicode_type))
 
+    def test_params_with_spaces(self):
+        class RequestIntercepter(OAuth1Session):
+            def send(self, request, **kwargs):
+                self.sent_url = request.url
+
+        auth = RequestIntercepter('foo')
+        auth.get('http://example.com/', params={'q': 'foo bar'})
+        self.assertEqual(str('http://example.com/?q=foo%20bar'), auth.sent_url)
+
     def verify_signature(self, signature):
         def fake_send(r, **kwargs):
             auth_header = r.headers['Authorization']
