@@ -5,7 +5,11 @@ from oauthlib.common import urldecode
 def facebook_compliance_fix(session):
 
     def _compliance_fix(r):
-        token = dict(urldecode(r.text))
+        try:
+            token = dict(urldecode(r.text))
+        except ValueError:
+            return r
+
         expires = token.get('expires')
         if expires is not None:
             token['expires_in'] = expires
