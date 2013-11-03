@@ -5,6 +5,8 @@ from oauthlib.common import urldecode
 def facebook_compliance_fix(session):
 
     def _compliance_fix(r):
+        # Facebook returns urlencoded token, or json on error. Skip
+        # compliance fix if we can't urldecode.
         try:
             token = dict(urldecode(r.text))
         except ValueError:
