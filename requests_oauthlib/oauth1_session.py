@@ -7,6 +7,8 @@ except ImportError:
 
 from oauthlib.common import add_params_to_uri, urldecode
 from oauthlib.oauth1 import SIGNATURE_HMAC, SIGNATURE_TYPE_AUTH_HEADER
+from requests.utils import to_key_val_list
+from urllib import urlencode
 import requests
 
 from . import OAuth1
@@ -264,3 +266,36 @@ class OAuth1Session(requests.Session):
         token = dict(urldecode(self.post(url).text))
         self._populate_attributes(token)
         return token
+
+    def _urlencode_for_oauth(self, params):
+        """
+        This method does exactly what requests.models.RequestEncodingMixin._encode_params() does,
+        with one subtle but important difference: instead of replacing spaces by +, they are
+        replaced by %20, which is needed for OAuth.
+
+        See: http://troy.yort.com/2-common-problems-with-oauth-client-libraries/
+        """
+        if isinstance(params, (str, bytes)):
+            return params
+        elif hasattr(params, 'read'):
+            return params
+        elif hasattr(params, '__iter__'):
+            result = []
+            for k, vs in to_key_val_list(params):
+                if isinstance(vs, basestring) or not hasattr(vs, '__iter__'):
+                    vs = [vs]
+                for v in vs:
+                    if v is not None:
+                        result.append(
+                            (
+                                k.encode('utf-8') if isinstance(k, str) else k,
+                                v.encode('utf-8') if isinstance(v, str) else v,
+                            )
+                        )
+            return urlencode(result, doseq=True).replace('+', '%20')
+        else:
+            return params
+
+    def request(self, method, url, params=None, *args, **kwargs):
+        params = self._urlencode_for_oauth(params)
+        return super(OAuth1Session, self).request(method, url, params, *args, **kwargs)
