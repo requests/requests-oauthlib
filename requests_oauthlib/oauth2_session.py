@@ -109,7 +109,8 @@ class OAuth2Session(requests.Session):
                 **kwargs), state
 
     def fetch_token(self, token_url, code=None, authorization_response=None,
-            body='', auth=None, username=None, password=None, **kwargs):
+            body='', auth=None, username=None, password=None, method='POST',
+            **kwargs):
         """Generic method for fetching an access token from the token endpoint.
 
         If you are using the MobileApplicationClient you will want to use
@@ -145,9 +146,15 @@ class OAuth2Session(requests.Session):
         body = self._client.prepare_request_body(code=code, body=body,
                 redirect_uri=self.redirect_uri, username=username,
                 password=password, **kwargs)
-        # (ib-lundgren) All known, to me, token requests use POST.
-        r = self.post(token_url, data=dict(urldecode(body)),
-            headers={'Accept': 'application/json'}, auth=auth)
+
+        if method == 'POST':
+            r = self.post(token_url, data=dict(urldecode(body)),
+                headers={'Accept': 'application/json'}, auth=auth)
+        else:
+            # if method is not 'POST', switch body to querystring and GET
+            r = self.get(token_url, params=dict(urldecode(body)),
+                headers={'Accept': 'application/json'}, auth=auth)
+
         log.debug('Prepared fetch token request body %s', body)
         log.debug('Request to fetch token completed with status %s.',
                   r.status_code)
