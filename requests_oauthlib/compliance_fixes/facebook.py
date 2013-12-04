@@ -1,5 +1,6 @@
 from json import dumps
 from oauthlib.common import urldecode
+from urllib import parse_qsl
 
 
 def facebook_compliance_fix(session):
@@ -13,7 +14,7 @@ def facebook_compliance_fix(session):
         # x-www-form-urlencoded responses, along with a 200. If not, let's
         # assume we're getting JSON and bail on the fix.
         if r.headers['content-type'] == 'text/plain' and r.status_code == 200:
-            token = dict(urldecode(r.text))
+            token = dict(parse_qsl(r.text, keep_blank_values=True))
         else:
             return r
 
