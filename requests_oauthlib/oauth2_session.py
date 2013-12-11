@@ -110,7 +110,7 @@ class OAuth2Session(requests.Session):
 
     def fetch_token(self, token_url, code=None, authorization_response=None,
             body='', auth=None, username=None, password=None, method='POST',
-            **kwargs):
+            verify=True, **kwargs):
         """Generic method for fetching an access token from the token endpoint.
 
         If you are using the MobileApplicationClient you will want to use
@@ -129,6 +129,7 @@ class OAuth2Session(requests.Session):
         :param method: The HTTP method used to make the request. Defaults
                        to POST, but may also be GET. Other methods should
                        be added as needed.
+        :param verify: Verify SSL certificate.
         :param kwargs: Extra parameters to include in the token request.
         :return: A token dict
         """
@@ -152,12 +153,14 @@ class OAuth2Session(requests.Session):
 
         if method.upper() == 'POST':
             r = self.post(token_url, data=dict(urldecode(body)),
-                headers={'Accept': 'application/json'}, auth=auth)
+                headers={'Accept': 'application/json'}, auth=auth,
+                verify=verify)
             log.debug('Prepared fetch token request body %s', body)
         elif method.upper() == 'GET':
             # if method is not 'POST', switch body to querystring and GET
             r = self.get(token_url, params=dict(urldecode(body)),
-                headers={'Accept': 'application/json'}, auth=auth)
+                headers={'Accept': 'application/json'}, auth=auth,
+                verify=verify)
             log.debug('Prepared fetch token request querystring %s', body)
         else:
             raise ValueError('The method kwarg must be POST or GET.')
