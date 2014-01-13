@@ -223,7 +223,7 @@ class OAuth1Session(requests.Session):
             'oauth_token_secret': '2kjshdfp92i34asdasd',
         }
         """
-        if not hasattr(self._client.client, 'verifier'):
+        if not getattr(self._client.client, 'verifier', None):
             raise ValueError('No client verifier has been set.')
         token = self._fetch_token(url)
         self._client.client.verifier = None

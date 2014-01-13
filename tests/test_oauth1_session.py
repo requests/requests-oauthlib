@@ -158,6 +158,28 @@ class OAuth1SessionTest(unittest.TestCase):
             self.assertTrue(isinstance(k, unicode_type))
             self.assertTrue(isinstance(v, unicode_type))
 
+    def _test_fetch_access_token_raises_error(self, auth):
+        """Assert that an error is being raised whenever there's no verifier
+        passed in to the client.
+        """
+        auth.send = self.fake_body('oauth_token=foo')
+
+        # Use a try-except block so that we can assert on the exception message
+        # being raised and also keep the Python2.6 compatibility where
+        # assertRaises is not a context manager.
+        try:
+            auth.fetch_access_token('https://example.com/token')
+        except ValueError, exc:
+            self.assertEqual('No client verifier has been set.', str(exc))
+
+    def test_fetch_access_token_missing_verifier(self):
+        self._test_fetch_access_token_raises_error(OAuth1Session('foo'))
+
+    def test_fetch_access_token_has_verifier_is_none(self):
+        auth = OAuth1Session('foo')
+        del auth._client.client.verifier
+        self._test_fetch_access_token_raises_error(auth)
+
     def verify_signature(self, signature):
         def fake_send(r, **kwargs):
             auth_header = r.headers['Authorization']
