@@ -1,15 +1,21 @@
 from json import dumps
 from oauthlib.common import urldecode
+from urlparse import parse_qsl
 
 
 def facebook_compliance_fix(session):
 
     def _compliance_fix(r):
-        # Facebook returns urlencoded token, or json on error. Skip
-        # compliance fix if we can't urldecode.
-        try:
-            token = dict(urldecode(r.text))
-        except ValueError:
+        # if Facebook claims to be sending us json, let's trust them.
+        if 'application/json' in r.headers['content-type']:
+            return r
+
+        # Facebook returns a content-type of text/plain when sending their
+        # x-www-form-urlencoded responses, along with a 200. If not, let's
+        # assume we're getting JSON and bail on the fix.
+        if 'text/plain' in r.headers['content-type'] and r.status_code == 200:
+            token = dict(parse_qsl(r.text, keep_blank_values=True))
+        else:
             return r
 
         expires = token.get('expires')
