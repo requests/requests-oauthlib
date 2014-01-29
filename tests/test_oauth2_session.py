@@ -5,6 +5,7 @@ import unittest
 
 from oauthlib.common import urlencode
 from oauthlib.oauth2 import TokenExpiredError, InvalidRequestError
+from oauthlib.oauth2 import MismatchingStateError
 from oauthlib.oauth2 import WebApplicationClient, MobileApplicationClient
 from oauthlib.oauth2 import LegacyApplicationClient, BackendApplicationClient
 from requests_oauthlib import OAuth2Session, TokenUpdated
@@ -122,3 +123,11 @@ class OAuth2SessionTest(unittest.TestCase):
             auth = OAuth2Session(client=client, token=self.token)
             auth.send = fake_token(error)
             self.assertRaises(InvalidRequestError, auth.fetch_token, url)
+
+
+    def test_web_app_fetch_token(self):
+        # Ensure the state parameter is used, see issue #105.
+        client = OAuth2Session('foo', state='somestate')
+        self.assertRaises(MismatchingStateError, client.fetch_token,
+                          'https://i.b/token',
+                          authorization_response='https://i.b/no-state?code=abc')

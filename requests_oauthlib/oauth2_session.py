@@ -67,7 +67,7 @@ class OAuth2Session(requests.Session):
         self.redirect_uri = redirect_uri
         self.token = token or {}
         self.state = state or generate_token
-        self._state = None
+        self._state = state
         self.auto_refresh_url = auto_refresh_url
         self.auto_refresh_kwargs = auto_refresh_kwargs or {}
         self.token_updater = token_updater
