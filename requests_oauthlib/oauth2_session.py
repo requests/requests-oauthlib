@@ -109,7 +109,8 @@ class OAuth2Session(requests.Session):
                 **kwargs), state
 
     def fetch_token(self, token_url, code=None, authorization_response=None,
-            body='', auth=None, username=None, password=None, verify=True, **kwargs):
+            body='', auth=None, username=None, password=None, method='POST',
+            verify=True, **kwargs):
         """Generic method for fetching an access token from the token endpoint.
 
         If you are using the MobileApplicationClient you will want to use
@@ -125,6 +126,9 @@ class OAuth2Session(requests.Session):
         :param auth: An auth tuple or method as accepted by requests.
         :param username: Username used by LegacyApplicationClients.
         :param password: Password used by LegacyApplicationClients.
+        :param method: The HTTP method used to make the request. Defaults
+                       to POST, but may also be GET. Other methods should
+                       be added as needed.
         :param verify: Verify SSL certificate.
         :param kwargs: Extra parameters to include in the token request.
         :return: A token dict
@@ -146,10 +150,21 @@ class OAuth2Session(requests.Session):
         body = self._client.prepare_request_body(code=code, body=body,
                 redirect_uri=self.redirect_uri, username=username,
                 password=password, **kwargs)
-        # (ib-lundgren) All known, to me, token requests use POST.
-        r = self.post(token_url, data=dict(urldecode(body)),
-            headers={'Accept': 'application/json'}, auth=auth, verify=verify)
-        log.debug('Prepared fetch token request body %s', body)
+
+        if method.upper() == 'POST':
+            r = self.post(token_url, data=dict(urldecode(body)),
+                headers={'Accept': 'application/json'}, auth=auth,
+                verify=verify)
+            log.debug('Prepared fetch token request body %s', body)
+        elif method.upper() == 'GET':
+            # if method is not 'POST', switch body to querystring and GET
+            r = self.get(token_url, params=dict(urldecode(body)),
+                headers={'Accept': 'application/json'}, auth=auth,
+                verify=verify)
+            log.debug('Prepared fetch token request querystring %s', body)
+        else:
+            raise ValueError('The method kwarg must be POST or GET.')
+
         log.debug('Request to fetch token completed with status %s.',
                   r.status_code)
         log.debug('Response headers were %s and content %s.',
