@@ -169,7 +169,7 @@ class OAuth1SessionTest(unittest.TestCase):
         # assertRaises is not a context manager.
         try:
             auth.fetch_access_token('https://example.com/token')
-        except ValueError, exc:
+        except ValueError as exc:
             self.assertEqual('No client verifier has been set.', str(exc))
 
     def test_fetch_access_token_missing_verifier(self):
