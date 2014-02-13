@@ -1,20 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from requests.compat import is_py3
+from requests.utils import to_native_string
 from oauthlib.common import extract_params
 from oauthlib.oauth1 import (Client, SIGNATURE_HMAC, SIGNATURE_TYPE_AUTH_HEADER)
 
 CONTENT_TYPE_FORM_URLENCODED = 'application/x-www-form-urlencoded'
 CONTENT_TYPE_MULTI_PART = 'multipart/form-data'
 
-import sys
-if sys.version > "3":
+if is_py3:
     unicode = str
-
-    def to_native_str(string):
-        return string.decode('utf-8')
-else:
-    def to_native_str(string):
-        return string
 
 # OBS!: Correct signing of requests are conditional on invoking OAuth1
 # as the last step of preparing a request, or at least having the
@@ -67,5 +62,5 @@ class OAuth1(object):
                 unicode(r.url), unicode(r.method), None, r.headers)
 
         r.prepare_headers(headers)
-        r.url = to_native_str(r.url)
+        r.url = to_native_string(r.url)
         return r
