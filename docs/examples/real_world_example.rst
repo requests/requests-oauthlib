@@ -81,3 +81,24 @@ transferrable to any web framework.
 
 This example is lovingly borrowed from `this gist
 <https://gist.github.com/ib-lundgren/6507798>`_.
+
+
+**N.B:** 
+You should note that Oauth2 works through SSL layer. If your server is not parametrized to allow HTTPS, the *fetch_token*
+method will raise an **oauthlib.oauth2.rfc6749.errors.InsecureTransportError** .
+Most people don't set SSL on their server while testing and that is fine. You can disable this check in two ways:
+
+
+1. By setting the environment variable DEBUG
+
+    $ export DEBUG=1 
+    
+    $ python webapp_example.py`      
+
+2. Equivalent to above you can set this in Python (if you have problems setting environment variables)
+
+# Somewhere in webapp_example.py, before the app.run for example
+
+    import os    
+    
+    os.environ['DEBUG'] = '1'    
