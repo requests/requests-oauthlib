@@ -11,6 +11,9 @@ from oauthlib.oauth2 import LegacyApplicationClient, BackendApplicationClient
 from requests_oauthlib import OAuth2Session, TokenUpdated
 
 
+fake_time = 1396184331.016881
+
+
 class OAuth2SessionTest(unittest.TestCase):
 
     def setUp(self):
@@ -22,7 +25,8 @@ class OAuth2SessionTest(unittest.TestCase):
             'token_type': 'Bearer',
             'access_token': 'asdfoiw37850234lkjsdfsdf',
             'refresh_token': 'sldvafkjw34509s8dfsdf',
-            'expires_in': '3600'
+            'expires_in': '3600',
+            'expires_at': fake_time + 3600,
         }
         self.client_id = 'foo'
         self.clients = [
@@ -66,9 +70,11 @@ class OAuth2SessionTest(unittest.TestCase):
         self.assertIn(self.client_id, auth_url)
         self.assertIn('response_type=token', auth_url)
 
+    @mock.patch("time.time", new=lambda: fake_time)
     def test_refresh_token_request(self):
         self.expired_token = dict(self.token)
         self.expired_token['expires_in'] = '-1'
+        del self.expired_token['expires_at']
 
         def fake_refresh(r, **kwargs):
             resp = mock.MagicMock()
@@ -98,12 +104,14 @@ class OAuth2SessionTest(unittest.TestCase):
             auth.send = fake_refresh
             auth.get('https://i.b')
 
+    @mock.patch("time.time", new=lambda: fake_time)
     def test_token_from_fragment(self):
         mobile = MobileApplicationClient(self.client_id)
         response_url = 'https://i.b/callback#' + urlencode(self.token.items())
         auth = OAuth2Session(client=mobile)
         self.assertEqual(auth.token_from_fragment(response_url), self.token)
 
+    @mock.patch("time.time", new=lambda: fake_time)
     def test_fetch_token(self):
         def fake_token(token):
             def fake_send(r, **kwargs):
