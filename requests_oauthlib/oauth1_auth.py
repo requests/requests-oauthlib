@@ -28,7 +28,7 @@ class OAuth1(object):
             signature_type=SIGNATURE_TYPE_AUTH_HEADER,
             rsa_key=None, verifier=None,
             decoding='utf-8',
-            client_class=None):
+            client_class=None, **kwargs):
 
         try:
             signature_type = signature_type.upper()
@@ -39,7 +39,7 @@ class OAuth1(object):
 
         self.client = client_class(client_key, client_secret, resource_owner_key,
             resource_owner_secret, callback_uri, signature_method,
-            signature_type, rsa_key, verifier, decoding=decoding)
+            signature_type, rsa_key, verifier, decoding=decoding, **kwargs)
 
     def __call__(self, r):
         """Add OAuth parameters to the request.
