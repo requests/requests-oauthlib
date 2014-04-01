@@ -4,6 +4,7 @@ import mock
 import sys
 import requests
 import requests_oauthlib
+import oauthlib
 import os.path
 try:
     from io import StringIO # python 3
@@ -123,3 +124,34 @@ class OAuth1Test(unittest.TestCase):
                           headers={'Content-type': 'application/json'})
         self.assertEqual(r.request.headers.get('Content-Type'),
                          'application/json')
+
+
+    def test_register_client_class(self, generate_timestamp, generate_nonce):
+        class ClientSubclass(oauthlib.oauth1.Client):
+            pass
+
+        self.assertTrue(hasattr(requests_oauthlib.OAuth1, 'client_class'))
+
+        self.assertEqual(
+            requests_oauthlib.OAuth1.client_class,
+            oauthlib.oauth1.Client)
+
+        normal = requests_oauthlib.OAuth1('client_key')
+
+        self.assertTrue(isinstance(normal.client, oauthlib.oauth1.Client))
+        self.assertFalse(isinstance(normal.client, ClientSubclass))
+
+        requests_oauthlib.OAuth1.client_class = ClientSubclass
+
+        self.assertEqual(requests_oauthlib.OAuth1.client_class, ClientSubclass)
+
+        custom = requests_oauthlib.OAuth1('client_key')
+
+        self.assertTrue(isinstance(custom.client, oauthlib.oauth1.Client))
+        self.assertTrue(isinstance(custom.client, ClientSubclass))
+
+        overridden = requests_oauthlib.OAuth1('client_key',
+            client_class = oauthlib.oauth1.Client)
+
+        self.assertTrue(isinstance(overridden.client, oauthlib.oauth1.Client))
+        self.assertFalse(isinstance(normal.client, ClientSubclass))
