@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 import json
 import mock
+import time
 import unittest
 
 from oauthlib.common import urlencode
@@ -11,7 +12,7 @@ from oauthlib.oauth2 import LegacyApplicationClient, BackendApplicationClient
 from requests_oauthlib import OAuth2Session, TokenUpdated
 
 
-fake_time = 1396184331.016881
+fake_time = time.time()
 
 
 class OAuth2SessionTest(unittest.TestCase):
