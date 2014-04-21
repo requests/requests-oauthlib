@@ -85,7 +85,7 @@ the provider is Google and the protected resource is the user's profile.
             authorization_response=authorization_response,
             # Google specific extra parameter used for client
             # authentication
-            client_secret=secret)
+            client_secret=client_secret)
 
 3. Access protected resources using the access token you just obtained.
    For example, get the users profile info.
