@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from requests.compat import is_py3
 from requests.utils import to_native_string
 from oauthlib.common import extract_params
-from oauthlib.oauth1 import (Client, SIGNATURE_HMAC, SIGNATURE_TYPE_AUTH_HEADER)
+from oauthlib.oauth1 import (Client, SIGNATURE_HMAC, SIGNATURE_TYPE_AUTH_HEADER, SIGNATURE_TYPE_BODY)
 
 CONTENT_TYPE_FORM_URLENCODED = 'application/x-www-form-urlencoded'
 CONTENT_TYPE_MULTI_PART = 'multipart/form-data'
@@ -45,7 +45,8 @@ class OAuth1(object):
         # this point.
 
         content_type = r.headers.get('Content-Type', '')
-        if not content_type and extract_params(r.body):
+        if (not content_type and extract_params(r.body)
+                or self.client.signature_type == SIGNATURE_TYPE_BODY):
             content_type = CONTENT_TYPE_FORM_URLENCODED
         if not isinstance(content_type, unicode):
             content_type = content_type.decode('utf-8')
