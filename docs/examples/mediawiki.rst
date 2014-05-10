@@ -16,6 +16,7 @@ Using OAuth1Session
 
     from requests_oauthlib import OAuth1Session
 
+    # Get the anonymous oauth_token and secret
     request_token_url = 'https://www.mediawiki.org/w/index.php?title=Special%3aOAuth%2finitiate'
     # Note the custom callback_uri arg!
     oauth = OAuth1Session(CLIENT_KEY, client_secret=CLIENT_SECRET, callback_uri='oob')
@@ -24,6 +25,7 @@ Using OAuth1Session
     resource_owner_key = fetch_response.get('oauth_token')
     resource_owner_secret = fetch_response.get('oauth_token_secret')
 
+    # Redirect the user to /authorize and get the callback
     base_authorization_url = 'https://www.mediawiki.org/wiki/Special:OAuth/authorize'
     # Note the extra oauth_consumer_key argument!
     authorization_url = oauth.authorization_url(base_authorization_url, oauth_consumer_key=CLIENT_KEY)
@@ -35,6 +37,7 @@ Using OAuth1Session
     # oauth_response: {u'oauth_token': u'5d684692fe129665c9f967f54bbc525d', u'oauth_verifier': u'7f98e940b58745e14602e0522c7e5e90'}
     verifier = oauth_response.get('oauth_verifier')
 
+    # Get the final oauth_token and secret
     access_token_url = 'https://www.mediawiki.org/w/index.php?title=Special%3aOAuth%2ftoken'
     oauth = OAuth1Session(CLIENT_KEY, client_secret=CLIENT_SECRET, resource_owner_key=resource_owner_key, resource_owner_secret=resource_owner_secret, verifier=verifier)
     oauth_tokens = oauth.fetch_access_token(access_token_url)
@@ -42,6 +45,7 @@ Using OAuth1Session
     resource_owner_key = oauth_tokens.get('oauth_token')
     resource_owner_secret = oauth_tokens.get('oauth_token_secret')
     
+    # Get signed user name and info from /identify
     identify_url = 'https://www.mediawiki.org/w/index.php?title=Special%3aOAuth%2fidentify'
     oauth = OAuth1Session(CLIENT_KEY, client_secret=CLIENT_SECRET, resource_owner_key=resource_owner_key, resource_owner_secret=resource_owner_secret)
     r = oauth.get(identify_url)
@@ -52,6 +56,7 @@ Using OAuth1Session
     json.loads(base64.urlsafe_b64decode(jwt[1]))
     # OUT: {u'nonce': u'XXX', u'username': u'FiloSottile', u'sub': 9033, u'rights': [u'createaccount', ...], u'iss': u'http://www.mediawiki.org', u'groups': [u'*', u'user', u'autoconfirmed'], u'registered': u'20080615111255', u'confirmed_email': True, u'exp': 1399710257, u'editcount': 1, u'iat': u'1399710157', u'blocked': False, u'aud': u'XXX'}
 
+    # Make authenticated calls to the API
     data = {'action': 'query', 'meta': 'userinfo', 'format': 'json'}
     from urllib import urlencode
     url = 'https://www.mediawiki.org/w/api.php?' + urlencode(data)
@@ -69,6 +74,7 @@ Using OAuth1 auth helper (stateless)
     import requests
     from requests_oauthlib import OAuth1
 
+    # Get the anonymous oauth_token and secret
     request_token_url = 'https://www.mediawiki.org/w/index.php?title=Special%3aOAuth%2finitiate'
     oauth = OAuth1(CLIENT_KEY, client_secret=CLIENT_SECRET, callback_uri='oob')
     r = requests.post(url=request_token_url, auth=oauth)
@@ -79,6 +85,7 @@ Using OAuth1 auth helper (stateless)
     resource_owner_key = credentials.get('oauth_token')[0]
     resource_owner_secret = credentials.get('oauth_token_secret')[0]
 
+    # Redirect the user to /authorize and get the callback
     base_authorization_url = 'https://www.mediawiki.org/wiki/Special:OAuth/authorize'
     authorize_url = base_authorization_url + '?oauth_token=' + resource_owner_key + '&oauth_consumer_key=' + CLIENT_KEY
     print 'Please go here and authorize,', authorize_url
@@ -89,6 +96,7 @@ Using OAuth1 auth helper (stateless)
     verifier = callback_data.get('oauth_verifier')[0]
     assert callback_data.get('oauth_token')[0] == resource_owner_key
 
+    # Get the final oauth_token and secret
     access_token_url = 'https://www.mediawiki.org/w/index.php?title=Special%3aOAuth%2ftoken'
     oauth = OAuth1(CLIENT_KEY, client_secret=CLIENT_SECRET, resource_owner_key=resource_owner_key, resource_owner_secret=resource_owner_secret, verifier=verifier)
     r = requests.post(url=access_token_url, auth=oauth)
@@ -98,6 +106,7 @@ Using OAuth1 auth helper (stateless)
     resource_owner_key = credentials.get('oauth_token')[0]
     resource_owner_secret = credentials.get('oauth_token_secret')[0]
 
+    # Get signed user name and info from /identify
     identify_url = 'https://www.mediawiki.org/w/index.php?title=Special%3aOAuth%2fidentify'
     oauth = OAuth1(CLIENT_KEY, client_secret=CLIENT_SECRET, resource_owner_key=resource_owner_key, resource_owner_secret=resource_owner_secret)
     r = requests.get(url=identify_url, auth=oauth)
@@ -108,6 +117,7 @@ Using OAuth1 auth helper (stateless)
     json.loads(base64.urlsafe_b64decode(jwt[1]))
     # OUT: {u'nonce': u'XXX', u'username': u'FiloSottile', u'sub': 9033, u'rights': [u'createaccount', ...], u'iss': u'http://www.mediawiki.org', u'groups': [u'*', u'user', u'autoconfirmed'], u'registered': u'20080615111255', u'confirmed_email': True, u'exp': 1399710257, u'editcount': 1, u'iat': u'1399710157', u'blocked': False, u'aud': u'XXX'}
 
+    # Make authenticated calls to the API
     data = {'action': 'query', 'meta': 'userinfo', 'format': 'json'}
     from urllib import urlencode
     url = 'https://www.mediawiki.org/w/api.php?' + urlencode(data)
