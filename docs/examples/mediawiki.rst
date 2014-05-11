@@ -7,7 +7,10 @@ try out the command line interactive example below.
 
 You'll also have to set a callback url while registering.
 
+See also this library implementing all the flow below, plus the `/identify` custom call: `mwoauth`_.
+
 .. _`MediaWiki`: https://www.mediawiki.org/wiki/Extension:OAuth#Using_OAuth
+.. _`mwoauth`: https://github.com/halfak/MediaWiki-OAuth
 
 Using OAuth1Session
 -------------------
@@ -44,17 +47,6 @@ Using OAuth1Session
     # oauth_tokens: {u'oauth_token_secret': u'10e284c0ce48c2c2c6ce4f58fca358d6ff495a55', u'oauth_token': u'2f227cce369edad1ff3880bb4dab84f2', u'oauth_callback_confirmed': u'true'}
     resource_owner_key = oauth_tokens.get('oauth_token')
     resource_owner_secret = oauth_tokens.get('oauth_token_secret')
-    
-    # Get signed user name and info from /identify
-    identify_url = 'https://www.mediawiki.org/w/index.php?title=Special%3aOAuth%2fidentify'
-    oauth = OAuth1Session(CLIENT_KEY, client_secret=CLIENT_SECRET, resource_owner_key=resource_owner_key, resource_owner_secret=resource_owner_secret)
-    r = oauth.get(identify_url)
-    import base64, hmac, hashlib, json
-    jwt = r.content.split('.')
-    assert base64.urlsafe_b64encode(hmac.new(CLIENT_SECRET, jwt[0]+'.'+jwt[1], hashlib.sha256).digest()).strip('=') == jwt[2]
-    assert base64.urlsafe_b64decode(jwt[0]) == '{"typ":"JWT","alg":"HS256"}'
-    json.loads(base64.urlsafe_b64decode(jwt[1]))
-    # OUT: {u'nonce': u'XXX', u'username': u'FiloSottile', u'sub': 9033, u'rights': [u'createaccount', ...], u'iss': u'http://www.mediawiki.org', u'groups': [u'*', u'user', u'autoconfirmed'], u'registered': u'20080615111255', u'confirmed_email': True, u'exp': 1399710257, u'editcount': 1, u'iat': u'1399710157', u'blocked': False, u'aud': u'XXX'}
 
     # Make authenticated calls to the API
     data = {'action': 'query', 'meta': 'userinfo', 'format': 'json'}
@@ -105,17 +97,6 @@ Using OAuth1 auth helper (stateless)
     credentials = parse_qs(r.content)
     resource_owner_key = credentials.get('oauth_token')[0]
     resource_owner_secret = credentials.get('oauth_token_secret')[0]
-
-    # Get signed user name and info from /identify
-    identify_url = 'https://www.mediawiki.org/w/index.php?title=Special%3aOAuth%2fidentify'
-    oauth = OAuth1(CLIENT_KEY, client_secret=CLIENT_SECRET, resource_owner_key=resource_owner_key, resource_owner_secret=resource_owner_secret)
-    r = requests.get(url=identify_url, auth=oauth)
-    import base64, hmac, hashlib, json
-    jwt = r.content.split('.')
-    assert base64.urlsafe_b64encode(hmac.new(CLIENT_SECRET, jwt[0]+'.'+jwt[1], hashlib.sha256).digest()).strip('=') == jwt[2]
-    assert base64.urlsafe_b64decode(jwt[0]) == '{"typ":"JWT","alg":"HS256"}'
-    json.loads(base64.urlsafe_b64decode(jwt[1]))
-    # OUT: {u'nonce': u'XXX', u'username': u'FiloSottile', u'sub': 9033, u'rights': [u'createaccount', ...], u'iss': u'http://www.mediawiki.org', u'groups': [u'*', u'user', u'autoconfirmed'], u'registered': u'20080615111255', u'confirmed_email': True, u'exp': 1399710257, u'editcount': 1, u'iat': u'1399710157', u'blocked': False, u'aud': u'XXX'}
 
     # Make authenticated calls to the API
     data = {'action': 'query', 'meta': 'userinfo', 'format': 'json'}
