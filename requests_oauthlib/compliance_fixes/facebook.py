@@ -1,6 +1,8 @@
 from json import dumps
-from oauthlib.common import urldecode
-from urlparse import parse_qsl
+try:
+    from urlparse import parse_qsl
+except ImportError:
+    from urllib.parse import parse_qsl
 
 
 def facebook_compliance_fix(session):
