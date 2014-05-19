@@ -23,7 +23,7 @@ Enter a call back url (can just be http://www.tumblr.com/dashboard) and get the 
     >>> tumblr.fetch_request_token(request_token_url)
 
     >>> # Link user to authorization page
-    >>> authorization_url = tumblr.authorization_url(base_authorization_url)
+    >>> authorization_url = tumblr.authorization_url(authorization_base_url)
     >>> print 'Please go here and authorize,', authorization_url
 
     >>> # Get the verifier code from the URL
