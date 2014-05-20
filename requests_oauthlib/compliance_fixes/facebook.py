@@ -1,4 +1,6 @@
 from json import dumps
+import sys
+
 try:
     from urlparse import parse_qsl
 except ImportError:
@@ -24,7 +26,12 @@ def facebook_compliance_fix(session):
         if expires is not None:
             token['expires_in'] = expires
         token['token_type'] = 'Bearer'
-        r._content = dumps(token)
+
+        if sys.version > "3":
+            r._content = bytes(dumps(token), 'utf-8')
+        else:
+            r._content = dumps(token)
+
         return r
 
     session.register_compliance_hook('access_token_response', _compliance_fix)
