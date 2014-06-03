@@ -79,7 +79,9 @@ class OAuth1Session(requests.Session):
             signature_method=SIGNATURE_HMAC,
             signature_type=SIGNATURE_TYPE_AUTH_HEADER,
             rsa_key=None,
-            verifier=None):
+            verifier=None,
+            client_class=None,
+            **kwargs):
         """Construct the OAuth 1 session.
 
         :param client_key: A client specific identifier.
@@ -109,6 +111,9 @@ class OAuth1Session(requests.Session):
         :param rsa_key: The private RSA key as a string. Can only be used with
                         signature_method=oauthlib.oauth1.SIGNATURE_RSA.
         :param verifier: A verifier string to prove authorization was granted.
+        :param client_class: A subclass of `oauthlib.oauth1.Client` to use with
+                             `requests_oauthlib.OAuth1` instead of the default
+        :param **kwargs: Additional keyword arguments passed to `OAuth1`
         """
         super(OAuth1Session, self).__init__()
         self._client = OAuth1(client_key,
@@ -119,7 +124,9 @@ class OAuth1Session(requests.Session):
                 signature_method=signature_method,
                 signature_type=signature_type,
                 rsa_key=rsa_key,
-                verifier=verifier)
+                verifier=verifier,
+                client_class=client_class,
+                **kwargs)
         self.auth = self._client
 
     def authorization_url(self, url, request_token=None, **kwargs):
