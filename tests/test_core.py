@@ -95,6 +95,7 @@ class OAuth1Test(unittest.TestCase):
         with open(fname, 'rb') as f:
             r = requests.post('http://httpbin.org/post', data={'hi': 'there'},
                               files={'media': (os.path.basename(f.name), f)},
+                                headers={'content-type':'application/octet-stream'},
                               auth=oauth)
             self.assertEqual(r.status_code, 200)
 
