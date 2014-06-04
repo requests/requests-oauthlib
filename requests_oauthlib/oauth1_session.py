@@ -5,6 +5,8 @@ try:
 except ImportError:
     from urllib.parse import urlparse
 
+import logging
+
 from oauthlib.common import add_params_to_uri, urldecode
 from oauthlib.oauth1 import SIGNATURE_HMAC, SIGNATURE_TYPE_AUTH_HEADER
 import requests
@@ -14,6 +16,9 @@ from . import OAuth1
 import sys
 if sys.version > "3":
     unicode = str
+
+
+log = logging.getLogger(__name__)
 
 
 class OAuth1Session(requests.Session):
@@ -176,6 +181,7 @@ class OAuth1Session(requests.Session):
         'https://api.twitter.com/oauth/authorize?oauth_token=sdf0o9823sjdfsdf&oauth_callback=https%3A%2F%2F127.0.0.1%2Fcallback'
         """
         kwargs['oauth_token'] = request_token or self._client.client.resource_owner_key
+        log.debug('Adding parameters %s to url %s', kwargs, url)
         return add_params_to_uri(url, kwargs.items())
 
     def fetch_request_token(self, url, realm=None):
@@ -204,6 +210,7 @@ class OAuth1Session(requests.Session):
         """
         self._client.client.realm = ' '.join(realm) if realm else None
         token = self._fetch_token(url)
+        log.debug('Resetting callback_uri and realm (not needed in next phase).')
         self._client.client.callback_uri = None
         self._client.client.realm = None
         return token
@@ -237,6 +244,7 @@ class OAuth1Session(requests.Session):
         if not getattr(self._client.client, 'verifier', None):
             raise ValueError('No client verifier has been set.')
         token = self._fetch_token(url)
+        log.debug('Resetting verifier attribute, should not be used anymore.')
         self._client.client.verifier = None
         return token
 
@@ -256,7 +264,9 @@ class OAuth1Session(requests.Session):
             'oauth_verifier: 'w34o8967345',
         }
         """
+        log.debug('Parsing token from query part of url %s', url)
         token = dict(urldecode(urlparse(url).query))
+        log.debug('Updating internal client token attribute.')
         self._populate_attributes(token)
         return token
 
@@ -272,6 +282,11 @@ class OAuth1Session(requests.Session):
             self._client.client.verifier = token['oauth_verifier']
 
     def _fetch_token(self, url):
-        token = dict(urldecode(self.post(url).text))
+        log.debug('Fetching token from %s using client %s', url, self._client.client)
+        r = self.post(url)
+        log.debug('Decoding token from response "%s"', r.text)
+        token = dict(urldecode(r.text))
+        log.debug('Obtained token %s', token)
+        log.debug('Updating internal client attributes from token data.')
         self._populate_attributes(token)
         return token

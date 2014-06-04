@@ -1,15 +1,21 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
+import logging
+
+from oauthlib.common import extract_params
+from oauthlib.oauth1 import Client, SIGNATURE_HMAC, SIGNATURE_TYPE_AUTH_HEADER
+from oauthlib.oauth1 import SIGNATURE_TYPE_BODY
 from requests.compat import is_py3
 from requests.utils import to_native_string
-from oauthlib.common import extract_params
-from oauthlib.oauth1 import (Client, SIGNATURE_HMAC, SIGNATURE_TYPE_AUTH_HEADER, SIGNATURE_TYPE_BODY)
 
 CONTENT_TYPE_FORM_URLENCODED = 'application/x-www-form-urlencoded'
 CONTENT_TYPE_MULTI_PART = 'multipart/form-data'
 
 if is_py3:
     unicode = str
+
+log = logging.getLogger(__name__)
 
 # OBS!: Correct signing of requests are conditional on invoking OAuth1
 # as the last step of preparing a request, or at least having the
@@ -53,6 +59,7 @@ class OAuth1(object):
         """
         # Overwriting url is safe here as request will not modify it past
         # this point.
+        log.debug('Signing request %s using client %s', r, self.client)
 
         content_type = r.headers.get('Content-Type', '')
         if (not content_type and extract_params(r.body)
@@ -62,6 +69,9 @@ class OAuth1(object):
             content_type = content_type.decode('utf-8')
 
         is_form_encoded = (CONTENT_TYPE_FORM_URLENCODED in content_type)
+
+        log.debug('Including body in call to sign: %s',
+                  is_form_encoded or self.force_include_body)
 
         if is_form_encoded:
             r.headers['Content-Type'] = CONTENT_TYPE_FORM_URLENCODED
@@ -78,4 +88,7 @@ class OAuth1(object):
 
         r.prepare_headers(headers)
         r.url = to_native_string(r.url)
+        log.debug('Updated url: %s', r.url)
+        log.debug('Updated headers: %s', headers)
+        log.debug('Updated body: %r', r.body)
         return r
