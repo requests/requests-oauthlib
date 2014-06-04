@@ -4,3 +4,13 @@ from .oauth2_auth import OAuth2
 from .oauth2_session import OAuth2Session, TokenUpdated
 
 __version__ = '0.4.0'
+
+import logging
+try:  # Python 2.7+
+    from logging import NullHandler
+except ImportError:
+   class NullHandler(logging.Handler):
+       def emit(self, record):
+           pass
+
+logging.getLogger('requests_oauthlib').addHandler(NullHandler())

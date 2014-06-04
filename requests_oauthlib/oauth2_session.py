@@ -1,8 +1,13 @@
 from __future__ import unicode_literals
-import requests
-from oauthlib.common import log, generate_token, urldecode
+
+import logging
+
+from oauthlib.common import generate_token, urldecode
 from oauthlib.oauth2 import WebApplicationClient, InsecureTransportError
 from oauthlib.oauth2 import TokenExpiredError, is_secure_transport
+import requests
+
+log = logging.getLogger(__name__)
 
 
 class TokenUpdated(Warning):
