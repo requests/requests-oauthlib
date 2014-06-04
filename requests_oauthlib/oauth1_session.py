@@ -284,8 +284,21 @@ class OAuth1Session(requests.Session):
     def _fetch_token(self, url):
         log.debug('Fetching token from %s using client %s', url, self._client.client)
         r = self.post(url)
+
+        if r.status_code >= 400:
+            error = "Token request failed with code %s, response was '%s'."
+            raise ValueError(error % (r.status_code, r.text))
+
         log.debug('Decoding token from response "%s"', r.text)
-        token = dict(urldecode(r.text))
+        try:
+            token = dict(urldecode(r.text))
+        except ValueError as e:
+            error = ("Unable to decode token from token response. "
+                     "This is commonly caused by an unsuccessful request where"
+                     " a non urlencoded error message is returned. "
+                     "The decoding error was %s""" % e)
+            raise ValueError(error)
+
         log.debug('Obtained token %s', token)
         log.debug('Updating internal client attributes from token data.')
         self._populate_attributes(token)

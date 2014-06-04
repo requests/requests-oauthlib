@@ -172,6 +172,17 @@ class OAuth1SessionTest(unittest.TestCase):
         except ValueError as exc:
             self.assertEqual('No client verifier has been set.', str(exc))
 
+    def test_fetch_token_invalid_response(self):
+        auth = OAuth1Session('foo')
+        auth.send = self.fake_body('not valid urlencoded response!')
+        self.assertRaises(ValueError, auth.fetch_request_token,
+                'https://example.com/token')
+
+        for code in (400, 401, 403):
+            auth.send = self.fake_body('valid=response', code)
+            self.assertRaises(ValueError, auth.fetch_request_token,
+                    'https://example.com/token')
+
     def test_fetch_access_token_missing_verifier(self):
         self._test_fetch_access_token_raises_error(OAuth1Session('foo'))
 
@@ -191,10 +202,11 @@ class OAuth1SessionTest(unittest.TestCase):
             return resp
         return fake_send
 
-    def fake_body(self, body):
+    def fake_body(self, body, status_code=200):
         def fake_send(r, **kwargs):
             resp = mock.MagicMock()
             resp.cookes = []
             resp.text = body
+            resp.status_code = status_code
             return resp
         return fake_send
