@@ -43,7 +43,8 @@ settings.update(
     author_email='me@kennethreitz.com',
     url='https://github.com/requests/requests-oauthlib',
     packages=['requests_oauthlib', 'requests_oauthlib.compliance_fixes'],
-    install_requires=['oauthlib[rsa]>=0.6.2', 'requests>=2.0.0'],
+    install_requires=['oauthlib>=0.6.2', 'requests>=2.0.0'],
+    extras_require={'rsa': ['oauthlib[rsa]>=0.6.2', 'requests>=2.0.0']},
     license='ISC',
     classifiers=(
         'Development Status :: 5 - Production/Stable',
