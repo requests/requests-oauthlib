@@ -28,7 +28,9 @@ class OAuth1(object):
             signature_type=SIGNATURE_TYPE_AUTH_HEADER,
             rsa_key=None, verifier=None,
             decoding='utf-8',
-            client_class=None, **kwargs):
+            client_class=None,
+            force_include_body=False,
+            **kwargs):
 
         try:
             signature_type = signature_type.upper()
@@ -36,6 +38,8 @@ class OAuth1(object):
             pass
 
         client_class = client_class or self.client_class
+
+        self.force_include_body = force_include_body
 
         self.client = client_class(client_key, client_secret, resource_owner_key,
             resource_owner_secret, callback_uri, signature_method,
@@ -61,6 +65,10 @@ class OAuth1(object):
 
         if is_form_encoded:
             r.headers['Content-Type'] = CONTENT_TYPE_FORM_URLENCODED
+            r.url, headers, r.body = self.client.sign(
+                unicode(r.url), unicode(r.method), r.body or '', r.headers)
+        elif self.force_include_body:
+            # To allow custom clients to work on non form encoded bodies.
             r.url, headers, r.body = self.client.sign(
                 unicode(r.url), unicode(r.method), r.body or '', r.headers)
         else:

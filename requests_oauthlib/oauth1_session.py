@@ -81,6 +81,7 @@ class OAuth1Session(requests.Session):
             rsa_key=None,
             verifier=None,
             client_class=None,
+            force_include_body=False,
             **kwargs):
         """Construct the OAuth 1 session.
 
@@ -113,6 +114,8 @@ class OAuth1Session(requests.Session):
         :param verifier: A verifier string to prove authorization was granted.
         :param client_class: A subclass of `oauthlib.oauth1.Client` to use with
                              `requests_oauthlib.OAuth1` instead of the default
+        :param force_include_body: Always include the request body in the
+                                   signature creation.
         :param **kwargs: Additional keyword arguments passed to `OAuth1`
         """
         super(OAuth1Session, self).__init__()
@@ -126,6 +129,7 @@ class OAuth1Session(requests.Session):
                 rsa_key=rsa_key,
                 verifier=verifier,
                 client_class=client_class,
+                force_include_body=force_include_body,
                 **kwargs)
         self.auth = self._client
 
