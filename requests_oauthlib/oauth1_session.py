@@ -21,6 +21,13 @@ if sys.version > "3":
 log = logging.getLogger(__name__)
 
 
+class TokenRequestDenied(ValueError):
+
+    def __init__(self, message, status_code):
+        super(TokenRequestDenied, self).__init__(message)
+        self.status_code = status_code
+
+
 class OAuth1Session(requests.Session):
     """Request signing and convenience methods for the oauth dance.
 
@@ -287,7 +294,7 @@ class OAuth1Session(requests.Session):
 
         if r.status_code >= 400:
             error = "Token request failed with code %s, response was '%s'."
-            raise ValueError(error % (r.status_code, r.text))
+            raise TokenRequestDenied(error % (r.status_code, r.text), r.status_code)
 
         log.debug('Decoding token from response "%s"', r.text)
         try:
