@@ -1,12 +1,13 @@
 History
 -------
 
-v0.4.x
-++++++
-- New install target [rsa] for people using OAuth1 RSA-SHA1 signature method.
+v0.4.1 (6 June 2014)
+++++++++++++++++++++
+- New install target ``[rsa]`` for people using OAuth1 RSA-SHA1 signature
+  method.
 - Fixed bug in OAuth2 where supplied state param was not used in auth url.
 - OAuth2 HTTPS checking can be disabled by setting environment variable
-  OAUTHLIB_INSECURE_TRANSPORT
+  ``OAUTHLIB_INSECURE_TRANSPORT``.
 - OAuth1 now re-authorize upon redirects.
 - OAuth1 token fetching now raise a detailed error message when the
   response body is incorrectly encoded or the request was denied.
@@ -14,7 +15,7 @@ v0.4.x
 - OAuth2 compliance fix for Sina Weibo.
 - Multiple fixes to facebook compliance fix.
 - Compliance fixes now re-encode body properly as bytes in Python 3.
-- Logging now properly done under requests_oauthlib namespace instead
+- Logging now properly done under ``requests_oauthlib`` namespace instead
   of piggybacking on oauthlib namespace.
 - Logging introduced for OAuth1 auth and session.
 
