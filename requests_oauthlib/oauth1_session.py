@@ -303,3 +303,12 @@ class OAuth1Session(requests.Session):
         log.debug('Updating internal client attributes from token data.')
         self._populate_attributes(token)
         return token
+
+    def rebuild_auth(self, prepared_request, response):
+        """
+        When being redirected we should always strip Authorization
+        header, since nonce may not be reused as per OAuth spec.
+        """
+        prepared_request.headers.pop('Authorization', True)
+        prepared_request.prepare_auth(self.auth)
+        return
