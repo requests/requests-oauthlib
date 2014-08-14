@@ -328,7 +328,6 @@ class OAuth1Session(requests.Session):
         When being redirected we should always strip Authorization
         header, since nonce may not be reused as per OAuth spec.
         """
-        #import ipdb; ipdb.set_trace()
         if 'Authorization' in prepared_request.headers:
             # If we get redirected to a new host, we should strip out
             # any authentication headers.
