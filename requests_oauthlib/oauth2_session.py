@@ -112,7 +112,7 @@ class OAuth2Session(requests.Session):
 
     def fetch_token(self, token_url, code=None, authorization_response=None,
             body='', auth=None, username=None, password=None, method='POST',
-            verify=True, **kwargs):
+            headers=None, verify=True, **kwargs):
         """Generic method for fetching an access token from the token endpoint.
 
         If you are using the MobileApplicationClient you will want to use
@@ -131,6 +131,7 @@ class OAuth2Session(requests.Session):
         :param method: The HTTP method used to make the request. Defaults
                        to POST, but may also be GET. Other methods should
                        be added as needed.
+        :param headers: Dict to default request headers with.
         :param verify: Verify SSL certificate.
         :param kwargs: Extra parameters to include in the token request.
         :return: A token dict
@@ -153,15 +154,19 @@ class OAuth2Session(requests.Session):
                 redirect_uri=self.redirect_uri, username=username,
                 password=password, **kwargs)
 
+        headers = headers or {
+            'Accept': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+        }
         if method.upper() == 'POST':
             r = self.post(token_url, data=dict(urldecode(body)),
-                headers={'Accept': 'application/json'}, auth=auth,
+                headers=headers, auth=auth,
                 verify=verify)
             log.debug('Prepared fetch token request body %s', body)
         elif method.upper() == 'GET':
             # if method is not 'POST', switch body to querystring and GET
             r = self.get(token_url, params=dict(urldecode(body)),
-                headers={'Accept': 'application/json'}, auth=auth,
+                headers=headers, auth=auth,
                 verify=verify)
             log.debug('Prepared fetch token request querystring %s', body)
         else:
@@ -169,6 +174,8 @@ class OAuth2Session(requests.Session):
 
         log.debug('Request to fetch token completed with status %s.',
                   r.status_code)
+        log.debug('Request headers were %s', r.request.headers)
+        log.debug('Request body was %s', r.request.body)
         log.debug('Response headers were %s and content %s.',
                   r.headers, r.text)
         log.debug('Invoking %d token response hooks.',

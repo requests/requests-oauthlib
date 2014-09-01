@@ -19,6 +19,7 @@ class FacebookComplianceFixTest(unittest.TestCase):
         facebook.post = mock.MagicMock()
         response = requests.Response()
         response.status_code = 200
+        response.request = mock.MagicMock()
         response._content = 'access_token=urlencoded'.encode('UTF-8')
         response.headers['Content-Type'] = 'text/plain'
         facebook.post.return_value = response
@@ -38,6 +39,7 @@ class LinkedInComplianceFixTest(unittest.TestCase):
         linkedin.post = mock.MagicMock()
         response = requests.Response()
         response.status_code = 200
+        response.request = mock.MagicMock()
         response._content = '{"access_token":"linkedin"}'.encode('UTF-8')
         linkedin.post.return_value = response
 
@@ -56,6 +58,7 @@ class WeiboComplianceFixTest(unittest.TestCase):
         weibo.post = mock.MagicMock()
         response = requests.Response()
         response.status_code = 200
+        response.request = mock.MagicMock()
         response._content = '{"access_token":"weibo"}'.encode('UTF-8')
         weibo.post.return_value = response
 
