@@ -19,6 +19,7 @@ tox.ini
 .tox/
 
 .workon
+.*/
 
 t.py
 

@@ -7,7 +7,8 @@ except ImportError:
 
 import logging
 
-from oauthlib.common import add_params_to_uri, urldecode
+from oauthlib.common import add_params_to_uri
+from oauthlib.common import urldecode as _urldecode
 from oauthlib.oauth1 import SIGNATURE_HMAC, SIGNATURE_TYPE_AUTH_HEADER
 import requests
 
@@ -19,6 +20,15 @@ if sys.version > "3":
 
 
 log = logging.getLogger(__name__)
+
+
+def urldecode(body):
+    """Parse query or json to python dictionary"""
+    try:
+        return _urldecode(body)
+    except:
+        import json
+        return json.loads(body)
 
 
 class TokenRequestDenied(ValueError):
@@ -222,7 +232,7 @@ class OAuth1Session(requests.Session):
         self._client.client.realm = None
         return token
 
-    def fetch_access_token(self, url):
+    def fetch_access_token(self, url, verifier=None):
         """Fetch an access token.
 
         This is the final step in the OAuth 1 workflow. An access token is
@@ -248,6 +258,8 @@ class OAuth1Session(requests.Session):
             'oauth_token_secret': '2kjshdfp92i34asdasd',
         }
         """
+        if verifier:
+            self._client.client.verifier = verifier
         if not getattr(self._client.client, 'verifier', None):
             raise ValueError('No client verifier has been set.')
         token = self._fetch_token(url)
@@ -316,6 +328,9 @@ class OAuth1Session(requests.Session):
         When being redirected we should always strip Authorization
         header, since nonce may not be reused as per OAuth spec.
         """
-        prepared_request.headers.pop('Authorization', True)
-        prepared_request.prepare_auth(self.auth)
+        if 'Authorization' in prepared_request.headers:
+            # If we get redirected to a new host, we should strip out
+            # any authentication headers.
+            prepared_request.headers.pop('Authorization', True)
+            prepared_request.prepare_auth(self.auth)
         return
