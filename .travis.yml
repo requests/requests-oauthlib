@@ -8,6 +8,6 @@ install:
   - pip install -r requirements.txt
   - pip install coveralls
 script:
-  - coverage run -m nose
+  - coverage run --source=requests_oauthlib -m nose
 after_success:
   - coveralls
