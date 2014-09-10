@@ -42,7 +42,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Requests-OAuthlib'
-copyright = u'2013, Kenneth Reitz'
+copyright = u'2014, Kenneth Reitz'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
