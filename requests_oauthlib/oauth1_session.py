@@ -38,6 +38,16 @@ class TokenRequestDenied(ValueError):
         self.status_code = status_code
 
 
+class TokenMissing(ValueError):
+    def __init__(self, message, response):
+        super(TokenRequestDenied, self).__init__(message)
+        self.response = response
+
+
+class VerifierMissing(ValueError):
+    pass
+
+
 class OAuth1Session(requests.Session):
     """Request signing and convenience methods for the oauth dance.
 
@@ -261,7 +271,7 @@ class OAuth1Session(requests.Session):
         if verifier:
             self._client.client.verifier = verifier
         if not getattr(self._client.client, 'verifier', None):
-            raise ValueError('No client verifier has been set.')
+            raise VerifierMissing('No client verifier has been set.')
         token = self._fetch_token(url)
         log.debug('Resetting verifier attribute, should not be used anymore.')
         self._client.client.verifier = None
@@ -293,7 +303,10 @@ class OAuth1Session(requests.Session):
         if 'oauth_token' in token:
             self._client.client.resource_owner_key = token['oauth_token']
         else:
-            raise ValueError('Response does not contain a token. %s', token)
+            raise TokenMissing(
+                'Response does not contain a token: {resp}'.format(resp=token),
+                token,
+            )
         if 'oauth_token_secret' in token:
             self._client.client.resource_owner_secret = (
                 token['oauth_token_secret'])
