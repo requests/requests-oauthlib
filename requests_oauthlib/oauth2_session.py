@@ -36,7 +36,7 @@ class OAuth2Session(requests.Session):
 
     def __init__(self, client_id=None, client=None, auto_refresh_url=None,
             auto_refresh_kwargs=None, scope=None, redirect_uri=None, token=None,
-            state=None, token_updater=None, **kwargs):
+            state=None, token_updater=None, base_url=None, **kwargs):
         """Construct a new OAuth 2 client session.
 
         :param client_id: Client id obtained during registration
@@ -61,6 +61,8 @@ class OAuth2Session(requests.Session):
                         set a TokenUpdated warning will be raised when a token
                         has been refreshed. This warning will carry the token
                         in its token argument.
+        :param base_url: An optional string to use as a prefix for all requests
+                         from this session.
         :param kwargs: Arguments to pass to the Session constructor.
         """
         super(OAuth2Session, self).__init__(**kwargs)
@@ -75,6 +77,7 @@ class OAuth2Session(requests.Session):
         self.token_updater = token_updater
         self._client = client or WebApplicationClient(client_id, token=token)
         self._client._populate_attributes(token or {})
+        self.base_url = base_url
 
         # Allow customizations for non compliant providers through various
         # hooks to adjust requests and responses.
@@ -298,3 +301,11 @@ class OAuth2Session(requests.Session):
             raise ValueError('Hook type %s is not in %s.',
                              hook_type, self.compliance_hook)
         self.compliance_hook[hook_type].add(hook)
+
+    def prepare_request(self, request):
+        """
+        If we have a `base_url`, prepend it to the URL.
+        """
+        if self.base_url:
+            request.url = self.base_url + request.url
+        return super(OAuth2Session, self).prepare_request(request)
