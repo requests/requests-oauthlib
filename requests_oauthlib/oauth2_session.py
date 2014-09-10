@@ -97,6 +97,17 @@ class OAuth2Session(requests.Session):
             log.debug('Re-using previously supplied state %s.', self._state)
         return self._state
 
+    @property
+    def authorized(self):
+        """Boolean that indicates whether this session has an OAuth token
+        or not. If `self.authorized` is True, you can reasonably expect
+        OAuth-protected requests to the resource to succeed. If
+        `self.authorized` is False, you need the user to go through the OAuth
+        authentication dance before OAuth-protected requests to the resource
+        will succeed.
+        """
+        return bool(self._client.access_token)
+
     def authorization_url(self, url, state=None, **kwargs):
         """Form an authorization URL.
 
