@@ -1,5 +1,5 @@
-Requests-OAuthlib
-=================
+Requests-OAuthlib |build-status| |coverage-status| |docs|
+=========================================================
 
 This project provides first-class OAuth library support for `Requests <http://python-requests.org>`_.
 
@@ -55,3 +55,12 @@ To install requests and requests_oauthlib you can use pip:
 .. code-block:: bash
 
     $ pip install requests requests_oauthlib
+
+.. |build-status| image:: https://travis-ci.org/requests/requests-oauthlib.svg?branch=master
+   :target: https://travis-ci.org/requests/requests-oauthlib
+.. |coverage-status| image:: https://img.shields.io/coveralls/requests/requests-oauthlib.svg
+   :target: https://coveralls.io/r/requests/requests-oauthlib
+.. |docs| image:: https://readthedocs.org/projects/requests-oauthlib/badge/?version=latest
+   :alt: Documentation Status
+   :scale: 100%
+   :target: https://readthedocs.org/projects/requests-oauthlib/
