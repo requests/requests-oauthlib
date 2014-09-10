@@ -21,3 +21,4 @@ Patches and Suggestions
 - Paul Bonser <misterpib@gmail.com>
 - Vinay Raikar <rockraikar@gmail.com>
 - kracekumar <me@kracekumar.com>
+- David Baumgold <david@davidbaumgold.com>
