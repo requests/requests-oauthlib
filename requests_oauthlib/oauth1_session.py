@@ -9,7 +9,9 @@ import logging
 
 from oauthlib.common import add_params_to_uri
 from oauthlib.common import urldecode as _urldecode
-from oauthlib.oauth1 import SIGNATURE_HMAC, SIGNATURE_TYPE_AUTH_HEADER
+from oauthlib.oauth1 import (
+    SIGNATURE_HMAC, SIGNATURE_RSA, SIGNATURE_TYPE_AUTH_HEADER
+)
 import requests
 
 from . import OAuth1
@@ -168,6 +170,26 @@ class OAuth1Session(requests.Session):
                 **kwargs)
         self.auth = self._client
         self.base_url = base_url
+
+    @property
+    def authorized(self):
+        """Boolean that indicates whether this session has an OAuth token
+        or not. If `self.authorized` is True, you can reasonably expect
+        OAuth-protected requests to the resource to succeed. If
+        `self.authorized` is False, you need the user to go through the OAuth
+        authentication dance before OAuth-protected requests to the resource
+        will succeed.
+        """
+        if self._client.signature_method == SIGNATURE_RSA:
+            # RSA only uses resource_owner_key
+            return bool(self._client.resource_owner_key)
+        else:
+            # other methods of authentication use all three pieces
+            return (
+                bool(self._client.client_secret) and
+                bool(self._client.resource_owner_key) and
+                bool(self._client.resource_owner_secret)
+            )
 
     def authorization_url(self, url, request_token=None, **kwargs):
         """Create an authorization URL by appending request_token and optional
