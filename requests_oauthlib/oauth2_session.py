@@ -6,6 +6,7 @@ from oauthlib.common import generate_token, urldecode
 from oauthlib.oauth2 import WebApplicationClient, InsecureTransportError
 from oauthlib.oauth2 import TokenExpiredError, is_secure_transport
 import requests
+from urlobject import URLObject
 
 log = logging.getLogger(__name__)
 
@@ -77,7 +78,7 @@ class OAuth2Session(requests.Session):
         self.token_updater = token_updater
         self._client = client or WebApplicationClient(client_id, token=token)
         self._client._populate_attributes(token or {})
-        self.base_url = base_url
+        self.base_url = URLObject(base_url)
 
         # Allow customizations for non compliant providers through various
         # hooks to adjust requests and responses.
@@ -261,6 +262,9 @@ class OAuth2Session(requests.Session):
 
     def request(self, method, url, data=None, headers=None, **kwargs):
         """Intercept all requests and add the OAuth 2 token if present."""
+        if self.base_url:
+            url = self.base_url.relative(url)
+
         if not is_secure_transport(url):
             raise InsecureTransportError()
         if self.token:
@@ -312,11 +316,3 @@ class OAuth2Session(requests.Session):
             raise ValueError('Hook type %s is not in %s.',
                              hook_type, self.compliance_hook)
         self.compliance_hook[hook_type].add(hook)
-
-    def prepare_request(self, request):
-        """
-        If we have a `base_url`, prepend it to the URL.
-        """
-        if self.base_url:
-            request.url = self.base_url + request.url
-        return super(OAuth2Session, self).prepare_request(request)

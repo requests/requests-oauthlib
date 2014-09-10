@@ -140,3 +140,17 @@ class OAuth2SessionTest(unittest.TestCase):
         self.assertRaises(MismatchingStateError, client.fetch_token,
                           'https://i.b/token',
                           authorization_response='https://i.b/no-state?code=abc')
+
+    def test_base_url(self):
+        auth = OAuth2Session('foo', base_url="https://api.github.com/")
+        auth.send = mock.MagicMock()
+        auth.get("/user/email")
+        prepared_request = auth.send.call_args[0][0]
+        self.assertEqual(prepared_request.url, "https://api.github.com/user/email")
+
+    def test_base_url_override(self):
+        auth = OAuth2Session('foo', base_url="https://api.github.com/")
+        auth.send = mock.MagicMock()
+        auth.get("https://github.com/login/oauth/authorize")
+        prepared_request = auth.send.call_args[0][0]
+        self.assertEqual(prepared_request.url, "https://github.com/login/oauth/authorize")

@@ -210,3 +210,23 @@ class OAuth1SessionTest(unittest.TestCase):
             resp.status_code = status_code
             return resp
         return fake_send
+
+    def test_base_url(self):
+        auth = OAuth1Session('foo', base_url="https://api.twitter.com/1.1/")
+        auth.send = mock.MagicMock()
+        auth.get("statuses/home_timeline.json")
+        prepared_request = auth.send.call_args[0][0]
+        self.assertEqual(
+            prepared_request.url,
+            "https://api.twitter.com/1.1/statuses/home_timeline.json",
+        )
+
+    def test_base_url_override(self):
+        auth = OAuth1Session('foo', base_url="https://api.twitter.com/1.1/")
+        auth.send = mock.MagicMock()
+        auth.get("https://api.twitter.com/oauth/request_token")
+        prepared_request = auth.send.call_args[0][0]
+        self.assertEqual(
+            prepared_request.url,
+            "https://api.twitter.com/oauth/request_token",
+        )
