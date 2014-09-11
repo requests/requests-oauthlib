@@ -116,7 +116,6 @@ class OAuth1Session(requests.Session):
             verifier=None,
             client_class=None,
             force_include_body=False,
-            base_url=None,
             **kwargs):
         """Construct the OAuth 1 session.
 
@@ -151,8 +150,6 @@ class OAuth1Session(requests.Session):
                              `requests_oauthlib.OAuth1` instead of the default
         :param force_include_body: Always include the request body in the
                                    signature creation.
-        :param base_url: An optional string to use as a prefix for all requests
-                         from this session.
         :param **kwargs: Additional keyword arguments passed to `OAuth1`
         """
         super(OAuth1Session, self).__init__()
@@ -169,7 +166,6 @@ class OAuth1Session(requests.Session):
                 force_include_body=force_include_body,
                 **kwargs)
         self.auth = self._client
-        self.base_url = base_url
 
     @property
     def authorized(self):
@@ -373,11 +369,3 @@ class OAuth1Session(requests.Session):
             prepared_request.headers.pop('Authorization', True)
             prepared_request.prepare_auth(self.auth)
         return
-
-    def prepare_request(self, request):
-        """
-        If we have a `base_url`, prepend it to the URL.
-        """
-        if self.base_url:
-            request.url = self.base_url + request.url
-        return super(OAuth1Session, self).prepare_request(request)
