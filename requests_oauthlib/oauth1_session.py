@@ -13,6 +13,7 @@ from oauthlib.oauth1 import (
     SIGNATURE_HMAC, SIGNATURE_RSA, SIGNATURE_TYPE_AUTH_HEADER
 )
 import requests
+from urlobject import URLObject
 
 from . import OAuth1
 
@@ -169,7 +170,7 @@ class OAuth1Session(requests.Session):
                 force_include_body=force_include_body,
                 **kwargs)
         self.auth = self._client
-        self.base_url = base_url
+        self.base_url = URLObject(base_url)
 
     @property
     def authorized(self):
@@ -376,8 +377,9 @@ class OAuth1Session(requests.Session):
 
     def prepare_request(self, request):
         """
-        If we have a `base_url`, prepend it to the URL.
+        If we have a `base_url`, use it as a base
+        for `request.url` to override/extend.
         """
         if self.base_url:
-            request.url = self.base_url + request.url
+            request.url = self.base_url.relative(request.url)
         return super(OAuth1Session, self).prepare_request(request)
