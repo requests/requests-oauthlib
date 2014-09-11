@@ -6,9 +6,6 @@ v0.4.2
 - New ``authorized`` property on OAuth1Session and OAuth2Session, which allows
   you to easily determine if the session is already authorized with OAuth tokens
   or not.
-- You can now pass a ``base_url`` parameter when creating a new OAuth1Session
-  or OAuth2Session. If you do, this value is prefixed to all HTTP requests
-  you make with this session.
 - New ``TokenMissing`` and ``VerifierMissing`` exception classes for OAuth1Session:
   this will make it easier to catch and identify these exceptions.
 
