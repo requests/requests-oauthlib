@@ -88,6 +88,8 @@ class OAuth1(object):
 
         r.prepare_headers(headers)
         r.url = to_native_string(r.url)
+        r.url = r.url.replace('+', '%20')
+        r.body = r.body.replace('+', '%20')
         log.debug('Updated url: %s', r.url)
         log.debug('Updated headers: %s', headers)
         log.debug('Updated body: %r', r.body)
