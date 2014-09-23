@@ -233,7 +233,7 @@ class OAuth1Session(requests.Session):
         log.debug('Adding parameters %s to url %s', kwargs, url)
         return add_params_to_uri(url, kwargs.items())
 
-    def fetch_request_token(self, url, realm=None, params=None):
+    def fetch_request_token(self, url, realm=None, request_data=None):
         """Fetch a request token.
 
         This is the first step in the OAuth 1 workflow. A request token is
@@ -243,6 +243,7 @@ class OAuth1Session(requests.Session):
 
         :param url: The request token endpoint URL.
         :param realm: A list of realms to request access to.
+        :param request_data: (optional) Dictionary, bytes, or file-like object to send in the body of the :class:`Request`.
         :returns: The response in dict format.
 
         Note that a previously set callback_uri will be reset for your
@@ -258,7 +259,7 @@ class OAuth1Session(requests.Session):
         }
         """
         self._client.client.realm = ' '.join(realm) if realm else None
-        token = self._fetch_token(url, params)
+        token = self._fetch_token(url, request_data)
         log.debug('Resetting callback_uri and realm (not needed in next phase).')
         self._client.client.callback_uri = None
         self._client.client.realm = None
@@ -335,9 +336,9 @@ class OAuth1Session(requests.Session):
         if 'oauth_verifier' in token:
             self._client.client.verifier = token['oauth_verifier']
 
-    def _fetch_token(self, url, params=None):
+    def _fetch_token(self, url, request_data=None):
         log.debug('Fetching token from %s using client %s', url, self._client.client)
-        r = self.post(url, params)
+        r = self.post(url, request_data)
 
         if r.status_code >= 400:
             error = "Token request failed with code %s, response was '%s'."
