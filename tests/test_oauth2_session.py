@@ -140,3 +140,25 @@ class OAuth2SessionTest(unittest.TestCase):
         self.assertRaises(MismatchingStateError, client.fetch_token,
                           'https://i.b/token',
                           authorization_response='https://i.b/no-state?code=abc')
+
+    def test_authorized_false(self):
+        sess = OAuth2Session('foo')
+        self.assertFalse(sess.authorized)
+
+    @mock.patch("time.time", new=lambda: fake_time)
+    def test_authorized_true(self):
+        def fake_token(token):
+            def fake_send(r, **kwargs):
+                resp = mock.MagicMock()
+                resp.text = json.dumps(token)
+                return resp
+            return fake_send
+        url = 'https://example.com/token'
+
+        for client in self.clients:
+            sess = OAuth2Session(client=client)
+            sess.send = fake_token(self.token)
+            self.assertFalse(sess.authorized)
+            sess.fetch_token(url)
+            self.assertTrue(sess.authorized)
+

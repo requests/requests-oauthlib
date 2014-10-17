@@ -176,15 +176,15 @@ class OAuth1Session(requests.Session):
         authentication dance before OAuth-protected requests to the resource
         will succeed.
         """
-        if self._client.signature_method == SIGNATURE_RSA:
+        if self._client.client.signature_method == SIGNATURE_RSA:
             # RSA only uses resource_owner_key
-            return bool(self._client.resource_owner_key)
+            return bool(self._client.client.resource_owner_key)
         else:
             # other methods of authentication use all three pieces
             return (
-                bool(self._client.client_secret) and
-                bool(self._client.resource_owner_key) and
-                bool(self._client.resource_owner_secret)
+                bool(self._client.client.client_secret) and
+                bool(self._client.client.resource_owner_key) and
+                bool(self._client.client.resource_owner_secret)
             )
 
     def authorization_url(self, url, request_token=None, **kwargs):
