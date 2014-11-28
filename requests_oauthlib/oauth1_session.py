@@ -42,7 +42,7 @@ class TokenRequestDenied(ValueError):
 
 class TokenMissing(ValueError):
     def __init__(self, message, response):
-        super(TokenRequestDenied, self).__init__(message)
+        super(TokenMissing, self).__init__(message)
         self.response = response
 
 
