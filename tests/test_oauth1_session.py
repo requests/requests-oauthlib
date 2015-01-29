@@ -1,4 +1,4 @@
-from __future__ import unicode_literals
+from __future__ import unicode_literals, print_function
 import mock
 import unittest
 import sys
@@ -13,12 +13,31 @@ try:
 except ImportError:
     from io import StringIO
 
+try:
+    import cryptography
+except ImportError:
+    cryptography = None
+
 if sys.version[0] == '3':
     unicode_type = str
     bytes_type = bytes
 else:
     unicode_type = unicode
     bytes_type = str
+
+# Monkey patch Python 2.6 unittest
+if not hasattr(unittest, 'SkipTest'):
+    unittest.SkipTest = RuntimeWarning
+    unittest.TestResult.real_add_error = unittest.TestResult.addError
+
+    def patched_addError(self, test, exc_info):
+        if exc_info[0] is RuntimeWarning:
+            print(str(exc_info[1]), end=' ', file=sys.stderr)
+            return
+        else:
+            self.real_add_error(test, exc_info)
+    unittest.TestResult.addError = patched_addError
+
 
 TEST_RSA_KEY = (
     "-----BEGIN RSA PRIVATE KEY-----\n"
@@ -95,6 +114,9 @@ class OAuth1SessionTest(unittest.TestCase):
     @mock.patch('oauthlib.oauth1.rfc5849.generate_timestamp')
     @mock.patch('oauthlib.oauth1.rfc5849.generate_nonce')
     def test_signature_methods(self, generate_nonce, generate_timestamp):
+        if not cryptography:
+            raise unittest.SkipTest('cryptography module is required')
+
         generate_nonce.return_value = 'abc'
         generate_timestamp.return_value = '123'
 
@@ -239,6 +261,9 @@ class OAuth1SessionTest(unittest.TestCase):
     @mock.patch('oauthlib.oauth1.rfc5849.generate_timestamp')
     @mock.patch('oauthlib.oauth1.rfc5849.generate_nonce')
     def test_authorized_true_rsa(self, generate_nonce, generate_timestamp):
+        if not cryptography:
+            raise unittest.SkipTest('cryptography module is required')
+
         generate_nonce.return_value = 'abc'
         generate_timestamp.return_value = '123'
         signature = ('OAuth '
