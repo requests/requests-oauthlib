@@ -1,15 +1,36 @@
 sudo: false
 language: python
 cache: pip
+
 python:
   - 2.6
   - 2.7
   - 3.3
   - 3.4
+
+env:
+  matrix:
+  - USE_SETUP=1 USE_COVERALLS=0
+  - USE_SETUP=0 USE_COVERALLS=1
+
 install:
-  - pip install -r requirements.txt
-  - pip install coveralls
+  - if [[ "$USE_SETUP" == "0" ]]; then
+      pip install -r requirements.txt ;
+    fi
+  - if [[ "$USE_COVERALLS" == "1" ]]; then
+      pip install coveralls ;
+    else
+      pip install coverage ;
+    fi
+
 script:
-  - coverage run --source=requests_oauthlib -m nose
+  - if [[ "$USE_SETUP" == "1" ]]; then
+      python setup.py test ;
+    else
+      coverage run --source=requests_oauthlib -m nose ;
+    fi
+
 after_success:
-  - coveralls
+  - if [[ "$USE_COVERALLS" == "1" ]]; then
+      coveralls ;
+    fi
