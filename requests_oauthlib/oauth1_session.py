@@ -55,7 +55,7 @@ class OAuth1Session(requests.Session):
 
     What is the difference between OAuth1Session and OAuth1?
 
-    OAuth1Session actually uses OAuth1 internally and it's purpose is to assist
+    OAuth1Session actually uses OAuth1 internally and its purpose is to assist
     in the OAuth workflow through convenience methods to prepare authorization
     URLs and parse the various token and redirection responses. It also provide
     rudimentary validation of responses.
