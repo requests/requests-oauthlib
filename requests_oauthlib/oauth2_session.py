@@ -196,6 +196,8 @@ class OAuth2Session(requests.Session):
             log.debug('Invoking hook %s.', hook)
             r = hook(r)
 
+        r.raise_for_status()
+
         self._client.parse_request_body_response(r.text, scope=self.scope)
         self.token = self._client.token
         log.debug('Obtained token %s.', self.token)
