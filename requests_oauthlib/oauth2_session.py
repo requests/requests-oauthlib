@@ -64,7 +64,9 @@ class OAuth2Session(requests.Session):
         :param kwargs: Arguments to pass to the Session constructor.
         """
         super(OAuth2Session, self).__init__(**kwargs)
-        self.client_id = client_id or client.client_id
+        self.client_id = client_id
+        if client is not None and not self.client_id:
+            self.client_id = client.client_id
         self.scope = scope
         self.redirect_uri = redirect_uri
         self.token = token or {}
