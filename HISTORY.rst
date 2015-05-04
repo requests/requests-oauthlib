@@ -1,6 +1,13 @@
 History
 -------
 
+v0.5.0 (4 May 2015)
++++++++++++++++++++
+- Fix ``TypeError`` being raised instead of ``TokenMissing`` error.
+- Raise requests exceptions on 4XX and 5XX responses in the OAuth2 flow.
+- Avoid ``AttributeError`` when initializing the ``OAuth2Session`` class
+  without complete client information.
+
 v0.4.2
 ++++++
 - New ``authorized`` property on OAuth1Session and OAuth2Session, which allows
