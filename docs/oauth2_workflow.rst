@@ -134,7 +134,24 @@ The steps below outline how to use the Resource Owner Password Credentials Grant
 Backend Application Flow
 ------------------------
 
-Documentation coming soon. Want to help? Why not `write this section`_?
+The steps below outline how to use the Resource Owner Client Credentials Grant Type flow to obtain an access token.
+
+0. Obtain credentials from your OAuth provider. At minimum you will
+   need a ``client_id`` and ``client_secret``. 
+
+.. code-block:: pycon
+
+    >>> client_id = 'your_client_id'
+    >>> client_secret = 'your_client_secret'
+
+1. Fetch an access token from the provider.
+
+.. code-block:: pycon
+    
+    >>> client = BackendApplicationClient(client_id=client_id)
+    >>> oauth = OAuth2Session(client=client)
+    >>> token = oauth.fetch_token(token_url='https://provider.com/oauth2/token', client_id=client_id,
+            client_secret=client_secret)
 
 
 Refreshing tokens
