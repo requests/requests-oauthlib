@@ -5,7 +5,7 @@ import time
 import unittest
 
 from oauthlib.common import urlencode
-from oauthlib.oauth2 import TokenExpiredError, InvalidRequestError
+from oauthlib.oauth2 import TokenExpiredError, OAuth2Error
 from oauthlib.oauth2 import MismatchingStateError
 from oauthlib.oauth2 import WebApplicationClient, MobileApplicationClient
 from oauthlib.oauth2 import LegacyApplicationClient, BackendApplicationClient
@@ -131,7 +131,7 @@ class OAuth2SessionTest(unittest.TestCase):
         for client in self.clients:
             auth = OAuth2Session(client=client, token=self.token)
             auth.send = fake_token(error)
-            self.assertRaises(InvalidRequestError, auth.fetch_token, url)
+            self.assertRaises(OAuth2Error, auth.fetch_token, url)
 
 
     def test_web_app_fetch_token(self):
