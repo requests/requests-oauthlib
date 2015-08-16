@@ -35,9 +35,14 @@ def urldecode(body):
 
 class TokenRequestDenied(ValueError):
 
-    def __init__(self, message, status_code):
+    def __init__(self, message, response):
         super(TokenRequestDenied, self).__init__(message)
-        self.status_code = status_code
+        self.response = response
+
+    @property
+    def status_code(self):
+        """For backwards-compatibility purposes"""
+        return self.response.status_code
 
 
 class TokenMissing(ValueError):
@@ -341,7 +346,7 @@ class OAuth1Session(requests.Session):
 
         if r.status_code >= 400:
             error = "Token request failed with code %s, response was '%s'."
-            raise TokenRequestDenied(error % (r.status_code, r.text), r.status_code)
+            raise TokenRequestDenied(error % (r.status_code, r.text), r)
 
         log.debug('Decoding token from response "%s"', r.text)
         try:
