@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 import mock
 import unittest
 import sys
+import requests
 
 from oauthlib.oauth1 import SIGNATURE_TYPE_QUERY, SIGNATURE_TYPE_BODY
 from oauthlib.oauth1 import SIGNATURE_RSA, SIGNATURE_PLAINTEXT
@@ -73,7 +74,7 @@ class OAuth1SessionTest(unittest.TestCase):
                 if isinstance(signature, bytes_type):
                     signature = signature.decode('utf-8')
                 self.assertIn('oauth_signature', signature)
-                resp = mock.MagicMock()
+                resp = mock.MagicMock(spec=requests.Response)
                 resp.cookies = []
                 return resp
             return fake_send
@@ -196,8 +197,15 @@ class OAuth1SessionTest(unittest.TestCase):
 
         for code in (400, 401, 403):
             auth.send = self.fake_body('valid=response', code)
-            self.assertRaises(ValueError, auth.fetch_request_token,
-                    'https://example.com/token')
+            # use try/catch rather than self.assertRaises, so we can
+            # assert on the properties of the exception
+            try:
+                auth.fetch_request_token('https://example.com/token')
+            except ValueError as err:
+                self.assertEqual(err.status_code, code)
+                self.assertTrue(isinstance(err.response, requests.Response))
+            else:  # no exception raised
+                self.fail("ValueError not raised")
 
     def test_fetch_access_token_missing_verifier(self):
         self._test_fetch_access_token_raises_error(OAuth1Session('foo'))
@@ -250,14 +258,14 @@ class OAuth1SessionTest(unittest.TestCase):
             if isinstance(auth_header, bytes_type):
                 auth_header = auth_header.decode('utf-8')
             self.assertEqual(auth_header, signature)
-            resp = mock.MagicMock()
+            resp = mock.MagicMock(spec=requests.Response)
             resp.cookies = []
             return resp
         return fake_send
 
     def fake_body(self, body, status_code=200):
         def fake_send(r, **kwargs):
-            resp = mock.MagicMock()
+            resp = mock.MagicMock(spec=requests.Response)
             resp.cookies = []
             resp.text = body
             resp.status_code = status_code
