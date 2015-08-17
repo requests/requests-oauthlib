@@ -74,7 +74,7 @@ class OAuth1SessionTest(unittest.TestCase):
                     signature = signature.decode('utf-8')
                 self.assertIn('oauth_signature', signature)
                 resp = mock.MagicMock()
-                resp.cookes = []
+                resp.cookies = []
                 return resp
             return fake_send
 
@@ -251,14 +251,14 @@ class OAuth1SessionTest(unittest.TestCase):
                 auth_header = auth_header.decode('utf-8')
             self.assertEqual(auth_header, signature)
             resp = mock.MagicMock()
-            resp.cookes = []
+            resp.cookies = []
             return resp
         return fake_send
 
     def fake_body(self, body, status_code=200):
         def fake_send(r, **kwargs):
             resp = mock.MagicMock()
-            resp.cookes = []
+            resp.cookies = []
             resp.text = body
             resp.status_code = status_code
             return resp
