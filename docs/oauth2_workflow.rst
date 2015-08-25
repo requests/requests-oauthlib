@@ -124,6 +124,8 @@ The steps below outline how to use the Resource Owner Password Credentials Grant
 
 .. code-block:: pycon
 
+    >>> from oauthlib.oauth2 import LegacyApplicationClient
+    >>> from requests_oauthlib import OAuth2Session
     >>> oauth = OAuth2Session(client=LegacyApplicationClient(client_id=client_id))
     >>> token = oauth.fetch_token(token_url='https://somesite.com/oauth2/token',
             username=username, password=password, client_id=client_id,
