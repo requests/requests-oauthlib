@@ -284,7 +284,7 @@ class OAuth2Session(requests.Session):
                 if self.auto_refresh_url:
                     log.debug('Auto refresh is set, attempting to refresh at %s.',
                               self.auto_refresh_url)
-                    token = self.refresh_token(self.auto_refresh_url)
+                    token = self.refresh_token(self.auto_refresh_url, **kwargs)
                     if self.token_updater:
                         log.debug('Updating token to %s using %s.',
                                   token, self.token_updater)
