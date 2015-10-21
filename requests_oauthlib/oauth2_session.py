@@ -246,6 +246,7 @@ class OAuth2Session(requests.Session):
         log.debug('Prepared refresh token request body %s', body)
         r = self.post(token_url, data=dict(urldecode(body)), auth=auth,
                       timeout=timeout, verify=verify)
+        r.raise_for_status()
         log.debug('Request to refresh token completed with status %s.',
                   r.status_code)
         log.debug('Response headers were %s and content %s.',
