@@ -8,10 +8,11 @@ a web application might look like using the `Flask web framework
 <http://flask.pocoo.org/>`_ and GitHub as a provider. It should be easily
 transferrable to any web framework.
 
-.. note:: While the flow remains the same across moat providers, Github is special in that
-          the ``redirect_uri`` parameter is optional. This means that it may be necessary to
-          explicitly pass a redirect_uri to the ``OAuth2Session`` object (e.g. when creating
-          a custom OAuthProvider with ``flask-oauthlib``).
+.. note:: While the flow remains the same across moat providers, Github is
+          special in that the ``redirect_uri`` parameter is optional. This
+          means that it may be necessary to explicitly pass a redirect_uri to
+          the ``OAuth2Session`` object (e.g. when creating a custom
+          OAuthProvider with ``flask-oauthlib``).
 
 .. code-block:: python
 
