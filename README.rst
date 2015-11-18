@@ -33,19 +33,11 @@ OAuth 2 is generally simpler than OAuth 1 but comes in more flavours. The most
 common being the Authorization Code Grant, also known as the WebApplication
 flow.
 
-Fetching a protected resource after obtaining an access token can be as simple as:
-
-.. code-block:: pycon
-
-    >>> from requests_oauthlib import OAuth2Session
-    >>> google = OAuth2Session(r'client_id', token=r'token')
-    >>> url = 'https://www.googleapis.com/oauth2/v1/userinfo'
-    >>> r = google.get(url)
-
-Before accessing resources you will need to obtain a few credentials from your
-provider (i.e. Google) and authorization from the user for whom you wish to
-retrieve resources for. You can read all about this in the full
-`OAuth 2 workflow guide on RTD <http://requests-oauthlib.readthedocs.org/en/latest/oauth2_workflow.html>`_.
+Fetching a protected resource after obtaining an access token can be extremely
+simple. However, before accessing resources you will need to obtain a few
+credentials from your provider (i.e. Google) and authorization from the user
+for whom you wish to retrieve resources for. You can read all about this in the
+full `OAuth 2 workflow guide on RTD <http://requests-oauthlib.readthedocs.org/en/latest/oauth2_workflow.html>`_.
 
 Installation
 -------------
