@@ -168,6 +168,8 @@ class OAuth2Session(requests.Session):
                 redirect_uri=self.redirect_uri, username=username,
                 password=password, **kwargs)
 
+        auth = auth or requests.auth.HTTPBasicAuth(username, password)
+
         headers = headers or {
             'Accept': 'application/json',
             'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
