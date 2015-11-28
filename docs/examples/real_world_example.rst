@@ -100,7 +100,10 @@ Most people don't set SSL on their server while testing and that is fine. You ca
 
 2. Equivalent to above you can set this in Python (if you have problems setting environment variables)
 
-# Somewhere in webapp_example.py, before the app.run for example
+
+Add this code in webapp_example.py, before the call app.run()
+
+.. code-block:: python
 
     import os
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
