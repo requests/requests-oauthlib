@@ -9,6 +9,7 @@ python:
 install:
   - pip install -r requirements.txt
   - pip install coveralls
+  - python setup.py develop
 script:
   - coverage run --source=requests_oauthlib -m nose
 after_success:
