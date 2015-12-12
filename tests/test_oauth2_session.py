@@ -141,6 +141,26 @@ class OAuth2SessionTest(unittest.TestCase):
                           'https://i.b/token',
                           authorization_response='https://i.b/no-state?code=abc')
 
+    def test_client_id_proxy(self):
+        sess = OAuth2Session('test-id')
+        self.assertEqual(sess.client_id, 'test-id')
+        sess.client_id = 'different-id'
+        self.assertEqual(sess.client_id, 'different-id')
+        sess._client.client_id = 'something-else'
+        self.assertEqual(sess.client_id, 'something-else')
+        del sess.client_id
+        self.assertIsNone(sess.client_id)
+
+    def test_access_token_proxy(self):
+        sess = OAuth2Session('test-id')
+        self.assertIsNone(sess.access_token)
+        sess.access_token = 'test-token'
+        self.assertEqual(sess.access_token, 'test-token')
+        sess._client.access_token = 'different-token'
+        self.assertEqual(sess.access_token, 'different-token')
+        del sess.access_token
+        self.assertIsNone(sess.access_token)
+
     def test_authorized_false(self):
         sess = OAuth2Session('foo')
         self.assertFalse(sess.authorized)

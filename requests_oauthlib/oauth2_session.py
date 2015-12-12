@@ -64,9 +64,6 @@ class OAuth2Session(requests.Session):
         :param kwargs: Arguments to pass to the Session constructor.
         """
         super(OAuth2Session, self).__init__(**kwargs)
-        self.client_id = client_id
-        if client is not None and not self.client_id:
-            self.client_id = client.client_id
         self.scope = scope
         self.redirect_uri = redirect_uri
         self.token = token or {}
@@ -97,6 +94,30 @@ class OAuth2Session(requests.Session):
         return self._state
 
     @property
+    def client_id(self):
+        return getattr(self._client, "client_id", None)
+
+    @client_id.setter
+    def client_id(self, value):
+        self._client.client_id = value
+
+    @client_id.deleter
+    def client_id(self):
+        del self._client.client_id
+
+    @property
+    def access_token(self):
+        return getattr(self._client, "access_token", None)
+
+    @access_token.setter
+    def access_token(self, value):
+        self._client.access_token = value
+
+    @access_token.deleter
+    def access_token(self):
+        del self._client.access_token
+
+    @property
     def authorized(self):
         """Boolean that indicates whether this session has an OAuth token
         or not. If `self.authorized` is True, you can reasonably expect
@@ -105,7 +126,7 @@ class OAuth2Session(requests.Session):
         authentication dance before OAuth-protected requests to the resource
         will succeed.
         """
-        return bool(self._client.access_token)
+        return bool(self.access_token)
 
     def authorization_url(self, url, state=None, **kwargs):
         """Form an authorization URL.
