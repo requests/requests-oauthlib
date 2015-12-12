@@ -64,16 +64,15 @@ class OAuth2Session(requests.Session):
         :param kwargs: Arguments to pass to the Session constructor.
         """
         super(OAuth2Session, self).__init__(**kwargs)
+        self._client = client or WebApplicationClient(client_id, token=token)
+        self.token = token or {}
         self.scope = scope
         self.redirect_uri = redirect_uri
-        self.token = token or {}
         self.state = state or generate_token
         self._state = state
         self.auto_refresh_url = auto_refresh_url
         self.auto_refresh_kwargs = auto_refresh_kwargs or {}
         self.token_updater = token_updater
-        self._client = client or WebApplicationClient(client_id, token=token)
-        self._client._populate_attributes(token or {})
 
         # Allow customizations for non compliant providers through various
         # hooks to adjust requests and responses.
@@ -104,6 +103,15 @@ class OAuth2Session(requests.Session):
     @client_id.deleter
     def client_id(self):
         del self._client.client_id
+
+    @property
+    def token(self):
+        return getattr(self._client, "token", None)
+
+    @token.setter
+    def token(self, value):
+        self._client.token = value
+        self._client._populate_attributes(value)
 
     @property
     def access_token(self):

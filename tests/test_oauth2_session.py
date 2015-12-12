@@ -161,6 +161,25 @@ class OAuth2SessionTest(unittest.TestCase):
         del sess.access_token
         self.assertIsNone(sess.access_token)
 
+    def test_token_proxy(self):
+        token = {
+            'access_token': 'test-access',
+        }
+        sess = OAuth2Session('test-id', token=token)
+        self.assertEqual(sess.access_token, 'test-access')
+        self.assertEqual(sess.token, token)
+        token['access_token'] = 'something-else'
+        sess.token = token
+        self.assertEqual(sess.access_token, 'something-else')
+        self.assertEqual(sess.token, token)
+        sess._client.access_token = 'different-token'
+        token['access_token'] = 'different-token'
+        self.assertEqual(sess.access_token, 'different-token')
+        self.assertEqual(sess.token, token)
+        # can't delete token attribute
+        with self.assertRaises(AttributeError):
+            del sess.token
+
     def test_authorized_false(self):
         sess = OAuth2Session('foo')
         self.assertFalse(sess.authorized)
