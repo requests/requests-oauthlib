@@ -2,7 +2,10 @@ from __future__ import unicode_literals
 import json
 import mock
 import time
-import unittest
+try:
+    from unittest2 import TestCase
+except ImportError:
+    from unittest import TestCase
 
 from oauthlib.common import urlencode
 from oauthlib.oauth2 import TokenExpiredError, OAuth2Error
@@ -15,7 +18,7 @@ from requests_oauthlib import OAuth2Session, TokenUpdated
 fake_time = time.time()
 
 
-class OAuth2SessionTest(unittest.TestCase):
+class OAuth2SessionTest(TestCase):
 
     def setUp(self):
         # For python 2.6
