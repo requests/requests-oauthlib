@@ -9,6 +9,7 @@ python:
 install:
   - pip install -r requirements.txt
   - pip install coveralls
+  - if [[ $TRAVIS_PYTHON_VERSION == "2.6" ]]; then pip install unittest2; fi
 script:
   - coverage run --source=requests_oauthlib -m nose
 after_success:

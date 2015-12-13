@@ -2,7 +2,10 @@ from __future__ import unicode_literals
 import json
 import mock
 import time
-import unittest
+try:
+    from unittest2 import TestCase
+except ImportError:
+    from unittest import TestCase
 
 from oauthlib.common import urlencode
 from oauthlib.oauth2 import TokenExpiredError, OAuth2Error
@@ -15,7 +18,7 @@ from requests_oauthlib import OAuth2Session, TokenUpdated
 fake_time = time.time()
 
 
-class OAuth2SessionTest(unittest.TestCase):
+class OAuth2SessionTest(TestCase):
 
     def setUp(self):
         # For python 2.6
@@ -140,6 +143,45 @@ class OAuth2SessionTest(unittest.TestCase):
         self.assertRaises(MismatchingStateError, client.fetch_token,
                           'https://i.b/token',
                           authorization_response='https://i.b/no-state?code=abc')
+
+    def test_client_id_proxy(self):
+        sess = OAuth2Session('test-id')
+        self.assertEqual(sess.client_id, 'test-id')
+        sess.client_id = 'different-id'
+        self.assertEqual(sess.client_id, 'different-id')
+        sess._client.client_id = 'something-else'
+        self.assertEqual(sess.client_id, 'something-else')
+        del sess.client_id
+        self.assertIsNone(sess.client_id)
+
+    def test_access_token_proxy(self):
+        sess = OAuth2Session('test-id')
+        self.assertIsNone(sess.access_token)
+        sess.access_token = 'test-token'
+        self.assertEqual(sess.access_token, 'test-token')
+        sess._client.access_token = 'different-token'
+        self.assertEqual(sess.access_token, 'different-token')
+        del sess.access_token
+        self.assertIsNone(sess.access_token)
+
+    def test_token_proxy(self):
+        token = {
+            'access_token': 'test-access',
+        }
+        sess = OAuth2Session('test-id', token=token)
+        self.assertEqual(sess.access_token, 'test-access')
+        self.assertEqual(sess.token, token)
+        token['access_token'] = 'something-else'
+        sess.token = token
+        self.assertEqual(sess.access_token, 'something-else')
+        self.assertEqual(sess.token, token)
+        sess._client.access_token = 'different-token'
+        token['access_token'] = 'different-token'
+        self.assertEqual(sess.access_token, 'different-token')
+        self.assertEqual(sess.token, token)
+        # can't delete token attribute
+        with self.assertRaises(AttributeError):
+            del sess.token
 
     def test_authorized_false(self):
         sess = OAuth2Session('foo')

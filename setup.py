@@ -32,6 +32,10 @@ if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
     sys.exit()
 
+tests_require = ['mock']
+if sys.version_info < (2, 7): # Python 2.6 or lower
+    tests_require.append('unittest2')
+
 
 settings.update(
     name=APP_NAME,
@@ -59,7 +63,7 @@ settings.update(
         'Programming Language :: Python :: 3.4',
     ),
     zip_safe=False,
-    tests_require=['mock'],
+    tests_require=tests_require,
     test_suite='tests'
 )
 
