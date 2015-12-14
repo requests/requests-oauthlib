@@ -246,7 +246,7 @@ class OAuth2Session(requests.Session):
         return self.token
 
     def refresh_token(self, token_url, refresh_token=None, body='', auth=None,
-                      timeout=None, verify=True, **kwargs):
+                      timeout=None, headers=None, verify=True, **kwargs):
         """Fetch a new access token using a refresh token.
 
         :param token_url: The token endpoint, must be HTTPS.
@@ -275,8 +275,17 @@ class OAuth2Session(requests.Session):
         body = self._client.prepare_refresh_body(body=body,
                 refresh_token=refresh_token, scope=self.scope, **kwargs)
         log.debug('Prepared refresh token request body %s', body)
+
+        if headers is None:
+            headers = {
+                'Accept': 'application/json',
+                'Content-Type': (
+                    'application/x-www-form-urlencoded;charset=UTF-8'
+                ),
+            }
+
         r = self.post(token_url, data=dict(urldecode(body)), auth=auth,
-                      timeout=timeout, verify=verify)
+                      timeout=timeout, headers=headers, verify=verify)
         log.debug('Request to refresh token completed with status %s.',
                   r.status_code)
         log.debug('Response headers were %s and content %s.',
