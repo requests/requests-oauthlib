@@ -276,10 +276,13 @@ class OAuth2Session(requests.Session):
                 refresh_token=refresh_token, scope=self.scope, **kwargs)
         log.debug('Prepared refresh token request body %s', body)
 
-        headers = headers or {
-            'Accept': 'application/json',
-            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-        }
+        if headers is None:
+            headers = {
+                'Accept': 'application/json',
+                'Content-Type': (
+                    'application/x-www-form-urlencoded;charset=UTF-8'
+                ),
+            }
 
         r = self.post(token_url, data=dict(urldecode(body)), auth=auth,
                       timeout=timeout, headers=headers, verify=verify)
