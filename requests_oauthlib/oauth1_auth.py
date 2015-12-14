@@ -8,6 +8,7 @@ from oauthlib.oauth1 import Client, SIGNATURE_HMAC, SIGNATURE_TYPE_AUTH_HEADER
 from oauthlib.oauth1 import SIGNATURE_TYPE_BODY
 from requests.compat import is_py3
 from requests.utils import to_native_string
+from requests.auth import AuthBase
 
 CONTENT_TYPE_FORM_URLENCODED = 'application/x-www-form-urlencoded'
 CONTENT_TYPE_MULTI_PART = 'multipart/form-data'
@@ -20,7 +21,7 @@ log = logging.getLogger(__name__)
 # OBS!: Correct signing of requests are conditional on invoking OAuth1
 # as the last step of preparing a request, or at least having the
 # content-type set properly.
-class OAuth1(object):
+class OAuth1(AuthBase):
     """Signs the request using OAuth 1 (RFC5849)"""
 
     client_class = Client
