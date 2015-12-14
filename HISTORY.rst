@@ -1,6 +1,19 @@
 History
 -------
 
+v0.6.0 (14 December 2015)
++++++++++++++++++++++++++
+
+- Add compliance fix for Slack.
+- Add compliance fix for Mailchimp.
+- ``TokenRequestDenied`` exceptions now carry the entire response, not just the
+  status code.
+- Pass through keyword arguments when refreshing tokens automatically.
+- Send authorization in headers, not just body, to maximize compatibility.
+- More getters/setters available for OAuth2 session client values.
+- Allow sending custom headers when refreshing tokens, and set some defaults.
+
+
 v0.5.0 (4 May 2015)
 +++++++++++++++++++
 - Fix ``TypeError`` being raised instead of ``TokenMissing`` error.
