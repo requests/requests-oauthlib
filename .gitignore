@@ -15,7 +15,6 @@ requests_oauthlib.egg-info/
 env/
 build/
 dist/
-tox.ini
 .tox/
 
 .workon
