@@ -197,7 +197,7 @@ class OAuth2Session(requests.Session):
                 redirect_uri=self.redirect_uri, username=username,
                 password=password, **kwargs)
 
-        if not auth and username:
+        if (not auth) and username:
             if password is None:
                 raise ValueError('Username was supplied, but not password.')
             auth = requests.auth.HTTPBasicAuth(username, password)
