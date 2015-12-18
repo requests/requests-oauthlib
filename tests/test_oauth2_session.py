@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 import json
 import mock
 import time
+from copy import deepcopy
 try:
     from unittest2 import TestCase
 except ImportError:
@@ -16,6 +17,15 @@ from requests_oauthlib import OAuth2Session, TokenUpdated
 
 
 fake_time = time.time()
+
+
+
+def fake_token(token):
+    def fake_send(r, **kwargs):
+        resp = mock.MagicMock()
+        resp.text = json.dumps(token)
+        return resp
+    return fake_send
 
 
 class OAuth2SessionTest(TestCase):
@@ -117,12 +127,6 @@ class OAuth2SessionTest(TestCase):
 
     @mock.patch("time.time", new=lambda: fake_time)
     def test_fetch_token(self):
-        def fake_token(token):
-            def fake_send(r, **kwargs):
-                resp = mock.MagicMock()
-                resp.text = json.dumps(token)
-                return resp
-            return fake_send
         url = 'https://example.com/token'
 
         for client in self.clients:
@@ -135,6 +139,27 @@ class OAuth2SessionTest(TestCase):
             auth = OAuth2Session(client=client, token=self.token)
             auth.send = fake_token(error)
             self.assertRaises(OAuth2Error, auth.fetch_token, url)
+
+    def test_cleans_previous_token_before_fetching_new_one(self):
+        """Makes sure the previous token is cleaned before fetching a new one.
+
+        The reason behind it is that, if the previous token is expired, this
+        method shouldn't fail with a TokenExpiredError, since it's attempting
+        to get a new one (which shouldn't be expired).
+
+        """
+        new_token = deepcopy(self.token)
+        past = time.time() - 7200
+        now = time.time()
+        self.token['expires_at'] = past
+        new_token['expires_at'] = now + 3600
+        url = 'https://example.com/token'
+
+        with mock.patch('time.time', lambda: now):
+            for client in self.clients:
+                auth = OAuth2Session(client=client, token=self.token)
+                auth.send = fake_token(new_token)
+                self.assertEqual(auth.fetch_token(url), new_token)
 
 
     def test_web_app_fetch_token(self):

@@ -206,6 +206,7 @@ class OAuth2Session(requests.Session):
             'Accept': 'application/json',
             'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
         }
+        self.token = {}
         if method.upper() == 'POST':
             r = self.post(token_url, data=dict(urldecode(body)),
                 timeout=timeout, headers=headers, auth=auth,
