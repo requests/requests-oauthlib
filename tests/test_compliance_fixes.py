@@ -6,7 +6,9 @@ except ImportError:
 
 import requests
 import requests_mock
+import mock
 import time
+import base64
 try:
     from urlparse import urlparse, parse_qs
 except ImportError:
@@ -18,6 +20,7 @@ from requests_oauthlib.compliance_fixes import linkedin_compliance_fix
 from requests_oauthlib.compliance_fixes import mailchimp_compliance_fix
 from requests_oauthlib.compliance_fixes import weibo_compliance_fix
 from requests_oauthlib.compliance_fixes import slack_compliance_fix
+from requests_oauthlib.compliance_fixes import fitbit_compliance_fix
 
 
 class FacebookComplianceFixTest(TestCase):
@@ -216,3 +219,32 @@ class SlackComplianceFixTest(TestCase):
         query = parse_qs(urlparse(url).query)
         self.assertEqual(query["token"], ["different-token"])
         self.assertIsNone(response.request.body)
+
+
+class FitbitComplianceFixTest(TestCase):
+    def test_refresh_token(self):
+        fitbit = OAuth2Session('foo', redirect_uri='https://i.b')
+        fitbit = fitbit_compliance_fix(fitbit, "mocksecret")
+
+        fitbit.post = mock.MagicMock()
+        response = requests.Response()
+        response.status_code = 200
+        response.request = mock.MagicMock()
+        response._content = '{"access_token":"fitbit"}'.encode('UTF-8')
+        fitbit.post.return_value = response
+
+        token = fitbit.refresh_token('https://mocked.out',
+                                     refresh_token='foobar')
+
+        self.assertEqual(token, {'access_token': 'fitbit', 'refresh_token': 'foobar'})
+
+        auth_value = base64.b64encode("foo:mocksecret")
+        fitbit.post.assert_called_with(u'https://mocked.out?token=None', auth=None,
+                                       data={u'grant_type': u'refresh_token', u'refresh_token': u'foobar'},
+                                       headers={
+                                           'Accept': 'application/json',
+                                           'Content-Type': (
+                                               'application/x-www-form-urlencoded;charset=UTF-8'
+                                           ),
+                                           'Authorization': 'Basic {}'.format(auth_value)
+                                       }, timeout=None, verify=True)
