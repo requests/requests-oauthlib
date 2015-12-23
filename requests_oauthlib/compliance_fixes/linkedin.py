@@ -12,7 +12,7 @@ def linkedin_compliance_fix(session):
         return r
 
     def _non_compliant_param_name(url, headers, data):
-        token = [('oauth2_access_token', session._client.access_token)]
+        token = [('oauth2_access_token', session.access_token)]
         url = add_params_to_uri(url, token)
         return url, headers, data
 
