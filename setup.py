@@ -32,7 +32,7 @@ if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
     sys.exit()
 
-tests_require = ['mock']
+tests_require = ['mock', 'requests-mock']
 if sys.version_info < (2, 7): # Python 2.6 or lower
     tests_require.append('unittest2')
 
