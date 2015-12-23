@@ -150,17 +150,19 @@ class SlackComplianceFixTest(TestCase):
               "scope": "read",
             },
         )
-        mocker.get(
-            "https://slack.com/api/auth.test",
-            json={
-              "ok": True,
-              "url": "https://myteam.slack.com/",
-              "team": "My Team",
-              "user": "cal",
-              "team_id": "T12345",
-              "user_id": "U12345",
-            }
-        )
+        for method in ("GET", "POST"):
+            mocker.request(
+                method=method,
+                url="https://slack.com/api/auth.test",
+                json={
+                  "ok": True,
+                  "url": "https://myteam.slack.com/",
+                  "team": "My Team",
+                  "user": "cal",
+                  "team_id": "T12345",
+                  "user_id": "U12345",
+                }
+            )
         mocker.start()
         self.addCleanup(mocker.stop)
 
@@ -174,4 +176,43 @@ class SlackComplianceFixTest(TestCase):
         )
         url = response.request.url
         query = parse_qs(urlparse(url).query)
-        self.assertEqual(query["token"], ["dummy-access-token"])
+        self.assertNotIn("token", query)
+        body = response.request.body
+        data = parse_qs(body)
+        self.assertEqual(data["token"], ["dummy-access-token"])
+
+    def test_protected_request_override_token_get(self):
+        self.session.token = {"access_token": 'dummy-access-token'}
+        response = self.session.get(
+            "https://slack.com/api/auth.test",
+            data={"token": "different-token"},
+        )
+        url = response.request.url
+        query = parse_qs(urlparse(url).query)
+        self.assertNotIn("token", query)
+        body = response.request.body
+        data = parse_qs(body)
+        self.assertEqual(data["token"], ["different-token"])
+
+    def test_protected_request_override_token_post(self):
+        self.session.token = {"access_token": 'dummy-access-token'}
+        response = self.session.post(
+            "https://slack.com/api/auth.test",
+            data={"token": "different-token"},
+        )
+        url = response.request.url
+        query = parse_qs(urlparse(url).query)
+        self.assertNotIn("token", query)
+        body = response.request.body
+        data = parse_qs(body)
+        self.assertEqual(data["token"], ["different-token"])
+
+    def test_protected_request_override_token_url(self):
+        self.session.token = {"access_token": 'dummy-access-token'}
+        response = self.session.get(
+            "https://slack.com/api/auth.test?token=different-token",
+        )
+        url = response.request.url
+        query = parse_qs(urlparse(url).query)
+        self.assertEqual(query["token"], ["different-token"])
+        self.assertIsNone(response.request.body)
