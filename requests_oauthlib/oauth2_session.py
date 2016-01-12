@@ -286,8 +286,8 @@ class OAuth2Session(requests.Session):
                 ),
             }
 
-        r = requests.post(token_url, data=dict(urldecode(body)), auth=auth,
-            timeout=timeout, headers=headers, verify=verify)
+        r = self.post(token_url, data=dict(urldecode(body)), auth=auth,
+            timeout=timeout, headers=headers, verify=verify, _refresh=True)
         log.debug('Request to refresh token completed with status %s.',
                   r.status_code)
         log.debug('Response headers were %s and content %s.',
@@ -304,11 +304,11 @@ class OAuth2Session(requests.Session):
             self.token['refresh_token'] = refresh_token
         return self.token
 
-    def request(self, method, url, data=None, headers=None, **kwargs):
+    def request(self, method, url, data=None, headers=None, _refresh=False, **kwargs):
         """Intercept all requests and add the OAuth 2 token if present."""
         if not is_secure_transport(url):
             raise InsecureTransportError()
-        if self.token:
+        if self.token and not _refresh:
             log.debug('Invoking %d protected resource request hooks.',
                       len(self.compliance_hook['protected_request']))
             for hook in self.compliance_hook['protected_request']:
