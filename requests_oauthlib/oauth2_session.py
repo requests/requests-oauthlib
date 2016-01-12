@@ -269,9 +269,7 @@ class OAuth2Session(requests.Session):
         if not is_secure_transport(token_url):
             raise InsecureTransportError()
 
-        # Need to nullify token to prevent it from being added to the request
         refresh_token = refresh_token or self.token.get('refresh_token')
-        self.token = {}
 
         log.debug('Adding auto refresh key word arguments %s.',
                   self.auto_refresh_kwargs)
@@ -289,7 +287,7 @@ class OAuth2Session(requests.Session):
             }
 
         r = self.post(token_url, data=dict(urldecode(body)), auth=auth,
-                      timeout=timeout, headers=headers, verify=verify)
+            timeout=timeout, headers=headers, verify=verify, withhold_token=True)
         log.debug('Request to refresh token completed with status %s.',
                   r.status_code)
         log.debug('Response headers were %s and content %s.',
@@ -306,11 +304,11 @@ class OAuth2Session(requests.Session):
             self.token['refresh_token'] = refresh_token
         return self.token
 
-    def request(self, method, url, data=None, headers=None, **kwargs):
+    def request(self, method, url, data=None, headers=None, withhold_token=False, **kwargs):
         """Intercept all requests and add the OAuth 2 token if present."""
         if not is_secure_transport(url):
             raise InsecureTransportError()
-        if self.token:
+        if self.token and not withhold_token:
             log.debug('Invoking %d protected resource request hooks.',
                       len(self.compliance_hook['protected_request']))
             for hook in self.compliance_hook['protected_request']:
