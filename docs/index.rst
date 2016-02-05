@@ -53,6 +53,14 @@ The above is a truncated example. A full working example is available here:
 :ref:`real_example`
 
 
+Installation
+============
+
+Requests-OAuthlib can be installed with `pip <https://pip.pypa.io/>`_: ::
+
+    $ pip install requests_oauthlib
+
+
 Getting Started:
 ================
 
