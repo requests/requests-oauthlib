@@ -188,10 +188,30 @@ class OAuth1SessionTest(unittest.TestCase):
             self.assertTrue(isinstance(k, unicode_type))
             self.assertTrue(isinstance(v, unicode_type))
 
+    def test_fetch_request_token_with_optional_arguments(self):
+        auth = OAuth1Session('foo')
+        auth.send = self.fake_body('oauth_token=foo')
+        resp = auth.fetch_request_token('https://example.com/token',
+                                        verify=False, stream=True)
+        self.assertEqual(resp['oauth_token'], 'foo')
+        for k, v in resp.items():
+            self.assertTrue(isinstance(k, unicode_type))
+            self.assertTrue(isinstance(v, unicode_type))
+
     def test_fetch_access_token(self):
         auth = OAuth1Session('foo', verifier='bar')
         auth.send = self.fake_body('oauth_token=foo')
         resp = auth.fetch_access_token('https://example.com/token')
+        self.assertEqual(resp['oauth_token'], 'foo')
+        for k, v in resp.items():
+            self.assertTrue(isinstance(k, unicode_type))
+            self.assertTrue(isinstance(v, unicode_type))
+
+    def test_fetch_access_token_with_optional_arguments(self):
+        auth = OAuth1Session('foo', verifier='bar')
+        auth.send = self.fake_body('oauth_token=foo')
+        resp = auth.fetch_access_token('https://example.com/token',
+                                       verify=False, stream=True)
         self.assertEqual(resp['oauth_token'], 'foo')
         for k, v in resp.items():
             self.assertTrue(isinstance(k, unicode_type))
