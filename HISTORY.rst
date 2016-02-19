@@ -1,6 +1,17 @@
 History
 -------
 
+v0.6.1 (19 February 2016)
++++++++++++++++++++++++++
+
+- Fixed a bug when sending authorization in headers with no username and
+  password present.
+- Make sure we clear the session token before obtaining a new one.
+- Some improvements to the Slack compliance fix.
+- Avoid timing problems around token refresh.
+- Allow passing arbitrary arguments to requests when calling
+  ``fetch_request_token`` and ``fetch_access_token``.
+
 v0.6.0 (14 December 2015)
 +++++++++++++++++++++++++
 
