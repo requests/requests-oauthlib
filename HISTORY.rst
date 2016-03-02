@@ -32,8 +32,8 @@ v0.5.0 (4 May 2015)
 - Avoid ``AttributeError`` when initializing the ``OAuth2Session`` class
   without complete client information.
 
-v0.4.2
-++++++
+v0.4.2 (16 October 2014)
+++++++++++++++++++++++++
 - New ``authorized`` property on OAuth1Session and OAuth2Session, which allows
   you to easily determine if the session is already authorized with OAuth tokens
   or not.
