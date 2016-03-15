@@ -198,11 +198,17 @@ class OAuth2Session(requests.Session):
                 password=password, **kwargs)
 
         client_id = kwargs.get('client_id', '')
-        if client_id and not auth:
-            client_secret = kwargs.get('client_secret', '')
-            client_secret = client_secret if client_secret is not None else ''
-            log.debug('Encoding client_id "%s" with client_secret as Basic auth credentials.', client_id)
-            auth = requests.auth.HTTPBasicAuth(client_id, client_secret)
+        if not auth:
+            if client_id:
+                log.debug('Encoding client_id "%s" with client_secret as Basic auth credentials.', client_id)
+                client_secret = kwargs.get('client_secret', '')
+                client_secret = client_secret if client_secret is not None else ''
+                auth = requests.auth.HTTPBasicAuth(client_id, client_secret)
+            elif username:
+                if password is None:
+                    raise ValueError('Username was supplied, but not password.')
+                log.debug('Encoding username, password as Basic auth credentials.')
+                auth = requests.auth.HTTPBasicAuth(username, password)
 
         headers = headers or {
             'Accept': 'application/json',
