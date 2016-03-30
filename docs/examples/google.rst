@@ -15,8 +15,8 @@ a callback URL then you can try out the command line interactive example below.
     >>> redirect_uri = 'https://your.registered/callback'
 
     >>> # OAuth endpoints given in the Google API documentation
-    >>> authorization_base_url = "https://accounts.google.com/o/oauth2/auth"
-    >>> token_url = "https://accounts.google.com/o/oauth2/token"
+    >>> authorization_base_url = "https://www.googleapis.com/oauth2/v4/token"
+    >>> token_url = "https://accounts.google.com/o/oauth2/v2/auth"
     >>> scope = [
     ...     "https://www.googleapis.com/auth/userinfo.email",
     ...     "https://www.googleapis.com/auth/userinfo.profile"
