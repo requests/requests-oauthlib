@@ -198,7 +198,7 @@ class OAuth2Session(requests.Session):
                 password=password, **kwargs)
 
         client_id = kwargs.get('client_id', '')
-        if not auth:
+        if auth is None:
             if client_id:
                 log.debug('Encoding client_id "%s" with client_secret as Basic auth credentials.', client_id)
                 client_secret = kwargs.get('client_secret', '')
