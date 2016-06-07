@@ -190,7 +190,7 @@ class OAuth2Session(requests.Session):
             code = self._client.code
             if not code:
                 raise ValueError('Please supply either code or '
-                                 'authorization_code parameters.')
+                                 'authorization_response parameters.')
 
 
         body = self._client.prepare_request_body(code=code, body=body,
