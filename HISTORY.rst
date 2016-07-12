@@ -1,6 +1,15 @@
 History
 -------
 
+v0.6.2 (12 July 2016)
++++++++++++++++++++++
+
+- Use ``client_id`` and ``client_secret`` for the Authorization header if
+  provided.
+- Allow explicit bypass of the Authorization header by setting ``auth=False``.
+- Pass through the ``proxies`` kwarg when refreshing tokens.
+- Miscellaneous cleanups.
+
 v0.6.1 (19 February 2016)
 +++++++++++++++++++++++++
 
