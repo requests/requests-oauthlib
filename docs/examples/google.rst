@@ -1,11 +1,11 @@
 Google OAuth 2 Tutorial
 ==========================
 
-Setup a new web application client in the `Google API console`_
+Setup a new web project in the `Google Cloud Console`_
 When you have obtained a ``client_id``, ``client_secret`` and registered
 a callback URL then you can try out the command line interactive example below.
 
-.. _`Google API console`: https://code.google.com/apis/console/?pli=1
+.. _`Google Cloud Console`: https://cloud.google.com/console/project
 
 .. code-block:: pycon
 
