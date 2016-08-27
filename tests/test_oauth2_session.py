@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 import json
 import mock
 import time
+from base64 import b64encode
 from copy import deepcopy
 try:
     from unittest2 import TestCase
@@ -91,6 +92,8 @@ class OAuth2SessionTest(TestCase):
         del self.expired_token['expires_at']
 
         def fake_refresh(r, **kwargs):
+            if "/refresh" in r.url:
+                self.assertNotIn("Authorization", r.headers)
             resp = mock.MagicMock()
             resp.text = json.dumps(self.token)
             return resp
@@ -117,6 +120,23 @@ class OAuth2SessionTest(TestCase):
                     token_updater=token_updater)
             auth.send = fake_refresh
             auth.get('https://i.b')
+
+        def fake_refresh_with_auth(r, **kwargs):
+            if "/refresh" in r.url:
+                self.assertIn("Authorization", r.headers)
+                encoded = b64encode(b"foo:bar")
+                content = (b"Basic " + encoded).decode('latin1')
+                self.assertEqual(r.headers["Authorization"], content)
+            resp = mock.MagicMock()
+            resp.text = json.dumps(self.token)
+            return resp
+
+        for client in self.clients:
+            auth = OAuth2Session(client=client, token=self.expired_token,
+                    auto_refresh_url='https://i.b/refresh',
+                    token_updater=token_updater)
+            auth.send = fake_refresh_with_auth
+            auth.get('https://i.b', client_id='foo', client_secret='bar')
 
     @mock.patch("time.time", new=lambda: fake_time)
     def test_token_from_fragment(self):
