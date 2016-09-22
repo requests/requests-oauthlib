@@ -1,6 +1,13 @@
 History
 -------
 
+v0.7.0 (22 September 2016)
+++++++++++++++++++++++++++
+
+- Allowed ``OAuth2Session.request`` to take the ``client_id`` and
+  ``client_secret`` parameters for the purposes of automatic token refresh,
+  which may need them.
+
 v0.6.2 (12 July 2016)
 +++++++++++++++++++++
 
