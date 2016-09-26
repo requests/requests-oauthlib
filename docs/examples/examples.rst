@@ -9,6 +9,7 @@ Examples
    google
    facebook
    linkedin
+   outlook
    tumblr
    real_world_example
    real_world_example_with_refresh
