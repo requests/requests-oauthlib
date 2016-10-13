@@ -352,7 +352,7 @@ class OAuth1Session(requests.Session):
 
         log.debug('Decoding token from response "%s"', r.text)
         try:
-            token = dict(urldecode(r.text))
+            token = dict(urldecode(r.text.strip()))
         except ValueError as e:
             error = ("Unable to decode token from token response. "
                      "This is commonly caused by an unsuccessful request where"
