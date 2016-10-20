@@ -80,6 +80,7 @@ class OAuth2Session(requests.Session):
             'access_token_response': set([]),
             'refresh_token_response': set([]),
             'protected_request': set([]),
+            'refresh_token_request': set([]),
         }
 
     def new_state(self):
@@ -294,6 +295,10 @@ class OAuth2Session(requests.Session):
                 ),
             }
 
+        for hook in self.compliance_hook['refresh_token_request']:
+            log.debug('Invoking hook %s.', hook)
+            token_url, headers, body = hook(token_url, headers, body)
+
         r = self.post(token_url, data=dict(urldecode(body)), auth=auth,
             timeout=timeout, headers=headers, verify=verify, withhold_token=True, proxies=proxies)
         log.debug('Request to refresh token completed with status %s.',
@@ -366,6 +371,7 @@ class OAuth2Session(requests.Session):
             access_token_response invoked before token parsing.
             refresh_token_response invoked before refresh token parsing.
             protected_request invoked before making a request.
+            refresh_token_request invoked before making a refresh request
 
         If you find a new hook is needed please send a GitHub PR request
         or open an issue.
