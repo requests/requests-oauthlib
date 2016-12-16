@@ -344,7 +344,7 @@ class OAuth1Session(requests.Session):
 
     def _fetch_token(self, url, **request_kwargs):
         log.debug('Fetching token from %s using client %s', url, self._client.client)
-        r = self.post(url, **request_kwargs)
+        r = self.post(url, data=request_kwargs)
 
         if r.status_code >= 400:
             error = "Token request failed with code %s, response was '%s'."
