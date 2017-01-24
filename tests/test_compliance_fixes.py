@@ -49,13 +49,13 @@ class FacebookComplianceFixTest(TestCase):
 class FitbitComplianceFixTest(TestCase):
 
     def setUp(self):
-        mocker = requests_mock.Mocker()
-        mocker.post(
+        self.mocker = requests_mock.Mocker()
+        self.mocker.post(
             "https://api.fitbit.com/oauth2/token",
             json={"errors": [{"errorType": "invalid_grant"}]},
         )
-        mocker.start()
-        self.addCleanup(mocker.stop)
+        self.mocker.start()
+        self.addCleanup(self.mocker.stop)
 
         fitbit = OAuth2Session('foo', redirect_uri='https://i.b')
         self.session = fitbit_compliance_fix(fitbit)
@@ -69,6 +69,18 @@ class FitbitComplianceFixTest(TestCase):
             authorization_response='https://i.b/?code=hello',
         )
 
+        self.mocker.post(
+            "https://api.fitbit.com/oauth2/token",
+            json={"access_token": "fitbit"},
+        )
+
+        token = self.session.fetch_token(
+            'https://api.fitbit.com/oauth2/token',
+            client_secret='good'
+        )
+
+        self.assertEqual(token, {'access_token': 'fitbit'})
+
     def test_refresh_token(self):
         self.assertRaises(
             InvalidGrantError,
@@ -76,6 +88,19 @@ class FitbitComplianceFixTest(TestCase):
             'https://api.fitbit.com/oauth2/token',
             auth=requests.auth.HTTPBasicAuth('foo', 'bar')
         )
+
+        self.mocker.post(
+            "https://api.fitbit.com/oauth2/token",
+            json={"access_token": "access", "refresh_token": "refresh"},
+        )
+
+        token = self.session.refresh_token(
+            'https://api.fitbit.com/oauth2/token',
+            auth=requests.auth.HTTPBasicAuth('foo', 'bar')
+        )
+
+        self.assertEqual(token['access_token'], 'access')
+        self.assertEqual(token['refresh_token'], 'refresh')
 
 
 class LinkedInComplianceFixTest(TestCase):
