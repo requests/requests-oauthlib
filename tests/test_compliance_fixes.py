@@ -12,8 +12,10 @@ try:
 except ImportError:
     from urllib.parse import urlparse, parse_qs
 
+from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
 from requests_oauthlib import OAuth2Session
 from requests_oauthlib.compliance_fixes import facebook_compliance_fix
+from requests_oauthlib.compliance_fixes import fitbit_compliance_fix
 from requests_oauthlib.compliance_fixes import linkedin_compliance_fix
 from requests_oauthlib.compliance_fixes import mailchimp_compliance_fix
 from requests_oauthlib.compliance_fixes import weibo_compliance_fix
@@ -42,6 +44,63 @@ class FacebookComplianceFixTest(TestCase):
              authorization_response='https://i.b/?code=hello',
         )
         self.assertEqual(token, {'access_token': 'urlencoded', 'token_type': 'Bearer'})
+
+
+class FitbitComplianceFixTest(TestCase):
+
+    def setUp(self):
+        self.mocker = requests_mock.Mocker()
+        self.mocker.post(
+            "https://api.fitbit.com/oauth2/token",
+            json={"errors": [{"errorType": "invalid_grant"}]},
+        )
+        self.mocker.start()
+        self.addCleanup(self.mocker.stop)
+
+        fitbit = OAuth2Session('foo', redirect_uri='https://i.b')
+        self.session = fitbit_compliance_fix(fitbit)
+
+    def test_fetch_access_token(self):
+        self.assertRaises(
+            InvalidGrantError,
+            self.session.fetch_token,
+            'https://api.fitbit.com/oauth2/token',
+            client_secret='bar',
+            authorization_response='https://i.b/?code=hello',
+        )
+
+        self.mocker.post(
+            "https://api.fitbit.com/oauth2/token",
+            json={"access_token": "fitbit"},
+        )
+
+        token = self.session.fetch_token(
+            'https://api.fitbit.com/oauth2/token',
+            client_secret='good'
+        )
+
+        self.assertEqual(token, {'access_token': 'fitbit'})
+
+    def test_refresh_token(self):
+        self.assertRaises(
+            InvalidGrantError,
+            self.session.refresh_token,
+            'https://api.fitbit.com/oauth2/token',
+            auth=requests.auth.HTTPBasicAuth('foo', 'bar')
+        )
+
+        self.mocker.post(
+            "https://api.fitbit.com/oauth2/token",
+            json={"access_token": "access", "refresh_token": "refresh"},
+        )
+
+        token = self.session.refresh_token(
+            'https://api.fitbit.com/oauth2/token',
+            auth=requests.auth.HTTPBasicAuth('foo', 'bar')
+        )
+
+        self.assertEqual(token['access_token'], 'access')
+        self.assertEqual(token['refresh_token'], 'refresh')
 
 
 class LinkedInComplianceFixTest(TestCase):
