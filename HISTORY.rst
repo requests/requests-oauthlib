@@ -1,6 +1,17 @@
 History
 -------
 
+v0.8.0 (14 February 2017)
++++++++++++++++++++++++++
+
+- Added Fitbit compliance fix.
+- Fixed an issue where newlines in the response body for the access token
+  request would cause errors when trying to extract the token.
+- Fixed an issue introduced in v0.7.0 where users passing ``auth`` to several
+  methods would encounter conflicts with the ``client_id`` and
+  ``client_secret``-derived auth. The user-supplied ``auth`` argument is now
+  used in preference to those options.
+
 v0.7.0 (22 September 2016)
 ++++++++++++++++++++++++++
 
