@@ -10,8 +10,7 @@ def plentymarkets_compliance_fix(session):
         return re.sub('(.)([A-Z][a-z]+)', r'\1_\2', n).lower()
 
     def _compliance_fix(r):
-
-        # Plenty returns the Token in CamelCase instead with _
+        # Plenty returns the Token in CamelCase instead of _
         if 'application/json' in r.headers.get('content-type', {}) and r.status_code == 200:
             token = loads(r.text)
         else:
