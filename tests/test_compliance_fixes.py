@@ -20,6 +20,7 @@ from requests_oauthlib.compliance_fixes import linkedin_compliance_fix
 from requests_oauthlib.compliance_fixes import mailchimp_compliance_fix
 from requests_oauthlib.compliance_fixes import weibo_compliance_fix
 from requests_oauthlib.compliance_fixes import slack_compliance_fix
+from requests_oauthlib.compliance_fixes import plentymarkets_compliance_fix
 
 
 class FacebookComplianceFixTest(TestCase):
@@ -275,3 +276,41 @@ class SlackComplianceFixTest(TestCase):
         query = parse_qs(urlparse(url).query)
         self.assertEqual(query["token"], ["different-token"])
         self.assertIsNone(response.request.body)
+
+
+class PlentymarketsComplianceFixTest(TestCase):
+
+    def setUp(self):
+        mocker = requests_mock.Mocker()
+        mocker.post(
+            "https://shop.plentymarkets-cloud02.com",
+            json=
+            {
+            "accessToken": "ecUN1r8KhJewMCdLAmpHOdZ4O0ofXKB9zf6CXK61",
+            "tokenType": "Bearer",
+            "expiresIn": 86400,
+            "refreshToken": "iG2kBGIjcXaRE4xmTVUnv7xwxX7XMcWCHqJmFaSX"
+            },
+            headers={"Content-Type": "application/json"}
+        )
+        mocker.start()
+        self.addCleanup(mocker.stop)
+
+        plentymarkets = OAuth2Session('foo', redirect_uri='https://i.b')
+        self.session = plentymarkets_compliance_fix(plentymarkets)
+
+    def test_fetch_access_token(self):
+        token = self.session.fetch_token(
+            "https://shop.plentymarkets-cloud02.com",
+             authorization_response='https://i.b/?code=hello',
+        )
+
+        approx_expires_at = time.time() + 3600
+        actual_expires_at = token.pop('expires_at')
+        self.assertAlmostEqual(actual_expires_at, approx_expires_at, places=2)
+
+        self.assertEqual(token, {u'access_token': u'ecUN1r8KhJewMCdLAmpHOdZ4O0ofXKB9zf6CXK61',
+                                 u'expires_in': 86400,
+                                 u'expires_at': 1487337993.088303,
+                                 u'token_type': u'Bearer',
+                                 u'refresh_token': u'iG2kBGIjcXaRE4xmTVUnv7xwxX7XMcWCHqJmFaSX'})
