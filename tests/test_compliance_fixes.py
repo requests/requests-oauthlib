@@ -305,12 +305,11 @@ class PlentymarketsComplianceFixTest(TestCase):
              authorization_response='https://i.b/?code=hello',
         )
 
-        approx_expires_at = time.time() + 3600
+        approx_expires_at = time.time() + 86400
         actual_expires_at = token.pop('expires_at')
         self.assertAlmostEqual(actual_expires_at, approx_expires_at, places=2)
 
         self.assertEqual(token, {u'access_token': u'ecUN1r8KhJewMCdLAmpHOdZ4O0ofXKB9zf6CXK61',
                                  u'expires_in': 86400,
-                                 u'expires_at': 1487337993.088303,
                                  u'token_type': u'Bearer',
                                  u'refresh_token': u'iG2kBGIjcXaRE4xmTVUnv7xwxX7XMcWCHqJmFaSX'})
