@@ -297,18 +297,10 @@ class OAuth2Session(requests.Session):
 
         refresh_token = refresh_token or self.token.get('refresh_token')
 
+        log.debug('Kwargs: %s', kwargs)
         body = self._client.prepare_refresh_body(body=body,
                 refresh_token=refresh_token, scope=self.scope, **kwargs)
         log.debug('Prepared refresh token request body %s', body)
-
-        client_id = kwargs.get('client_id', '')
-        if auth is None:
-            if client_id:
-                log.debug('Encoding client_id "%s" with client_secret as Basic auth credentials.', client_id)
-                client_secret = kwargs.get('client_secret', '')
-                client_secret = client_secret if client_secret is not None else ''
-                warnings.warn('client_id provided, but client_secret missing')
-                auth = requests.auth.HTTPBasicAuth(client_id, client_secret)
 
         if headers is None:
             headers = {
@@ -363,17 +355,42 @@ class OAuth2Session(requests.Session):
                     log.debug('Auto refresh is set, attempting to refresh at %s.',
                               self.auto_refresh_url)
 
+                    # Someday this code can be eliminated, we should be able to
+                    # simply pass **self.auto_refresh_kwargs to
+                    # `refresh_token()` what follows is to maintain
+                    # compatibility
+
+                    # Start with kwargs explicitly requested for refresh.
                     refresh_kwargs = self.auto_refresh_kwargs.copy()
 
-                    auth = kwargs.pop('auth', None)
-                    if auth:
-                        warnings.warn('Specify token refresh authentication in '
-                                    'auto_refresh_kwargs.')
-                        refresh_kwargs['auth'] = auth
+                    if 'auth' in kwargs:
+                        # If user supplied `auth` to `request()` warn them to
+                        # instead use `auto_refresh_kwargs`. But honor their
+                        # intent for now.
+                        warnings.warn('auth argument supplied. Please specify '
+                                      'token refresh authentication in '
+                                      'auto_refresh_kwargs.')
+                        refresh_kwargs['auth'] = kwargs.pop('auth')
+                    elif client_id:
+                        # If no auth was provided, but `client_id` and
+                        # `client_secret` were, warn the user and create an
+                        # HTTP Basic auth header. It is preferred if the user
+                        # instead place an auth param into `auto_refresh_kwargs`
+                        warnings.warn('client_id argument supplied, Please '
+                                      'specify token refresh authentication in'
+                                      'auto_refresh_kwargs')
+                        log.debug('Encoding client_id "%s" with client_secret as Basic auth credentials.', client_id)
+                        if not client_secret:
+                            warnings.warn('client_id provided, but '
+                                          'client_secret missing')
+                            client_secret = ''
+                        refresh_kwargs['auth'] = \
+                            requests.auth.HTTPBasicAuth(client_id, client_secret)
+
+                    # End of compat. code.
 
                     token = self.refresh_token(
-                        self.auto_refresh_url, client_id=client_id,
-                        client_secret=client_secret, **refresh_kwargs
+                        self.auto_refresh_url, **refresh_kwargs
                     )
                     if self.token_updater:
                         log.debug('Updating token to %s using %s.',

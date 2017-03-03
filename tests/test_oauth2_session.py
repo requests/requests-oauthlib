@@ -131,6 +131,9 @@ class OAuth2SessionTest(TestCase):
             resp.text = json.dumps(self.token)
             return resp
 
+        # Make sure client_id and client_secret are converted to Basic Auth.
+        # This is a deprecated implicit auth method and should be removed in
+        # favor of auto_refresh_kwargs.
         for client in self.clients:
             auth = OAuth2Session(client=client, token=self.expired_token,
                     auto_refresh_url='https://i.b/refresh',
@@ -138,13 +141,32 @@ class OAuth2SessionTest(TestCase):
             auth.send = fake_refresh_with_auth
             auth.get('https://i.b', client_id='foo', client_secret='bar')
 
-        # Make sure auth param is passed through
+        # Make sure auth param is passed through, this is a deprecated implicit
+        # auth method and should be removed in favor of auto_refresh_kwargs.
         for client in self.clients:
             auth = OAuth2Session(client=client, token=self.expired_token,
                     auto_refresh_url='https://i.b/refresh',
                     token_updater=token_updater)
             auth.send = fake_refresh_with_auth
             auth.get('https://i.b', auth=HTTPBasicAuth('foo', 'bar'))
+
+        def explicit_refresh_post(r, **kwargs):
+            if "/refresh" in r.url:
+                self.assertIn('foo-client-id', r.body)
+                self.assertIn('foo-client-secret', r.body)
+                self.assertNotIn("Authorization", r.headers)
+            resp = mock.MagicMock()
+            resp.text = json.dumps(self.token)
+            return resp
+
+        for client in self.clients:
+            auth = OAuth2Session(client=client, token=self.expired_token,
+                    auto_refresh_url='https://i.b/refresh',
+                    auto_refresh_kwargs={'client_id': 'foo-client-id',
+                    'client_secret': 'foo-client-secret'},
+                    token_updater=token_updater)
+            auth.send = explicit_refresh_post
+            auth.post('https://i.b')
 
     @mock.patch("time.time", new=lambda: fake_time)
     def test_token_from_fragment(self):
