@@ -334,10 +334,6 @@ class OAuth2Session(requests.Session):
         if not is_secure_transport(url):
             raise InsecureTransportError()
 
-        if client_id or client_secret:
-            warnings.warn(
-                'Specify token refresh authentication in auto_refresh_kwargs.')
-
         if self.token and not withhold_token:
             log.debug('Invoking %d protected resource request hooks.',
                       len(self.compliance_hook['protected_request']))
