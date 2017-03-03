@@ -15,7 +15,7 @@ from oauthlib.oauth2 import MismatchingStateError
 from oauthlib.oauth2 import WebApplicationClient, MobileApplicationClient
 from oauthlib.oauth2 import LegacyApplicationClient, BackendApplicationClient
 from requests_oauthlib import OAuth2Session, TokenUpdated
-
+from requests.auth import HTTPBasicAuth
 
 fake_time = time.time()
 
@@ -137,6 +137,14 @@ class OAuth2SessionTest(TestCase):
                     token_updater=token_updater)
             auth.send = fake_refresh_with_auth
             auth.get('https://i.b', client_id='foo', client_secret='bar')
+
+        # Make sure auth param is passed through
+        for client in self.clients:
+            auth = OAuth2Session(client=client, token=self.expired_token,
+                    auto_refresh_url='https://i.b/refresh',
+                    token_updater=token_updater)
+            auth.send = fake_refresh_with_auth
+            auth.get('https://i.b', auth=HTTPBasicAuth('foo', 'bar'))
 
     @mock.patch("time.time", new=lambda: fake_time)
     def test_token_from_fragment(self):

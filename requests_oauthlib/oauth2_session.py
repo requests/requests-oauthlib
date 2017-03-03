@@ -283,6 +283,15 @@ class OAuth2Session(requests.Session):
                 refresh_token=refresh_token, scope=self.scope, **kwargs)
         log.debug('Prepared refresh token request body %s', body)
 
+        client_id = kwargs.get('client_id', '')
+        if auth is None:
+            if client_id:
+                log.debug('Encoding client_id "%s" with client_secret as Basic auth credentials.', client_id)
+                client_secret = kwargs.get('client_secret', '')
+                client_secret = client_secret if client_secret is not None else ''
+                log.warning('client_id provided, but client_secret missing')
+                auth = requests.auth.HTTPBasicAuth(client_id, client_secret)
+
         if headers is None:
             headers = {
                 'Accept': 'application/json',
@@ -314,6 +323,11 @@ class OAuth2Session(requests.Session):
         """Intercept all requests and add the OAuth 2 token if present."""
         if not is_secure_transport(url):
             raise InsecureTransportError()
+
+        if client_id or client_secret:
+            log.warning(
+                'Specify token refresh authentication in auto_refresh_kwargs.')
+
         if self.token and not withhold_token:
             log.debug('Invoking %d protected resource request hooks.',
                       len(self.compliance_hook['protected_request']))
@@ -331,9 +345,17 @@ class OAuth2Session(requests.Session):
                     log.debug('Auto refresh is set, attempting to refresh at %s.',
                               self.auto_refresh_url)
 
-                    # Call refresh_token(), pass any kwargs registered to it.
+                    refresh_kwargs = self.auto_refresh_kwargs.copy()
+
+                    auth = kwargs.pop('auth', None)
+                    if auth:
+                        log.warning('Specify token refresh authentication in '
+                                    'auto_refresh_kwargs.')
+                        refresh_kwargs['auth'] = auth
+
                     token = self.refresh_token(
-                        self.auto_refresh_url, **self.auth_refresh_kwargs
+                        self.auto_refresh_url, client_id=client_id,
+                        client_secret=client_secret, **refresh_kwargs
                     )
                     if self.token_updater:
                         log.debug('Updating token to %s using %s.',
