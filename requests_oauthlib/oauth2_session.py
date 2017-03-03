@@ -1,13 +1,31 @@
 from __future__ import unicode_literals
 
 import logging
+import warnings
 
 from oauthlib.common import generate_token, urldecode
 from oauthlib.oauth2 import WebApplicationClient, InsecureTransportError
 from oauthlib.oauth2 import TokenExpiredError, is_secure_transport
+
 import requests
 
 log = logging.getLogger(__name__)
+
+
+# Preserve so we can call it.
+old_showwarning = warnings.showwarning
+
+def logwarning(message, category, filename, lineno, file=None):
+    """
+    Log warnings as well as print them.
+    """
+    log.warning(
+        '%s:%s: %s:%s' % 
+        (filename, lineno, category.__name__, message))
+    old_showwarning(message, category, filename, lineno, file=file)
+
+# Install our new handler.
+warnings.showwarning = logwarning
 
 
 class TokenUpdated(Warning):
@@ -289,7 +307,7 @@ class OAuth2Session(requests.Session):
                 log.debug('Encoding client_id "%s" with client_secret as Basic auth credentials.', client_id)
                 client_secret = kwargs.get('client_secret', '')
                 client_secret = client_secret if client_secret is not None else ''
-                log.warning('client_id provided, but client_secret missing')
+                warnings.warn('client_id provided, but client_secret missing')
                 auth = requests.auth.HTTPBasicAuth(client_id, client_secret)
 
         if headers is None:
@@ -325,7 +343,7 @@ class OAuth2Session(requests.Session):
             raise InsecureTransportError()
 
         if client_id or client_secret:
-            log.warning(
+            warnings.warn(
                 'Specify token refresh authentication in auto_refresh_kwargs.')
 
         if self.token and not withhold_token:
@@ -349,7 +367,7 @@ class OAuth2Session(requests.Session):
 
                     auth = kwargs.pop('auth', None)
                     if auth:
-                        log.warning('Specify token refresh authentication in '
+                        warnings.warn('Specify token refresh authentication in '
                                     'auto_refresh_kwargs.')
                         refresh_kwargs['auth'] = auth
 
