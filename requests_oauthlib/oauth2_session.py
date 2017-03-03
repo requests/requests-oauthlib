@@ -334,13 +334,21 @@ class OAuth2Session(requests.Session):
                     log.debug('Auto refresh is set, attempting to refresh at %s.',
                               self.auto_refresh_url)
 
-                    # We mustn't pass auth twice.
-                    auth = kwargs.pop('auth', None)
-                    if client_id and client_secret and (auth is None):
-                        log.debug('Encoding client_id "%s" with client_secret as Basic auth credentials.', client_id)
-                        auth = requests.auth.HTTPBasicAuth(client_id, client_secret)
+                    refresh_kwargs = {}
+                    # If caller provided auto_refresh_kwargs, don't send kwargs
+                    if not self.auto_refresh_kwargs:
+                        # Send kargs (preserve behavior) if caller did not
+                        # specify auto_refresh_kwargs.
+                        refresh_kwargs.update(kwargs)
+                        # If caller did not specify auth in kwargs, provide one.
+                        if client_id and client_secret and 'auth' not in refresh_kwargs:
+                            log.debug('Encoding client_id "%s" with client_secret as Basic auth credentials.', client_id)
+                            refresh_kwargs['auth'] = \
+                                requests.auth.HTTPBasicAuth(client_id, client_secret)
+                    # Call refresh_token(), it merges self.auto_refresh_kwargs
+                    # if provided by caller.
                     token = self.refresh_token(
-                        self.auto_refresh_url, auth=auth, **kwargs
+                        self.auto_refresh_url, **refresh_kwargs
                     )
                     if self.token_updater:
                         log.debug('Updating token to %s using %s.',
