@@ -297,7 +297,6 @@ class OAuth2Session(requests.Session):
 
         refresh_token = refresh_token or self.token.get('refresh_token')
 
-        log.debug('Kwargs: %s', kwargs)
         body = self._client.prepare_refresh_body(body=body,
                 refresh_token=refresh_token, scope=self.scope, **kwargs)
         log.debug('Prepared refresh token request body %s', body)
@@ -333,7 +332,6 @@ class OAuth2Session(requests.Session):
         """Intercept all requests and add the OAuth 2 token if present."""
         if not is_secure_transport(url):
             raise InsecureTransportError()
-
         if self.token and not withhold_token:
             log.debug('Invoking %d protected resource request hooks.',
                       len(self.compliance_hook['protected_request']))
@@ -359,7 +357,7 @@ class OAuth2Session(requests.Session):
                     # Start with kwargs explicitly requested for refresh.
                     refresh_kwargs = self.auto_refresh_kwargs.copy()
 
-                    if 'auth' in kwargs:
+                    if kwargs.get('auth', None):
                         # If user supplied `auth` to `request()` warn them to
                         # instead use `auto_refresh_kwargs`. But honor their
                         # intent for now.
