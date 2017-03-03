@@ -279,9 +279,6 @@ class OAuth2Session(requests.Session):
 
         refresh_token = refresh_token or self.token.get('refresh_token')
 
-        log.debug('Adding auto refresh key word arguments %s.',
-                  self.auto_refresh_kwargs)
-        kwargs.update(self.auto_refresh_kwargs)
         body = self._client.prepare_refresh_body(body=body,
                 refresh_token=refresh_token, scope=self.scope, **kwargs)
         log.debug('Prepared refresh token request body %s', body)
@@ -334,21 +331,9 @@ class OAuth2Session(requests.Session):
                     log.debug('Auto refresh is set, attempting to refresh at %s.',
                               self.auto_refresh_url)
 
-                    refresh_kwargs = {}
-                    # If caller provided auto_refresh_kwargs, don't send kwargs
-                    if not self.auto_refresh_kwargs:
-                        # Send kargs (preserve behavior) if caller did not
-                        # specify auto_refresh_kwargs.
-                        refresh_kwargs.update(kwargs)
-                        # If caller did not specify auth in kwargs, provide one.
-                        if client_id and client_secret and 'auth' not in refresh_kwargs:
-                            log.debug('Encoding client_id "%s" with client_secret as Basic auth credentials.', client_id)
-                            refresh_kwargs['auth'] = \
-                                requests.auth.HTTPBasicAuth(client_id, client_secret)
-                    # Call refresh_token(), it merges self.auto_refresh_kwargs
-                    # if provided by caller.
+                    # Call refresh_token(), pass any kwargs registered to it.
                     token = self.refresh_token(
-                        self.auto_refresh_url, **refresh_kwargs
+                        self.auto_refresh_url, **self.auth_refresh_kwargs
                     )
                     if self.token_updater:
                         log.debug('Updating token to %s using %s.',
