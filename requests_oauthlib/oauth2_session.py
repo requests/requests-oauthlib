@@ -136,16 +136,16 @@ class OAuth2Session(requests.Session):
         """
         return bool(self.access_token)
 
-    def authorization_url(self, url, state=None, **kwargs):
+    def authorization_url(self, url, state=None, use_auto_state=True, **kwargs):
         """Form an authorization URL.
 
         :param url: Authorization endpoint url, must be HTTPS.
-        :param state: An optional state string for CSRF protection. If not
-                      given it will be generated for you.
+        :param state: An optional state string for CSRF protection.
+        :param use_auto_state: if True the state will be generated automatically.
         :param kwargs: Extra parameters to include.
         :return: authorization_url, state
         """
-        state = state or self.new_state()
+        state = state or (self.new_state() if use_auto_state else None)
         return self._client.prepare_request_uri(url,
                 redirect_uri=self.redirect_uri,
                 scope=self.scope,
