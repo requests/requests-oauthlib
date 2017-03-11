@@ -156,7 +156,17 @@ The steps below outline how to use the Resource Owner Client Credentials Grant T
     >>> token = oauth.fetch_token(token_url='https://provider.com/oauth2/token', client_id=client_id,
             client_secret=client_secret)
 
+1. Alternative fetch an access token from the provider that passes secret only via header.
 
+.. code-block:: pycon
+    
+    >>> from oauthlib.oauth2 import BackendApplicationClient
+    >>> from requests.auth import HTTPBasicAuth
+    >>> auth = HTTPBasicAuth(client_id, client_secret)
+    >>> client = BackendApplicationClient(client_id=client_id)
+    >>> oauth = OAuth2Session(client=client)
+    >>> token = oauth.fetch_token(token_url='https://provider.com/oauth2/token', auth=auth)
+                    
 Refreshing tokens
 -----------------
 
