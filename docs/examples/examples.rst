@@ -8,6 +8,7 @@ Examples
    github
    google
    facebook
+   fitbit
    linkedin
    outlook
    tumblr
