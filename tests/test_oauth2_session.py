@@ -4,10 +4,7 @@ import mock
 import time
 from base64 import b64encode
 from copy import deepcopy
-try:
-    from unittest2 import TestCase
-except ImportError:
-    from unittest import TestCase
+from unittest import TestCase
 
 from oauthlib.common import urlencode
 from oauthlib.oauth2 import TokenExpiredError, OAuth2Error

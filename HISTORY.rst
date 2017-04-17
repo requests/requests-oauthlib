@@ -1,6 +1,11 @@
 History
 -------
 
+UNRELEASED
+++++++++++
+
+- **Removed support for Python 2.6.**
+
 v0.8.0 (14 February 2017)
 +++++++++++++++++++++++++
 

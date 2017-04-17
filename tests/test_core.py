@@ -6,10 +6,7 @@ import requests
 import requests_oauthlib
 import oauthlib
 import os.path
-try:
-    from io import StringIO # python 3
-except ImportError:
-    from StringIO import StringIO # python 2
+from io import StringIO
 import unittest
 
 

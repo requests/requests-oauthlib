@@ -5,10 +5,8 @@ import os
 import sys
 import re
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+from setuptools import setup
+
 
 # Get the version
 version_regex = r'__version__ = ["\']([^"\']*)["\']'
@@ -24,20 +22,13 @@ with open('requests_oauthlib/__init__.py', 'r') as f:
 
 APP_NAME = 'requests-oauthlib'
 
-settings = dict()
-
-
 # Publish Helper.
 if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
     sys.exit()
 
-tests_require = ['mock', 'requests-mock']
-if sys.version_info < (2, 7): # Python 2.6 or lower
-    tests_require.append('unittest2')
 
-
-settings.update(
+setup(
     name=APP_NAME,
     version=VERSION,
     description='OAuthlib authentication support for Requests.',
@@ -57,7 +48,6 @@ settings.update(
         'License :: OSI Approved :: BSD License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
@@ -66,8 +56,9 @@ settings.update(
         'Programming Language :: Python :: 3.6',
     ),
     zip_safe=False,
-    tests_require=tests_require,
+    tests_require=[
+        'mock',
+        'requests-mock',
+    ],
     test_suite='tests'
 )
-
-setup(**settings)
