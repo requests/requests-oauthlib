@@ -77,9 +77,9 @@ class OAuth2Session(requests.Session):
         # Allow customizations for non compliant providers through various
         # hooks to adjust requests and responses.
         self.compliance_hook = {
-            'access_token_response': set([]),
-            'refresh_token_response': set([]),
-            'protected_request': set([]),
+            'access_token_response': set(),
+            'refresh_token_response': set(),
+            'protected_request': set(),
         }
 
     def new_state(self):
