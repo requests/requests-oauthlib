@@ -1,8 +1,5 @@
 from __future__ import unicode_literals
-try:
-    from unittest2 import TestCase
-except ImportError:
-    from unittest import TestCase
+from unittest import TestCase
 
 import requests
 import requests_mock

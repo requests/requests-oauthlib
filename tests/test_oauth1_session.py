@@ -3,15 +3,12 @@ import mock
 import unittest
 import sys
 import requests
+from io import StringIO
 
 from oauthlib.oauth1 import SIGNATURE_TYPE_QUERY, SIGNATURE_TYPE_BODY
 from oauthlib.oauth1 import SIGNATURE_RSA, SIGNATURE_PLAINTEXT
 from requests_oauthlib import OAuth1Session
 
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
 
 try:
     import cryptography
@@ -24,19 +21,6 @@ if sys.version[0] == '3':
 else:
     unicode_type = unicode
     bytes_type = str
-
-# Monkey patch Python 2.6 unittest
-if not hasattr(unittest, 'SkipTest'):
-    unittest.SkipTest = RuntimeWarning
-    unittest.TestResult.real_add_error = unittest.TestResult.addError
-
-    def patched_addError(self, test, exc_info):
-        if exc_info[0] is RuntimeWarning:
-            print(str(exc_info[1]), end=' ', file=sys.stderr)
-            return
-        else:
-            self.real_add_error(test, exc_info)
-    unittest.TestResult.addError = patched_addError
 
 
 TEST_RSA_KEY = (
