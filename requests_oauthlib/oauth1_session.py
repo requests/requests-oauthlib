@@ -16,10 +16,6 @@ import requests
 
 from . import OAuth1
 
-import sys
-if sys.version > "3":
-    unicode = str
-
 
 log = logging.getLogger(__name__)
 
