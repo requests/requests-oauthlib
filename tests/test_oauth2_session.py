@@ -55,9 +55,7 @@ class OAuth2SessionTest(TestCase):
         token = 'Bearer ' + self.token['access_token']
 
         def verifier(r, **kwargs):
-            auth_header = r.headers.get('Authorization', None)
-            if 'Authorization'.encode('utf-8') in r.headers:
-                auth_header = r.headers['Authorization'.encode('utf-8')]
+            auth_header = r.headers.get(str('Authorization'), None)
             self.assertEqual(auth_header, token)
             resp = mock.MagicMock()
             resp.cookes = []
@@ -248,4 +246,3 @@ class OAuth2SessionTest(TestCase):
             self.assertFalse(sess.authorized)
             sess.fetch_token(url)
             self.assertTrue(sess.authorized)
-
