@@ -124,7 +124,7 @@ The steps below outline how to use the Implicit Code Grant Type flow to obtain a
 
 .. code-block:: pycon
 
-    >>> response = oauth.request('GET', authorization_url)
+    >>> response = oauth.get(authorization_url)
     >>> oauth.token_from_fragment(response.url)
 
 
