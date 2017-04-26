@@ -101,7 +101,31 @@ the provider is Google and the protected resource is the user's profile.
 Mobile Application Flow
 -----------------------
 
-Documentation coming soon. Want to help? Why not `write this section`_?
+The steps below outline how to use the Implicit Code Grant Type flow to obtain an access token.
+
+0. You will need the following settings.
+
+.. code-block:: pycon
+
+    >>> client_id = 'your_client_id'
+    >>> scopes = ['scope_1', 'scope_2']
+    >>> auth_url = 'https://your.oauth2/auth'
+
+1. Get the authorization_url
+
+.. code-block:: pycon
+
+    >>> from oauthlib.oauth2 import MobileApplicationClient
+    >>> from requests_oauthlib import OAuth2Session
+    >>> oauth = OAuth2Session(client=MobileApplicationClient(client_id=client_id), scope=scopes)
+    >>> authorization_url, state = oauth.authorization_url(auth_url)
+
+2. Fetch an access token from the provider.
+
+.. code-block:: pycon
+
+    >>> response = oauth.request('GET', authorization_url)
+    >>> oauth.token_from_fragment(response.url)
 
 
 .. _legacy-application-flow:
