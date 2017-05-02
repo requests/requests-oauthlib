@@ -339,8 +339,10 @@ class OAuth2Session(requests.Session):
                     if client_id and client_secret and (auth is None):
                         log.debug('Encoding client_id "%s" with client_secret as Basic auth credentials.', client_id)
                         auth = requests.auth.HTTPBasicAuth(client_id, client_secret)
+                    refresh_kwargs = {name: kwargs[name] for name in kwargs
+                                      if name in ('timeout', 'verify', 'proxies')}
                     token = self.refresh_token(
-                        self.auto_refresh_url, auth=auth, **kwargs
+                        self.auto_refresh_url, auth=auth, **refresh_kwargs
                     )
                     if self.token_updater:
                         log.debug('Updating token to %s using %s.',

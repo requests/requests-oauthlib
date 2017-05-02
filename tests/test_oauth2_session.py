@@ -6,7 +6,7 @@ from base64 import b64encode
 from copy import deepcopy
 from unittest import TestCase
 
-from oauthlib.common import urlencode
+from oauthlib.common import urlencode, urldecode
 from oauthlib.oauth2 import TokenExpiredError, OAuth2Error
 from oauthlib.oauth2 import MismatchingStateError
 from oauthlib.oauth2 import WebApplicationClient, MobileApplicationClient
@@ -132,6 +132,29 @@ class OAuth2SessionTest(TestCase):
                     token_updater=token_updater)
             auth.send = fake_refresh_with_auth
             auth.get('https://i.b', client_id='foo', client_secret='bar')
+
+        def fake_refresh_check_body_and_connection_params(r, **kwargs):
+            if "/refresh" in r.url:
+                self.assertEqual('proxy.b', kwargs['proxies']['https'])
+                data = dict(urldecode(r.body))
+                self.assertDictEqual({
+                    'grant_type': 'refresh_token',
+                    'refresh_token': 'sldvafkjw34509s8dfsdf',
+                    'extra': 'spam'
+                }, data)
+
+            resp = mock.MagicMock()
+            resp.text = json.dumps(self.token)
+            return resp
+
+        for client in self.clients:
+            auth = OAuth2Session(client=client, token=self.expired_token,
+                                 auto_refresh_url='https://i.b/refresh',
+                                 token_updater=token_updater,
+                                 auto_refresh_kwargs={'extra': 'spam'})
+            auth.send = fake_refresh_check_body_and_connection_params
+            # Also allow_redirects=True is included by requests.Session.get()
+            auth.get('https://i.b', params={'foo': 'bar'}, proxies={'https': 'proxy.b'})
 
     @mock.patch("time.time", new=lambda: fake_time)
     def test_token_from_fragment(self):
