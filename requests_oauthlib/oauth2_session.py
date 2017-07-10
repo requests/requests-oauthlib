@@ -152,7 +152,7 @@ class OAuth2Session(requests.Session):
                 state=state,
                 **kwargs), state
 
-    def fetch_token(self, token_url, code=None, authorization_response=None,
+    def fetch_token(self, token_url, scope=None, code=None, authorization_response=None,
             body='', auth=None, username=None, password=None, method='POST',
             timeout=None, headers=None, verify=True, proxies=None, **kwargs):
         """Generic method for fetching an access token from the token endpoint.
@@ -193,7 +193,7 @@ class OAuth2Session(requests.Session):
                                  'authorization_response parameters.')
 
 
-        body = self._client.prepare_request_body(code=code, body=body,
+        body = self._client.prepare_request_body(code=code, scope=scope, body=body,
                 redirect_uri=self.redirect_uri, username=username,
                 password=password, **kwargs)
 
