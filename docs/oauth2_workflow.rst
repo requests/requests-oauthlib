@@ -68,9 +68,9 @@ the provider is Google and the protected resource is the user's profile.
                               scope=scope)
     >>> authorization_url, state = oauth.authorization_url(
             'https://accounts.google.com/o/oauth2/auth',
-            # access_type and approval_prompt are Google specific extra
+            # access_type and prompt are Google specific extra
             # parameters.
-            access_type="offline", approval_prompt="force")
+            access_type="offline", prompt="select_account")
 
     >>> print 'Please go to %s and authorize access.' % authorization_url
     >>> authorization_response = raw_input('Enter the full callback URL')
@@ -163,17 +163,17 @@ Backend Application Flow
 The steps below outline how to use the Resource Owner Client Credentials Grant Type flow to obtain an access token.
 
 0. Obtain credentials from your OAuth provider. At minimum you will
-   need a ``client_id`` and ``client_secret``. 
+   need a ``client_id`` and ``client_secret``.
 
     .. code-block:: pycon
-    
+
         >>> client_id = 'your_client_id'
         >>> client_secret = 'your_client_secret'
 
 1. Fetch an access token from the provider.
 
     .. code-block:: pycon
-    
+
         >>> from oauthlib.oauth2 import BackendApplicationClient
         >>> client = BackendApplicationClient(client_id=client_id)
         >>> oauth = OAuth2Session(client=client)
@@ -183,14 +183,14 @@ The steps below outline how to use the Resource Owner Client Credentials Grant T
    If your provider requires that you pass auth credentials in a Basic Auth header, you can do this instead:
 
     .. code-block:: pycon
-    
+
         >>> from oauthlib.oauth2 import BackendApplicationClient
         >>> from requests.auth import HTTPBasicAuth
         >>> auth = HTTPBasicAuth(client_id, client_secret)
         >>> client = BackendApplicationClient(client_id=client_id)
         >>> oauth = OAuth2Session(client=client)
         >>> token = oauth.fetch_token(token_url='https://provider.com/oauth2/token', auth=auth)
-                    
+
 Refreshing tokens
 -----------------
 
