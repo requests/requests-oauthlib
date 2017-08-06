@@ -29,7 +29,7 @@ a callback URL then you can try out the command line interactive example below.
     >>> authorization_url, state = google.authorization_url(authorization_base_url,
     ...     # offline for refresh token
     ...     # force to always make user click authorize
-    ...     access_type="offline", approval_prompt="force")
+    ...     access_type="offline", prompt="select_account")
     >>> print 'Please go here and authorize,', authorization_url
 
     >>> # Get the authorization verifier code from the callback url
