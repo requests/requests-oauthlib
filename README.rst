@@ -22,7 +22,7 @@ Accessing protected resources using requests_oauthlib is as simple as:
     >>> r = twitter.get(url)
 
 Before accessing resources you will need to obtain a few credentials from your
-provider (i.e. Twitter) and authorization from the user for whom you wish to
+provider (e.g. Twitter) and authorization from the user for whom you wish to
 retrieve resources for. You can read all about this in the full
 `OAuth 1 workflow guide on RTD <http://requests-oauthlib.readthedocs.org/en/latest/oauth1_workflow.html>`_.
 
@@ -35,7 +35,7 @@ flow.
 
 Fetching a protected resource after obtaining an access token can be extremely
 simple. However, before accessing resources you will need to obtain a few
-credentials from your provider (i.e. Google) and authorization from the user
+credentials from your provider (e.g. Google) and authorization from the user
 for whom you wish to retrieve resources for. You can read all about this in the
 full `OAuth 2 workflow guide on RTD <http://requests-oauthlib.readthedocs.org/en/latest/oauth2_workflow.html>`_.
 
