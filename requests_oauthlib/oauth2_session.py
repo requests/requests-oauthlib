@@ -36,7 +36,7 @@ class OAuth2Session(requests.Session):
 
     def __init__(self, client_id=None, client=None, auto_refresh_url=None,
             auto_refresh_kwargs=None, scope=None, redirect_uri=None, token=None,
-            state=None, token_updater=None, **kwargs):
+            state=None, token_updater=None, cert=None, **kwargs):
         """Construct a new OAuth 2 client session.
 
         :param client_id: Client id obtained during registration
@@ -61,6 +61,7 @@ class OAuth2Session(requests.Session):
                         set a TokenUpdated warning will be raised when a token
                         has been refreshed. This warning will carry the token
                         in its token argument.
+        :cert: Client certificate for authenting requests
         :param kwargs: Arguments to pass to the Session constructor.
         """
         super(OAuth2Session, self).__init__(**kwargs)
@@ -73,6 +74,7 @@ class OAuth2Session(requests.Session):
         self.auto_refresh_url = auto_refresh_url
         self.auto_refresh_kwargs = auto_refresh_kwargs or {}
         self.token_updater = token_updater
+        self.cert = cert
 
         # Allow customizations for non compliant providers through various
         # hooks to adjust requests and responses.
@@ -218,13 +220,13 @@ class OAuth2Session(requests.Session):
         if method.upper() == 'POST':
             r = self.post(token_url, data=dict(urldecode(body)),
                 timeout=timeout, headers=headers, auth=auth,
-                verify=verify, proxies=proxies)
+                verify=verify, proxies=proxies, cert=self.cert)
             log.debug('Prepared fetch token request body %s', body)
         elif method.upper() == 'GET':
             # if method is not 'POST', switch body to querystring and GET
             r = self.get(token_url, params=dict(urldecode(body)),
                 timeout=timeout, headers=headers, auth=auth,
-                verify=verify, proxies=proxies)
+                verify=verify, proxies=proxies, cert=self.cert)
             log.debug('Prepared fetch token request querystring %s', body)
         else:
             raise ValueError('The method kwarg must be POST or GET.')
