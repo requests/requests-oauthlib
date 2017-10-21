@@ -28,12 +28,17 @@ if sys.argv[-1] == 'publish':
     sys.exit()
 
 
+def readall(path):
+    with open(path) as fp:
+        return fp.read()
+
+
 setup(
     name=APP_NAME,
     version=VERSION,
     description='OAuthlib authentication support for Requests.',
-    long_description=open('README.rst').read() + '\n\n' +
-                     open('HISTORY.rst').read(),
+    long_description=readall('README.rst') + '\n\n' +
+                     readall('HISTORY.rst'),
     author='Kenneth Reitz',
     author_email='me@kennethreitz.com',
     url='https://github.com/requests/requests-oauthlib',
