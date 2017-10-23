@@ -57,7 +57,7 @@ class OAuth2Session(requests.Session):
         :auto_refresh_kwargs: Extra arguments to pass to the refresh token
                               endpoint.
         :token_updater: Method with one argument, token, to be used to update
-                        your token databse on automatic token refresh. If not
+                        your token database on automatic token refresh. If not
                         set a TokenUpdated warning will be raised when a token
                         has been refreshed. This warning will carry the token
                         in its token argument.
