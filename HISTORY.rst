@@ -4,7 +4,12 @@ History
 UNRELEASED
 ++++++++++
 
-- **Removed support for Python 2.6.**
+- **Removed support for Python 2.6 and Python 3.3.**
+  This project now supports Python 2.7, and Python 3.4 and above.
+- Added several examples to the documentation.
+- Added plentymarkets compliance fix.
+- Added a ``token`` property to OAuth1Session, to match the corresponding
+  ``token`` property on OAuth2Session.
 
 v0.8.0 (14 February 2017)
 +++++++++++++++++++++++++
