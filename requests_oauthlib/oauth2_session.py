@@ -237,6 +237,9 @@ class OAuth2Session(requests.Session):
                   r.headers, r.text)
         log.debug('Invoking %d token response hooks.',
                   len(self.compliance_hook['access_token_response']))
+
+        r.raise_for_status()
+
         for hook in self.compliance_hook['access_token_response']:
             log.debug('Invoking hook %s.', hook)
             r = hook(r)
@@ -302,6 +305,9 @@ class OAuth2Session(requests.Session):
                   r.headers, r.text)
         log.debug('Invoking %d token response hooks.',
                   len(self.compliance_hook['refresh_token_response']))
+
+        r.raise_for_status()
+
         for hook in self.compliance_hook['refresh_token_response']:
             log.debug('Invoking hook %s.', hook)
             r = hook(r)
