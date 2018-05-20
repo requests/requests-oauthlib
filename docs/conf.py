@@ -251,7 +251,7 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
-    'python': ('http://python.readthedocs.org/en/latest/', None),
-    'requests': ('http://requests.readthedocs.org/en/latest/', None),
-    'oauthlib': ('http://oauthlib.readthedocs.org/en/latest/', None),
+    'python': ('https://python.readthedocs.io/en/latest/', None),
+    'requests': ('https://requests.readthedocs.io/en/latest/', None),
+    'oauthlib': ('https://oauthlib.readthedocs.io/en/latest/', None),
 }

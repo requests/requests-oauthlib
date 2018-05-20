@@ -24,7 +24,7 @@ Accessing protected resources using requests_oauthlib is as simple as:
 Before accessing resources you will need to obtain a few credentials from your
 provider (e.g. Twitter) and authorization from the user for whom you wish to
 retrieve resources for. You can read all about this in the full
-`OAuth 1 workflow guide on RTD <http://requests-oauthlib.readthedocs.org/en/latest/oauth1_workflow.html>`_.
+`OAuth 1 workflow guide on RTD <https://requests-oauthlib.readthedocs.io/en/latest/oauth1_workflow.html>`_.
 
 The OAuth 2 workflow
 --------------------
@@ -37,7 +37,7 @@ Fetching a protected resource after obtaining an access token can be extremely
 simple. However, before accessing resources you will need to obtain a few
 credentials from your provider (e.g. Google) and authorization from the user
 for whom you wish to retrieve resources for. You can read all about this in the
-full `OAuth 2 workflow guide on RTD <http://requests-oauthlib.readthedocs.org/en/latest/oauth2_workflow.html>`_.
+full `OAuth 2 workflow guide on RTD <https://requests-oauthlib.readthedocs.io/en/latest/oauth2_workflow.html>`_.
 
 Installation
 -------------
@@ -52,7 +52,7 @@ To install requests and requests_oauthlib you can use pip:
    :target: https://travis-ci.org/requests/requests-oauthlib
 .. |coverage-status| image:: https://img.shields.io/coveralls/requests/requests-oauthlib.svg
    :target: https://coveralls.io/r/requests/requests-oauthlib
-.. |docs| image:: https://readthedocs.org/projects/requests-oauthlib/badge/?version=latest
+.. |docs| image:: https://readthedocs.org/projects/requests-oauthlib/badge/
    :alt: Documentation Status
    :scale: 100%
-   :target: https://readthedocs.org/projects/requests-oauthlib/
+   :target: https://requests-oauthlib.readthedocs.io/
