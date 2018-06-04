@@ -4,6 +4,11 @@ History
 UNRELEASED
 ++++++++++
 
+nothing yet
+
+v1.0.0 (4 June 2018)
+++++++++++++++++++++
+
 - **Removed support for Python 2.6 and Python 3.3.**
   This project now supports Python 2.7, and Python 3.4 and above.
 - Added several examples to the documentation.
