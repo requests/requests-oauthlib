@@ -111,7 +111,12 @@ class OAuth2Session(requests.Session):
     @token.setter
     def token(self, value):
         self._client.token = value
-        self._client._populate_attributes(value)
+
+        # Since OAuth2 >= 2.1.0, Client._popuplate_attributes() is deprecated
+        if hasattr(self._client, 'populate_token_attributes'):
+            self._client.populate_token_attributes(value)
+        else:
+            self._client._populate_attributes(value)
 
     @property
     def access_token(self):
