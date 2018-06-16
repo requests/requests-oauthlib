@@ -80,6 +80,7 @@ class OAuth2Session(requests.Session):
             'access_token_response': set(),
             'refresh_token_response': set(),
             'protected_request': set(),
+            'token_request': set(),
         }
 
     def new_state(self):
@@ -320,6 +321,9 @@ class OAuth2Session(requests.Session):
             log.debug('Prepared fetch token request querystring %s', body)
         else:
             raise ValueError('The method kwarg must be POST or GET.')
+
+        for hook in self.compliance_hook['token_request']:
+            method, url, kwargs = hook(method, url, **kwargs)
 
         return self.request(method, url, **kwargs)
 
