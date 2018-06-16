@@ -11,7 +11,7 @@ from oauthlib.oauth2 import TokenExpiredError, OAuth2Error
 from oauthlib.oauth2 import MismatchingStateError
 from oauthlib.oauth2 import WebApplicationClient, MobileApplicationClient
 from oauthlib.oauth2 import LegacyApplicationClient, BackendApplicationClient
-from requests_oauthlib import OAuth2Session, TokenUpdated
+from requests_oauthlib import OAuth2Session, TokenUpdated, TokenRequestDenied
 import requests_mock
 
 
@@ -270,5 +270,21 @@ class OAuth2SessionTest(TestCase):
             self.assertFalse(sess.authorized)
             sess.fetch_token(url)
             self.assertTrue(sess.authorized)
+
+        self.assertEqual(len(self.clients), self.requests_mock.call_count)
+
+    def test_token_fetch_invalid_status_code(self):
+        url = 'https://example.com/token'
+        self.requests_mock.post(url,
+                                json={'message': 'Failure'},
+                                status_code=403)
+
+        for client in self.clients:
+            sess = OAuth2Session(client=client)
+            self.assertRaises(
+                TokenRequestDenied,
+                sess.fetch_token,
+                url
+            )
 
         self.assertEqual(len(self.clients), self.requests_mock.call_count)

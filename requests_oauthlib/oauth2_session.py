@@ -9,6 +9,8 @@ import requests
 
 log = logging.getLogger(__name__)
 
+from . import exc
+
 
 class TokenUpdated(Warning):
     def __init__(self, token):
@@ -325,7 +327,13 @@ class OAuth2Session(requests.Session):
         for hook in self.compliance_hook['token_request']:
             method, url, kwargs = hook(method, url, **kwargs)
 
-        return self.request(method, url, **kwargs)
+        r = self.request(method, url, **kwargs)
+
+        if not r.ok:
+            error = "Token request failed with code %s, response was '%s'."
+            raise exc.TokenRequestDenied(error % (r.status_code, r.text), r)
+
+        return r
 
     def request(self, method, url, data=None, headers=None, withhold_token=False,
                 client_id=None, client_secret=None, **kwargs):
