@@ -3,6 +3,7 @@ import mock
 import unittest
 import sys
 import requests
+import requests_mock
 from io import StringIO
 
 from oauthlib.oauth1 import SIGNATURE_TYPE_QUERY, SIGNATURE_TYPE_BODY
@@ -62,6 +63,9 @@ TEST_RSA_OAUTH_SIGNATURE = (
     "jPkI%2FkWMvpxtMrU3Z3KN31WQ%3D%3D"
 )
 
+TEST_URL = 'https://i.b'
+TEST_TOKEN_URL = 'https://example.com/token'
+
 
 class OAuth1SessionTest(unittest.TestCase):
 
@@ -70,30 +74,32 @@ class OAuth1SessionTest(unittest.TestCase):
         if not hasattr(self, 'assertIn'):
             self.assertIn = lambda a, b: self.assertTrue(a in b)
 
+        self.requests_mock = requests_mock.mock()
+        self.requests_mock.start()
+        self.addCleanup(self.requests_mock.stop)
+
+    def assert_signature(self, signature):
+        header = self.requests_mock.last_request.headers['Authorization']
+        self.assertEqual(signature, header.decode('utf-8'))
+
+        return header
+
     def test_signature_types(self):
-        def verify_signature(getter):
-            def fake_send(r, **kwargs):
-                signature = getter(r)
-                if isinstance(signature, bytes_type):
-                    signature = signature.decode('utf-8')
-                self.assertIn('oauth_signature', signature)
-                resp = mock.MagicMock(spec=requests.Response)
-                resp.cookies = []
-                return resp
-            return fake_send
+        self.requests_mock.post(TEST_URL)
 
         header = OAuth1Session('foo')
-        header.send = verify_signature(lambda r: r.headers['Authorization'])
-        header.post('https://i.b')
+        header.post(TEST_URL)
+        self.assertIn('oauth_signature',
+            self.requests_mock.last_request.headers['Authorization'].decode('utf-8'))
 
         query = OAuth1Session('foo', signature_type=SIGNATURE_TYPE_QUERY)
-        query.send = verify_signature(lambda r: r.url)
-        query.post('https://i.b')
+        query.post(TEST_URL)
+        self.assertIn('oauth_signature', self.requests_mock.last_request.url)
 
         body = OAuth1Session('foo', signature_type=SIGNATURE_TYPE_BODY)
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        body.send = verify_signature(lambda r: r.body)
-        body.post('https://i.b', headers=headers, data='')
+        body.post(TEST_URL, headers=headers, data='')
+        self.assertIn('oauth_signature', self.requests_mock.last_request.text)
 
     @mock.patch('oauthlib.oauth1.rfc5849.generate_timestamp')
     @mock.patch('oauthlib.oauth1.rfc5849.generate_nonce')
@@ -101,18 +107,19 @@ class OAuth1SessionTest(unittest.TestCase):
         if not cryptography:
             raise unittest.SkipTest('cryptography module is required')
 
+        self.requests_mock.post(TEST_URL)
         generate_nonce.return_value = 'abc'
         generate_timestamp.return_value = '123'
 
         signature = 'OAuth oauth_nonce="abc", oauth_timestamp="123", oauth_version="1.0", oauth_signature_method="HMAC-SHA1", oauth_consumer_key="foo", oauth_signature="h2sRqLArjhlc5p3FTkuNogVHlKE%3D"'
         auth = OAuth1Session('foo')
-        auth.send = self.verify_signature(signature)
-        auth.post('https://i.b')
+        auth.post(TEST_URL)
+        self.assert_signature(signature)
 
         signature = 'OAuth oauth_nonce="abc", oauth_timestamp="123", oauth_version="1.0", oauth_signature_method="PLAINTEXT", oauth_consumer_key="foo", oauth_signature="%26"'
         auth = OAuth1Session('foo', signature_method=SIGNATURE_PLAINTEXT)
-        auth.send = self.verify_signature(signature)
-        auth.post('https://i.b')
+        auth.post(TEST_URL)
+        self.assert_signature(signature)
 
         signature = ('OAuth '
             'oauth_nonce="abc", oauth_timestamp="123", oauth_version="1.0", '
@@ -121,30 +128,33 @@ class OAuth1SessionTest(unittest.TestCase):
         ).format(sig=TEST_RSA_OAUTH_SIGNATURE)
         auth = OAuth1Session('foo', signature_method=SIGNATURE_RSA,
                              rsa_key=TEST_RSA_KEY)
-        auth.send = self.verify_signature(signature)
-        auth.post('https://i.b')
+        auth.post(TEST_URL)
+        self.assert_signature(signature)
 
     @mock.patch('oauthlib.oauth1.rfc5849.generate_timestamp')
     @mock.patch('oauthlib.oauth1.rfc5849.generate_nonce')
     def test_binary_upload(self, generate_nonce, generate_timestamp):
+        self.requests_mock.post(TEST_URL)
+
         generate_nonce.return_value = 'abc'
         generate_timestamp.return_value = '123'
         fake_xml = StringIO('hello world')
         headers = {'Content-Type': 'application/xml'}
         signature = 'OAuth oauth_nonce="abc", oauth_timestamp="123", oauth_version="1.0", oauth_signature_method="HMAC-SHA1", oauth_consumer_key="foo", oauth_signature="h2sRqLArjhlc5p3FTkuNogVHlKE%3D"'
         auth = OAuth1Session('foo')
-        auth.send = self.verify_signature(signature)
-        auth.post('https://i.b', headers=headers, files=[('fake', fake_xml)])
+        auth.post(TEST_URL, headers=headers, files=[('fake', fake_xml)])
+        self.assert_signature(signature)
 
     @mock.patch('oauthlib.oauth1.rfc5849.generate_timestamp')
     @mock.patch('oauthlib.oauth1.rfc5849.generate_nonce')
     def test_nonascii(self, generate_nonce, generate_timestamp):
+        self.requests_mock.post('https://i.b')
         generate_nonce.return_value = 'abc'
         generate_timestamp.return_value = '123'
         signature = 'OAuth oauth_nonce="abc", oauth_timestamp="123", oauth_version="1.0", oauth_signature_method="HMAC-SHA1", oauth_consumer_key="foo", oauth_signature="W0haoue5IZAZoaJiYCtfqwMf8x8%3D"'
         auth = OAuth1Session('foo')
-        auth.send = self.verify_signature(signature)
         auth.post('https://i.b?cjk=%E5%95%A6%E5%95%A6')
+        self.assert_signature(signature)
 
     def test_authorization_url(self):
         auth = OAuth1Session('foo')
@@ -165,68 +175,72 @@ class OAuth1SessionTest(unittest.TestCase):
 
     def test_fetch_request_token(self):
         auth = OAuth1Session('foo')
-        auth.send = self.fake_body('oauth_token=foo')
-        resp = auth.fetch_request_token('https://example.com/token')
+        self.requests_mock.post(TEST_TOKEN_URL, text='oauth_token=foo')
+        resp = auth.fetch_request_token(TEST_TOKEN_URL)
         self.assertEqual(resp['oauth_token'], 'foo')
         for k, v in resp.items():
             self.assertTrue(isinstance(k, unicode_type))
             self.assertTrue(isinstance(v, unicode_type))
+        self.assertTrue(self.requests_mock.called_once)
 
     def test_fetch_request_token_with_optional_arguments(self):
         auth = OAuth1Session('foo')
-        auth.send = self.fake_body('oauth_token=foo')
-        resp = auth.fetch_request_token('https://example.com/token',
-                                        verify=False, stream=True)
+        self.requests_mock.post(TEST_TOKEN_URL, text='oauth_token=foo')
+        resp = auth.fetch_request_token(TEST_TOKEN_URL, verify=False, stream=True)
         self.assertEqual(resp['oauth_token'], 'foo')
         for k, v in resp.items():
             self.assertTrue(isinstance(k, unicode_type))
             self.assertTrue(isinstance(v, unicode_type))
+        self.assertTrue(self.requests_mock.called_once)
+        self.assertFalse(self.requests_mock.last_request.verify)
 
     def test_fetch_access_token(self):
         auth = OAuth1Session('foo', verifier='bar')
-        auth.send = self.fake_body('oauth_token=foo')
-        resp = auth.fetch_access_token('https://example.com/token')
+        self.requests_mock.post(TEST_TOKEN_URL, text='oauth_token=foo')
+        resp = auth.fetch_access_token(TEST_TOKEN_URL)
         self.assertEqual(resp['oauth_token'], 'foo')
         for k, v in resp.items():
             self.assertTrue(isinstance(k, unicode_type))
             self.assertTrue(isinstance(v, unicode_type))
+        self.assertTrue(self.requests_mock.called_once)
 
     def test_fetch_access_token_with_optional_arguments(self):
         auth = OAuth1Session('foo', verifier='bar')
-        auth.send = self.fake_body('oauth_token=foo')
-        resp = auth.fetch_access_token('https://example.com/token',
-                                       verify=False, stream=True)
+        self.requests_mock.post(TEST_TOKEN_URL, text='oauth_token=foo')
+        resp = auth.fetch_access_token(TEST_TOKEN_URL, verify=False, stream=True)
         self.assertEqual(resp['oauth_token'], 'foo')
         for k, v in resp.items():
             self.assertTrue(isinstance(k, unicode_type))
             self.assertTrue(isinstance(v, unicode_type))
+        self.assertTrue(self.requests_mock.called_once)
+        self.assertFalse(self.requests_mock.last_request.verify)
 
     def _test_fetch_access_token_raises_error(self, auth):
         """Assert that an error is being raised whenever there's no verifier
         passed in to the client.
         """
-        auth.send = self.fake_body('oauth_token=foo')
+        self.requests_mock.post(TEST_TOKEN_URL, text='oauth_token=foo')
 
         # Use a try-except block so that we can assert on the exception message
         # being raised and also keep the Python2.6 compatibility where
         # assertRaises is not a context manager.
         try:
-            auth.fetch_access_token('https://example.com/token')
+            auth.fetch_access_token(TEST_TOKEN_URL)
         except ValueError as exc:
             self.assertEqual('No client verifier has been set.', str(exc))
 
     def test_fetch_token_invalid_response(self):
         auth = OAuth1Session('foo')
-        auth.send = self.fake_body('not valid urlencoded response!')
-        self.assertRaises(ValueError, auth.fetch_request_token,
-                'https://example.com/token')
+        self.requests_mock.post(TEST_TOKEN_URL,
+                                text='not valid urlencoded response!')
+        self.assertRaises(ValueError, auth.fetch_request_token, TEST_TOKEN_URL)
 
         for code in (400, 401, 403):
-            auth.send = self.fake_body('valid=response', code)
+            self.requests_mock.post(TEST_TOKEN_URL, status_code=code)
             # use try/catch rather than self.assertRaises, so we can
             # assert on the properties of the exception
             try:
-                auth.fetch_request_token('https://example.com/token')
+                auth.fetch_request_token(TEST_TOKEN_URL)
             except ValueError as err:
                 self.assertEqual(err.status_code, code)
                 self.assertTrue(isinstance(err.response, requests.Response))
@@ -289,13 +303,13 @@ class OAuth1SessionTest(unittest.TestCase):
         ).format(sig=TEST_RSA_OAUTH_SIGNATURE)
         sess = OAuth1Session('foo', signature_method=SIGNATURE_RSA,
                              rsa_key=TEST_RSA_KEY)
-        sess.send = self.verify_signature(signature)
         self.assertFalse(sess.authorized)
 
     def test_authorized_true(self):
+        self.requests_mock.post(TEST_TOKEN_URL,
+                                text='oauth_token=foo&oauth_token_secret=bar')
         sess = OAuth1Session('key', 'secret', verifier='bar')
-        sess.send = self.fake_body('oauth_token=foo&oauth_token_secret=bar')
-        sess.fetch_access_token('https://example.com/token')
+        sess.fetch_access_token(TEST_TOKEN_URL)
         self.assertTrue(sess.authorized)
 
     @mock.patch('oauthlib.oauth1.rfc5849.generate_timestamp')
@@ -313,26 +327,7 @@ class OAuth1SessionTest(unittest.TestCase):
         ).format(sig=TEST_RSA_OAUTH_SIGNATURE)
         sess = OAuth1Session('key', 'secret', signature_method=SIGNATURE_RSA,
                              rsa_key=TEST_RSA_KEY, verifier='bar')
-        sess.send = self.fake_body('oauth_token=foo&oauth_token_secret=bar')
-        sess.fetch_access_token('https://example.com/token')
+        self.requests_mock.post(TEST_TOKEN_URL,
+                                text='oauth_token=foo&oauth_token_secret=bar')
+        sess.fetch_access_token(TEST_TOKEN_URL)
         self.assertTrue(sess.authorized)
-
-    def verify_signature(self, signature):
-        def fake_send(r, **kwargs):
-            auth_header = r.headers['Authorization']
-            if isinstance(auth_header, bytes_type):
-                auth_header = auth_header.decode('utf-8')
-            self.assertEqual(auth_header, signature)
-            resp = mock.MagicMock(spec=requests.Response)
-            resp.cookies = []
-            return resp
-        return fake_send
-
-    def fake_body(self, body, status_code=200):
-        def fake_send(r, **kwargs):
-            resp = mock.MagicMock(spec=requests.Response)
-            resp.cookies = []
-            resp.text = body
-            resp.status_code = status_code
-            return resp
-        return fake_send
