@@ -1,2 +1,2 @@
 requests>=2.0.0
-oauthlib[signedtoken]>=0.6.2
+oauthlib[signedtoken]>=2.1.0
