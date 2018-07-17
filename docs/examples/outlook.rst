@@ -1,4 +1,4 @@
-Outlook Calender OAuth 2 Tutorial
+Outlook Calendar OAuth 2 Tutorial
 ==========================
 
 Create a new web application client in the `Microsoft Application Registration Portal`_
@@ -32,6 +32,6 @@ a callback URL then you can try out the command line interactive example below.
     >>> # Fetch the access token
     >>> token = outlook.fetch_token(token_url,client_secret=client_secret,authorization_response=redirect_response)
 
-    >>> # Fetch a protected resource, i.e. calender information
+    >>> # Fetch a protected resource, i.e. calendar information
     >>> o = outlook.get('https://outlook.office.com/api/v1.0/me/calendars')
     >>> print o.content
