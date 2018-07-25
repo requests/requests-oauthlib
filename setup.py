@@ -47,7 +47,7 @@ setup(
     install_requires=['oauthlib>=2.1.0', 'requests>=2.0.0'],
     extras_require={'rsa': ['oauthlib[rsa]>=2.1.0', 'requests>=2.0.0']},
     license='ISC',
-    classifiers=(
+    classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Natural Language :: English',
@@ -59,7 +59,7 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
-    ),
+    ],
     zip_safe=False,
     tests_require=[
         'mock',
