@@ -11,19 +11,11 @@ from oauthlib.oauth2 import TokenExpiredError, OAuth2Error
 from oauthlib.oauth2 import MismatchingStateError
 from oauthlib.oauth2 import WebApplicationClient, MobileApplicationClient
 from oauthlib.oauth2 import LegacyApplicationClient, BackendApplicationClient
-from requests_oauthlib import OAuth2Session, TokenUpdated
+from requests_oauthlib import OAuth2Session, TokenUpdated, TokenRequestDenied
+import requests_mock
 
 
 fake_time = time.time()
-
-
-
-def fake_token(token):
-    def fake_send(r, **kwargs):
-        resp = mock.MagicMock()
-        resp.text = json.dumps(token)
-        return resp
-    return fake_send
 
 
 class OAuth2SessionTest(TestCase):
@@ -48,20 +40,24 @@ class OAuth2SessionTest(TestCase):
         ]
         self.all_clients = self.clients + [MobileApplicationClient(self.client_id)]
 
-    def test_add_token(self):
-        token = 'Bearer ' + self.token['access_token']
+        self.requests_mock = requests_mock.mock()
+        self.requests_mock.start()
+        self.addCleanup(self.requests_mock.stop)
 
-        def verifier(r, **kwargs):
-            auth_header = r.headers.get(str('Authorization'), None)
-            self.assertEqual(auth_header, token)
-            resp = mock.MagicMock()
-            resp.cookes = []
-            return resp
+    def test_add_token(self):
+        self.requests_mock.get('https://i.b', text='Ok')
 
         for client in self.all_clients:
             auth = OAuth2Session(client=client, token=self.token)
-            auth.send = verifier
-            auth.get('https://i.b')
+            resp = auth.get('https://i.b')
+            self.assertEqual(200, resp.status_code)
+
+        self.assertEqual(len(self.all_clients),
+                         len(self.requests_mock.request_history))
+
+        token = 'Bearer ' + self.token['access_token']
+        for r in self.requests_mock.request_history:
+            self.assertEqual(token, r.headers.get(str('Authorization'), None))
 
     def test_authorization_url(self):
         url = 'https://example.com/authorize?foo=bar'
@@ -81,57 +77,85 @@ class OAuth2SessionTest(TestCase):
         self.assertIn('response_type=token', auth_url)
 
     @mock.patch("time.time", new=lambda: fake_time)
-    def test_refresh_token_request(self):
+    def test_refresh_token_request_no_refresh(self):
         self.expired_token = dict(self.token)
         self.expired_token['expires_in'] = '-1'
         del self.expired_token['expires_at']
-
-        def fake_refresh(r, **kwargs):
-            if "/refresh" in r.url:
-                self.assertNotIn("Authorization", r.headers)
-            resp = mock.MagicMock()
-            resp.text = json.dumps(self.token)
-            return resp
 
         # No auto refresh setup
         for client in self.clients:
             auth = OAuth2Session(client=client, token=self.expired_token)
             self.assertRaises(TokenExpiredError, auth.get, 'https://i.b')
 
+        self.assertFalse(self.requests_mock.called)
+
+    @mock.patch("time.time", new=lambda: fake_time)
+    def test_refresh_token_request_refresh_no_update(self):
+        self.expired_token = dict(self.token)
+        self.expired_token['expires_in'] = '-1'
+        del self.expired_token['expires_at']
+
+        m1 = self.requests_mock.get('https://i.b')
+        m2 = self.requests_mock.post('https://i.b/refresh', json=self.token)
+
         # Auto refresh but no auto update
         for client in self.clients:
             auth = OAuth2Session(client=client, token=self.expired_token,
                     auto_refresh_url='https://i.b/refresh')
-            auth.send = fake_refresh
             self.assertRaises(TokenUpdated, auth.get, 'https://i.b')
 
-        # Auto refresh and auto update
-        def token_updater(token):
-            self.assertEqual(token, self.token)
+        self.assertFalse(m1.called)
+        self.assertEquals(len(self.clients), m2.call_count)
+
+    @mock.patch("time.time", new=lambda: fake_time)
+    def test_refresh_token_request_refresh_and_update(self):
+        self.expired_token = dict(self.token)
+        self.expired_token['expires_in'] = '-1'
+        del self.expired_token['expires_at']
+
+        m1 = self.requests_mock.get('https://i.b')
+        m2 = self.requests_mock.post('https://i.b/refresh', json=self.token)
+
+        token_updater = mock.MagicMock()
 
         for client in self.clients:
             auth = OAuth2Session(client=client, token=self.expired_token,
                     auto_refresh_url='https://i.b/refresh',
                     token_updater=token_updater)
-            auth.send = fake_refresh
-            auth.get('https://i.b')
+            resp = auth.get('https://i.b')
+            self.assertEqual(200, resp.status_code)
 
-        def fake_refresh_with_auth(r, **kwargs):
-            if "/refresh" in r.url:
-                self.assertIn("Authorization", r.headers)
-                encoded = b64encode(b"foo:bar")
-                content = (b"Basic " + encoded).decode('latin1')
-                self.assertEqual(r.headers["Authorization"], content)
-            resp = mock.MagicMock()
-            resp.text = json.dumps(self.token)
-            return resp
+        self.assertEquals(len(self.clients), m1.call_count)
+        self.assertEquals(len(self.clients), m2.call_count)
+        self.assertEquals(len(self.clients), token_updater.call_count)
+
+    @mock.patch("time.time", new=lambda: fake_time)
+    def test_refresh_token_request_refresh_and_update_2(self):
+        self.expired_token = dict(self.token)
+        self.expired_token['expires_in'] = '-1'
+        del self.expired_token['expires_at']
+
+        m1 = self.requests_mock.get('https://i.b')
+        m2 = self.requests_mock.post('https://i.b/refresh', json=self.token)
+
+        token_updater = mock.MagicMock()
 
         for client in self.clients:
             auth = OAuth2Session(client=client, token=self.expired_token,
                     auto_refresh_url='https://i.b/refresh',
                     token_updater=token_updater)
-            auth.send = fake_refresh_with_auth
             auth.get('https://i.b', client_id='foo', client_secret='bar')
+
+        self.assertEquals(len(self.clients), m1.call_count)
+        self.assertEquals(len(self.clients), m2.call_count)
+        self.assertEquals(len(self.clients), token_updater.call_count)
+
+        token = (b"Basic " + b64encode(b"foo:bar")).decode('latin1')
+        for r in m2.request_history:
+            self.assertEquals(token, r.headers["Authorization"])
+
+        for c in token_updater.call_args_list:
+            self.assertEqual(c, mock.call(self.token))
 
     @mock.patch("time.time", new=lambda: fake_time)
     def test_token_from_fragment(self):
@@ -141,19 +165,26 @@ class OAuth2SessionTest(TestCase):
         self.assertEqual(auth.token_from_fragment(response_url), self.token)
 
     @mock.patch("time.time", new=lambda: fake_time)
-    def test_fetch_token(self):
+    def test_fetch_token_good(self):
         url = 'https://example.com/token'
+        self.requests_mock.post(url, json=self.token)
 
         for client in self.clients:
             auth = OAuth2Session(client=client, token=self.token)
-            auth.send = fake_token(self.token)
             self.assertEqual(auth.fetch_token(url), self.token)
 
-        error = {'error': 'invalid_request'}
+        self.assertEqual(len(self.clients), self.requests_mock.call_count)
+
+    @mock.patch("time.time", new=lambda: fake_time)
+    def test_fetch_token_invalid(self):
+        url = 'https://example.com/token'
+        self.requests_mock.post(url, json={'error': 'invalid_request'})
+
         for client in self.clients:
             auth = OAuth2Session(client=client, token=self.token)
-            auth.send = fake_token(error)
             self.assertRaises(OAuth2Error, auth.fetch_token, url)
+
+        self.assertEqual(len(self.clients), self.requests_mock.call_count)
 
     def test_cleans_previous_token_before_fetching_new_one(self):
         """Makes sure the previous token is cleaned before fetching a new one.
@@ -170,12 +201,14 @@ class OAuth2SessionTest(TestCase):
         new_token['expires_at'] = now + 3600
         url = 'https://example.com/token'
 
+        self.requests_mock.post(url, json=new_token)
+
         with mock.patch('time.time', lambda: now):
             for client in self.clients:
                 auth = OAuth2Session(client=client, token=self.token)
-                auth.send = fake_token(new_token)
                 self.assertEqual(auth.fetch_token(url), new_token)
 
+            self.assertTrue(len(self.clients), self.requests_mock.call_count)
 
     def test_web_app_fetch_token(self):
         # Ensure the state parameter is used, see issue #105.
@@ -229,17 +262,29 @@ class OAuth2SessionTest(TestCase):
 
     @mock.patch("time.time", new=lambda: fake_time)
     def test_authorized_true(self):
-        def fake_token(token):
-            def fake_send(r, **kwargs):
-                resp = mock.MagicMock()
-                resp.text = json.dumps(token)
-                return resp
-            return fake_send
         url = 'https://example.com/token'
+        self.requests_mock.post(url, json=self.token)
 
         for client in self.clients:
             sess = OAuth2Session(client=client)
-            sess.send = fake_token(self.token)
             self.assertFalse(sess.authorized)
             sess.fetch_token(url)
             self.assertTrue(sess.authorized)
+
+        self.assertEqual(len(self.clients), self.requests_mock.call_count)
+
+    def test_token_fetch_invalid_status_code(self):
+        url = 'https://example.com/token'
+        self.requests_mock.post(url,
+                                json={'message': 'Failure'},
+                                status_code=403)
+
+        for client in self.clients:
+            sess = OAuth2Session(client=client)
+            self.assertRaises(
+                TokenRequestDenied,
+                sess.fetch_token,
+                url
+            )
+
+        self.assertEqual(len(self.clients), self.requests_mock.call_count)

@@ -14,6 +14,7 @@ from oauthlib.oauth1 import (
 )
 import requests
 
+from . import exc
 from . import OAuth1
 
 
@@ -27,18 +28,6 @@ def urldecode(body):
     except:
         import json
         return json.loads(body)
-
-
-class TokenRequestDenied(ValueError):
-
-    def __init__(self, message, response):
-        super(TokenRequestDenied, self).__init__(message)
-        self.response = response
-
-    @property
-    def status_code(self):
-        """For backwards-compatibility purposes"""
-        return self.response.status_code
 
 
 class TokenMissing(ValueError):
@@ -365,7 +354,7 @@ class OAuth1Session(requests.Session):
 
         if r.status_code >= 400:
             error = "Token request failed with code %s, response was '%s'."
-            raise TokenRequestDenied(error % (r.status_code, r.text), r)
+            raise exc.TokenRequestDenied(error % (r.status_code, r.text), r)
 
         log.debug('Decoding token from response "%s"', r.text)
         try:

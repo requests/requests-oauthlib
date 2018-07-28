@@ -9,6 +9,8 @@ import requests
 
 log = logging.getLogger(__name__)
 
+from . import exc
+
 
 class TokenUpdated(Warning):
     def __init__(self, token):
@@ -80,6 +82,7 @@ class OAuth2Session(requests.Session):
             'access_token_response': set(),
             'refresh_token_response': set(),
             'protected_request': set(),
+            'token_request': set(),
         }
 
     def new_state(self):
@@ -210,24 +213,16 @@ class OAuth2Session(requests.Session):
                 log.debug('Encoding username, password as Basic auth credentials.')
                 auth = requests.auth.HTTPBasicAuth(username, password)
 
-        headers = headers or {
-            'Accept': 'application/json',
-            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-        }
         self.token = {}
-        if method.upper() == 'POST':
-            r = self.post(token_url, data=dict(urldecode(body)),
-                timeout=timeout, headers=headers, auth=auth,
-                verify=verify, proxies=proxies)
-            log.debug('Prepared fetch token request body %s', body)
-        elif method.upper() == 'GET':
-            # if method is not 'POST', switch body to querystring and GET
-            r = self.get(token_url, params=dict(urldecode(body)),
-                timeout=timeout, headers=headers, auth=auth,
-                verify=verify, proxies=proxies)
-            log.debug('Prepared fetch token request querystring %s', body)
-        else:
-            raise ValueError('The method kwarg must be POST or GET.')
+
+        r = self._auth_request(method.upper(),
+                               token_url,
+                               body,
+                               timeout=timeout,
+                               headers=headers,
+                               auth=auth,
+                               verify=verify,
+                               proxies=proxies)
 
         log.debug('Request to fetch token completed with status %s.',
                   r.status_code)
@@ -286,16 +281,16 @@ class OAuth2Session(requests.Session):
                 refresh_token=refresh_token, scope=self.scope, **kwargs)
         log.debug('Prepared refresh token request body %s', body)
 
-        if headers is None:
-            headers = {
-                'Accept': 'application/json',
-                'Content-Type': (
-                    'application/x-www-form-urlencoded;charset=UTF-8'
-                ),
-            }
+        r = self._auth_request('POST',
+                               token_url,
+                               body,
+                               auth=auth,
+                               timeout=timeout,
+                               headers=headers,
+                               verify=verify,
+                               withhold_token=True,
+                               proxies=proxies)
 
-        r = self.post(token_url, data=dict(urldecode(body)), auth=auth,
-            timeout=timeout, headers=headers, verify=verify, withhold_token=True, proxies=proxies)
         log.debug('Request to refresh token completed with status %s.',
                   r.status_code)
         log.debug('Response headers were %s and content %s.',
@@ -311,6 +306,34 @@ class OAuth2Session(requests.Session):
             log.debug('No new refresh token given. Re-using old.')
             self.token['refresh_token'] = refresh_token
         return self.token
+
+    def _auth_request(self, method, url, body, **kwargs):
+        method = method.upper()
+        data = dict(urldecode(body))
+        kwargs.setdefault('headers', {
+            'Accept': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+        })
+
+        if method == 'POST':
+            kwargs['data'] = data
+            log.debug('Prepared fetch token request body %s', body)
+        elif method == 'GET':
+            kwargs['params'] = data
+            log.debug('Prepared fetch token request querystring %s', body)
+        else:
+            raise ValueError('The method kwarg must be POST or GET.')
+
+        for hook in self.compliance_hook['token_request']:
+            method, url, kwargs = hook(method, url, **kwargs)
+
+        r = self.request(method, url, **kwargs)
+
+        if not r.ok:
+            error = "Token request failed with code %s, response was '%s'."
+            raise exc.TokenRequestDenied(error % (r.status_code, r.text), r)
+
+        return r
 
     def request(self, method, url, data=None, headers=None, withhold_token=False,
                 client_id=None, client_secret=None, **kwargs):
