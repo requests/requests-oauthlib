@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 import logging
+import json as json_lib
 
 from oauthlib.common import generate_token, urldecode
 from oauthlib.oauth2 import WebApplicationClient, InsecureTransportError
@@ -312,9 +313,16 @@ class OAuth2Session(requests.Session):
             self.token['refresh_token'] = refresh_token
         return self.token
 
-    def request(self, method, url, data=None, headers=None, withhold_token=False,
+    def request(self, method, url, data=None, json=None, headers=None, withhold_token=False,
                 client_id=None, client_secret=None, **kwargs):
         """Intercept all requests and add the OAuth 2 token if present."""
+        if not data and json is not None:
+            data = json_lib.dumps(json)
+            if headers is None:
+                headers = {'Content-Type': 'application/json; charset=utf-8'}
+            else:
+                headers.update({'Content-Type': 'application/json; charset=utf-8'})
+
         if not is_secure_transport(url):
             raise InsecureTransportError()
         if self.token and not withhold_token:
