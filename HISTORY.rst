@@ -5,6 +5,15 @@ UNRELEASED
 ++++++++++
 
 - Avoid automatic netrc authentication for OAuth2Session.
+- Updated oauth2 tests to use 'sess' for an OAuth2Session instance instead of `auth`
+  because OAuth2Session objects and methods acceept an `auth` paramether which is
+  typically an instance of `requests.auth.HTTPBasicAuth`
+- `OAuth2Session.fetch_token` previously tried to guess how and where to provide
+  "client" and "user" credentials incorrectly. This was incompatible with some
+  OAuth servers and incompatible with breaking changes in oauthlib that seek to
+  correctly provide the `client_id`. The older implementation also did not raise
+  the correct exceptions when username and password are not present on Legacy
+  clients.
 
 v1.1.0 (9 January 2019)
 +++++++++++++++++++++++
