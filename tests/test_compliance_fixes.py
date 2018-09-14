@@ -32,13 +32,13 @@ class FacebookComplianceFixTest(TestCase):
         mocker.start()
         self.addCleanup(mocker.stop)
 
-        facebook = OAuth2Session('foo', redirect_uri='https://i.b')
+        facebook = OAuth2Session('someclientid', redirect_uri='https://i.b')
         self.session = facebook_compliance_fix(facebook)
 
     def test_fetch_access_token(self):
         token = self.session.fetch_token(
             'https://graph.facebook.com/oauth/access_token',
-             client_secret='bar',
+             client_secret='someclientsecret',
              authorization_response='https://i.b/?code=hello',
         )
         self.assertEqual(token, {'access_token': 'urlencoded', 'token_type': 'Bearer'})
@@ -55,7 +55,7 @@ class FitbitComplianceFixTest(TestCase):
         self.mocker.start()
         self.addCleanup(self.mocker.stop)
 
-        fitbit = OAuth2Session('foo', redirect_uri='https://i.b')
+        fitbit = OAuth2Session('someclientid', redirect_uri='https://i.b')
         self.session = fitbit_compliance_fix(fitbit)
 
     def test_fetch_access_token(self):
@@ -63,7 +63,7 @@ class FitbitComplianceFixTest(TestCase):
             InvalidGrantError,
             self.session.fetch_token,
             'https://api.fitbit.com/oauth2/token',
-            client_secret='bar',
+            client_secret='someclientsecret',
             authorization_response='https://i.b/?code=hello',
         )
 
@@ -84,7 +84,7 @@ class FitbitComplianceFixTest(TestCase):
             InvalidGrantError,
             self.session.refresh_token,
             'https://api.fitbit.com/oauth2/token',
-            auth=requests.auth.HTTPBasicAuth('foo', 'bar')
+            auth=requests.auth.HTTPBasicAuth('someclientid', 'someclientsecret')
         )
 
         self.mocker.post(
@@ -94,7 +94,7 @@ class FitbitComplianceFixTest(TestCase):
 
         token = self.session.refresh_token(
             'https://api.fitbit.com/oauth2/token',
-            auth=requests.auth.HTTPBasicAuth('foo', 'bar')
+            auth=requests.auth.HTTPBasicAuth('someclientid', 'someclientsecret')
         )
 
         self.assertEqual(token['access_token'], 'access')
@@ -120,13 +120,13 @@ class LinkedInComplianceFixTest(TestCase):
         mocker.start()
         self.addCleanup(mocker.stop)
 
-        linkedin = OAuth2Session('foo', redirect_uri='https://i.b')
+        linkedin = OAuth2Session('someclientid', redirect_uri='https://i.b')
         self.session = linkedin_compliance_fix(linkedin)
 
     def test_fetch_access_token(self):
         token = self.session.fetch_token(
             'https://www.linkedin.com/uas/oauth2/accessToken',
-            client_secret='bar',
+            client_secret='someclientsecret',
             authorization_response='https://i.b/?code=hello',
         )
         self.assertEqual(token, {'access_token': 'linkedin', 'token_type': 'Bearer'})
@@ -152,13 +152,13 @@ class MailChimpComplianceFixTest(TestCase):
         mocker.start()
         self.addCleanup(mocker.stop)
 
-        mailchimp = OAuth2Session('foo', redirect_uri='https://i.b')
+        mailchimp = OAuth2Session('someclientid', redirect_uri='https://i.b')
         self.session = mailchimp_compliance_fix(mailchimp)
 
     def test_fetch_access_token(self):
         token = self.session.fetch_token(
             "https://login.mailchimp.com/oauth2/token",
-            client_secret='bar',
+            client_secret='someclientsecret',
             authorization_response='https://i.b/?code=hello',
         )
         # Times should be close
@@ -184,13 +184,13 @@ class WeiboComplianceFixTest(TestCase):
         mocker.start()
         self.addCleanup(mocker.stop)
 
-        weibo = OAuth2Session('foo', redirect_uri='https://i.b')
+        weibo = OAuth2Session('someclientid', redirect_uri='https://i.b')
         self.session = weibo_compliance_fix(weibo)
 
     def test_fetch_access_token(self):
         token = self.session.fetch_token(
             'https://api.weibo.com/oauth2/access_token',
-            client_secret='bar',
+            client_secret='someclientsecret',
             authorization_response='https://i.b/?code=hello',
         )
         self.assertEqual(token, {'access_token': 'weibo', 'token_type': 'Bearer'})
@@ -223,7 +223,7 @@ class SlackComplianceFixTest(TestCase):
         mocker.start()
         self.addCleanup(mocker.stop)
 
-        slack = OAuth2Session('foo', redirect_uri='https://i.b')
+        slack = OAuth2Session('someclientid', redirect_uri='https://i.b')
         self.session = slack_compliance_fix(slack)
 
     def test_protected_request(self):
@@ -293,7 +293,7 @@ class PlentymarketsComplianceFixTest(TestCase):
         mocker.start()
         self.addCleanup(mocker.stop)
 
-        plentymarkets = OAuth2Session('foo', redirect_uri='https://i.b')
+        plentymarkets = OAuth2Session('someclientid', redirect_uri='https://i.b')
         self.session = plentymarkets_compliance_fix(plentymarkets)
 
     def test_fetch_access_token(self):
