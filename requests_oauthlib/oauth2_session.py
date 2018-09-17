@@ -190,7 +190,9 @@ class OAuth2Session(requests.Session):
                                   include (False).
         :param client_secret: The `client_secret` paired to the `client_id`.
                               This is generally required unless provided in the
-                              `auth` tuple.
+                              `auth` tuple. If the value is `None`, it will be
+                              omitted from the request, however if the value is
+                              an empty string, an empty string will be sent.
         :param kwargs: Extra parameters to include in the token request.
         :return: A token dict
         """
@@ -261,7 +263,7 @@ class OAuth2Session(requests.Session):
         if include_client_id:
             # this was pulled out of the params
             # it needs to be passed into prepare_request_body
-            if client_secret:
+            if client_secret is not None:
                 kwargs['client_secret'] = client_secret
 
         body = self._client.prepare_request_body(code=code, body=body,

@@ -184,7 +184,7 @@ class OAuth2SessionTest(TestCase):
             else:
                 self.assertRaises(OAuth2Error, sess.fetch_token, url)
 
-        # there are different scenarios in which the client_id can be specified
+        # there are different scenarios in which the `client_id` can be specified
         # reference `oauthlib.tests.oauth2.rfc6749.clients.test_web_application.WebApplicationClientTest.test_prepare_request_body`
         # this only needs to test WebApplicationClient
         client = self.client_WebApplication
@@ -206,15 +206,14 @@ class OAuth2SessionTest(TestCase):
         expected_auth_header = _basic_auth_str(self.client_id, self.client_secret)
 
         # scenario 1 - default request
-        # this should send the client_id in the headers, as that is recommended by the RFC
+        # this should send the `client_id` in the headers, as that is recommended by the RFC
         self.assertEqual(sess.fetch_token(url, client_secret='someclientsecret'), self.token)
         self.assertEqual(len(_fetch_history), 1)
-        self.assertNotIn('client_id', _fetch_history[0][1])  # no client_id in the body
-        self.assertNotIn('client_secret', _fetch_history[0][1])  # no client_secret in the body
+        self.assertNotIn('client_id', _fetch_history[0][1])  # no `client_id` in the body
+        self.assertNotIn('client_secret', _fetch_history[0][1])  # no `client_secret` in the body
         self.assertEqual(_fetch_history[0][2], expected_auth_header)  # ensure a Basic Authorization header
 
-        # scenario 2 - force the client_id into the body
-        # this should send the client_id in the headers, as that is recommended by the RFC
+        # scenario 2 - force the `client_id` into the body
         self.assertEqual(sess.fetch_token(url, client_secret='someclientsecret', include_client_id=True), self.token)
         self.assertEqual(len(_fetch_history), 2)
         self.assertIn('client_id=%s' % self.client_id, _fetch_history[1][1])
@@ -225,19 +224,35 @@ class OAuth2SessionTest(TestCase):
         auth = requests.auth.HTTPBasicAuth(self.client_id, self.client_secret)
         self.assertEqual(sess.fetch_token(url, auth=auth), self.token)
         self.assertEqual(len(_fetch_history), 3)
-        self.assertNotIn('client_id', _fetch_history[2][1])  # no client_id in the body
-        self.assertNotIn('client_secret', _fetch_history[2][1])  # no client_secret in the body
+        self.assertNotIn('client_id', _fetch_history[2][1])  # no `client_id` in the body
+        self.assertNotIn('client_secret', _fetch_history[2][1])  # no `client_secret` in the body
         self.assertEqual(_fetch_history[2][2], expected_auth_header)  # ensure a Basic Authorization header
 
         # scneario 4 - send in a username/password combo
-        # this should send the client_id in the headers, like scenario 1
+        # this should send the `client_id` in the headers, like scenario 1
         self.assertEqual(sess.fetch_token(url, username=self.user_username, password=self.user_password), self.token)
         self.assertEqual(len(_fetch_history), 4)
-        self.assertNotIn('client_id', _fetch_history[3][1])  # no client_id in the body
-        self.assertNotIn('client_secret', _fetch_history[3][1])  # no client_secret in the body
+        self.assertNotIn('client_id', _fetch_history[3][1])  # no `client_id` in the body
+        self.assertNotIn('client_secret', _fetch_history[3][1])  # no `client_secret` in the body
         self.assertEqual(_fetch_history[0][2], expected_auth_header)  # ensure a Basic Authorization header
         self.assertIn('username=%s' % self.user_username, _fetch_history[3][1])
         self.assertIn('password=%s' % self.user_password, _fetch_history[3][1])
+
+        # some quick tests for valid ways of supporting `client_secret`
+
+        # scenario 2b - force the `client_id` into the body; but the `client_secret` is `None`
+        self.assertEqual(sess.fetch_token(url, client_secret=None, include_client_id=True), self.token)
+        self.assertEqual(len(_fetch_history), 5)
+        self.assertIn('client_id=%s' % self.client_id, _fetch_history[4][1])
+        self.assertNotIn('client_secret', _fetch_history[4][1])  # no `client_secret` in the body
+        self.assertEqual(_fetch_history[4][2], None)  # ensure NO Basic Authorization header
+
+        # scenario 2c - force the `client_id` into the body; but the `client_secret` is an empty string
+        self.assertEqual(sess.fetch_token(url, client_secret='', include_client_id=True), self.token)
+        self.assertEqual(len(_fetch_history), 6)
+        self.assertIn('client_id=%s' % self.client_id, _fetch_history[5][1])
+        self.assertIn('client_secret=', _fetch_history[5][1])
+        self.assertEqual(_fetch_history[5][2], None)  # ensure NO Basic Authorization header
 
     def test_cleans_previous_token_before_fetching_new_one(self):
         """Makes sure the previous token is cleaned before fetching a new one.
