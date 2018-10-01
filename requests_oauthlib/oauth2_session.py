@@ -229,8 +229,7 @@ class OAuth2Session(requests.Session):
                 raise ValueError('The required paramter `username` was supplied, '
                                  'but `password` was not.')
 
-        # TODO:
-        # username or password could be allowed in other requests?
+        # merge username and password into kwargs for `prepare_request_body`
         if username is not None:
             kwargs['username'] = username
         if password is not None:
