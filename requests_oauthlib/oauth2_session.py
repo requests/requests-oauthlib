@@ -36,7 +36,7 @@ class OAuth2Session(requests.Session):
 
     def __init__(self, client_id=None, client=None, auto_refresh_url=None,
             auto_refresh_kwargs=None, scope=None, redirect_uri=None, token=None,
-            state=None, token_updater=None, **kwargs):
+            state=None, token_updater=None, resource_session=None, **kwargs):
         """Construct a new OAuth 2 client session.
 
         :param client_id: Client id obtained during registration
@@ -61,6 +61,10 @@ class OAuth2Session(requests.Session):
                         set a TokenUpdated warning will be raised when a token
                         has been refreshed. This warning will carry the token
                         in its token argument.
+        :resource_session: Requests `Session` object to communicate with
+                           resource servers. By default, the same session as
+                           used to communicate with authentification server
+                           (`super(OAuth2Session, self)`).
         :param kwargs: Arguments to pass to the Session constructor.
         """
         super(OAuth2Session, self).__init__(**kwargs)
@@ -73,6 +77,7 @@ class OAuth2Session(requests.Session):
         self.auto_refresh_url = auto_refresh_url
         self.auto_refresh_kwargs = auto_refresh_kwargs or {}
         self.token_updater = token_updater
+        self.resource_session = resource_session or super(OAuth2Session, self)
 
         # Allow customizations for non compliant providers through various
         # hooks to adjust requests and responses.
@@ -356,8 +361,8 @@ class OAuth2Session(requests.Session):
         log.debug('Requesting url %s using method %s.', url, method)
         log.debug('Supplying headers %s and data %s', headers, data)
         log.debug('Passing through key word arguments %s.', kwargs)
-        return super(OAuth2Session, self).request(method, url,
-                headers=headers, data=data, **kwargs)
+        return self.resource_session.request(method, url, headers=headers,
+                                             data=data, **kwargs)
 
     def register_compliance_hook(self, hook_type, hook):
         """Register a hook for request/response tweaking.
