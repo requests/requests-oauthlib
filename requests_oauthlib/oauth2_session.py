@@ -6,6 +6,7 @@ from oauthlib.common import generate_token, urldecode
 from oauthlib.oauth2 import WebApplicationClient, InsecureTransportError
 from oauthlib.oauth2 import TokenExpiredError, is_secure_transport
 import requests
+import types
 
 log = logging.getLogger(__name__)
 
@@ -16,8 +17,8 @@ class TokenUpdated(Warning):
         self.token = token
 
 
-class OAuth2Session(requests.Session):
-    """Versatile OAuth 2 extension to :class:`requests.Session`.
+class OAuth2SessionMixin:
+    """OAuth 2 mixin class for extending :class:`requests.Session`-like objects.
 
     Supports any grant type adhering to :class:`oauthlib.oauth2.Client` spec
     including the four core OAuth 2 grants.
@@ -30,44 +31,14 @@ class OAuth2Session(requests.Session):
     - :class:`oauthlib.oauth2.LegacyApplicationClient`: Password Credentials Grant
     - :class:`oauthlib.oauth2.BackendApplicationClient`: Client Credentials Grant
 
-    Note that the only time you will be using Implicit Grant from python is if
+    Note that the only time you will be using Implicit Grant from Python is if
     you are driving a user agent able to obtain URL fragments.
     """
 
-    def __init__(self, client_id=None, client=None, auto_refresh_url=None,
-            auto_refresh_kwargs=None, scope=None, redirect_uri=None, token=None,
-            state=None, token_updater=None, resource_session=None, **kwargs):
-        """Construct a new OAuth 2 client session.
-
-        :param client_id: Client id obtained during registration
-        :param client: :class:`oauthlib.oauth2.Client` to be used. Default is
-                       WebApplicationClient which is useful for any
-                       hosted application but not mobile or desktop.
-        :param scope: List of scopes you wish to request access to
-        :param redirect_uri: Redirect URI you registered as callback
-        :param token: Token dictionary, must include access_token
-                      and token_type.
-        :param state: State string used to prevent CSRF. This will be given
-                      when creating the authorization url and must be supplied
-                      when parsing the authorization response.
-                      Can be either a string or a no argument callable.
-        :auto_refresh_url: Refresh token endpoint URL, must be HTTPS. Supply
-                           this if you wish the client to automatically refresh
-                           your access tokens.
-        :auto_refresh_kwargs: Extra arguments to pass to the refresh token
-                              endpoint.
-        :token_updater: Method with one argument, token, to be used to update
-                        your token database on automatic token refresh. If not
-                        set a TokenUpdated warning will be raised when a token
-                        has been refreshed. This warning will carry the token
-                        in its token argument.
-        :resource_session: Requests `Session` object to communicate with
-                           resource servers. By default, the same session as
-                           used to communicate with authentification server
-                           (`super(OAuth2Session, self)`).
-        :param kwargs: Arguments to pass to the Session constructor.
-        """
-        super(OAuth2Session, self).__init__(**kwargs)
+    def __init__(self, resource_session, client_id=None, client=None,
+            auto_refresh_url=None, auto_refresh_kwargs=None, scope=None,
+            redirect_uri=None, token=None, state=None, token_updater=None):
+        self.resource_session = resource_session
         self._client = client or WebApplicationClient(client_id, token=token)
         self.token = token or {}
         self.scope = scope
@@ -77,7 +48,6 @@ class OAuth2Session(requests.Session):
         self.auto_refresh_url = auto_refresh_url
         self.auto_refresh_kwargs = auto_refresh_kwargs or {}
         self.token_updater = token_updater
-        self.resource_session = resource_session or super(OAuth2Session, self)
 
         # Allow customizations for non compliant providers through various
         # hooks to adjust requests and responses.
@@ -86,6 +56,8 @@ class OAuth2Session(requests.Session):
             'refresh_token_response': set(),
             'protected_request': set(),
         }
+
+        self.session = None
 
     def new_state(self):
         """Generates a state string to be used in authorizations."""
@@ -220,19 +192,23 @@ class OAuth2Session(requests.Session):
             'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
         }
         self.token = {}
-        if method.upper() == 'POST':
-            r = self.post(token_url, data=dict(urldecode(body)),
-                timeout=timeout, headers=headers, auth=auth,
-                verify=verify, proxies=proxies)
-            log.debug('Prepared fetch token request body %s', body)
-        elif method.upper() == 'GET':
-            # if method is not 'POST', switch body to querystring and GET
-            r = self.get(token_url, params=dict(urldecode(body)),
-                timeout=timeout, headers=headers, auth=auth,
-                verify=verify, proxies=proxies)
-            log.debug('Prepared fetch token request querystring %s', body)
-        else:
-            raise ValueError('The method kwarg must be POST or GET.')
+        self.session = super(self.__class__, self)
+        try:
+            if method.upper() == 'POST':
+                r = self.post(token_url, data=dict(urldecode(body)),
+                    timeout=timeout, headers=headers, auth=auth,
+                    verify=verify, proxies=proxies)
+                log.debug('Prepared fetch token request body %s', body)
+            elif method.upper() == 'GET':
+                # if method is not 'POST', switch body to querystring and GET
+                r = self.get(token_url, params=dict(urldecode(body)),
+                    timeout=timeout, headers=headers, auth=auth,
+                    verify=verify, proxies=proxies)
+                log.debug('Prepared fetch token request querystring %s', body)
+            else:
+                raise ValueError('The method kwarg must be POST or GET.')
+        finally:
+            self.session = None
 
         log.debug('Request to fetch token completed with status %s.',
                   r.status_code)
@@ -299,8 +275,14 @@ class OAuth2Session(requests.Session):
                 ),
             }
 
-        r = self.post(token_url, data=dict(urldecode(body)), auth=auth,
-            timeout=timeout, headers=headers, verify=verify, withhold_token=True, proxies=proxies)
+        self.session = super(self.__class__, self)
+        try:
+            r = self.post(token_url, data=dict(urldecode(body)),
+                          auth=auth, timeout=timeout, headers=headers,
+                          verify=verify, withhold_token=True,
+                          proxies=proxies)
+        finally:
+            self.session = None
         log.debug('Request to refresh token completed with status %s.',
                   r.status_code)
         log.debug('Response headers were %s and content %s.',
@@ -317,53 +299,6 @@ class OAuth2Session(requests.Session):
             self.token['refresh_token'] = refresh_token
         return self.token
 
-    def request(self, method, url, data=None, headers=None, withhold_token=False,
-                client_id=None, client_secret=None, **kwargs):
-        """Intercept all requests and add the OAuth 2 token if present."""
-        if not is_secure_transport(url):
-            raise InsecureTransportError()
-        if self.token and not withhold_token:
-            log.debug('Invoking %d protected resource request hooks.',
-                      len(self.compliance_hook['protected_request']))
-            for hook in self.compliance_hook['protected_request']:
-                log.debug('Invoking hook %s.', hook)
-                url, headers, data = hook(url, headers, data)
-
-            log.debug('Adding token %s to request.', self.token)
-            try:
-                url, headers, data = self._client.add_token(url,
-                        http_method=method, body=data, headers=headers)
-            # Attempt to retrieve and save new access token if expired
-            except TokenExpiredError:
-                if self.auto_refresh_url:
-                    log.debug('Auto refresh is set, attempting to refresh at %s.',
-                              self.auto_refresh_url)
-
-                    # We mustn't pass auth twice.
-                    auth = kwargs.pop('auth', None)
-                    if client_id and client_secret and (auth is None):
-                        log.debug('Encoding client_id "%s" with client_secret as Basic auth credentials.', client_id)
-                        auth = requests.auth.HTTPBasicAuth(client_id, client_secret)
-                    token = self.refresh_token(
-                        self.auto_refresh_url, auth=auth, **kwargs
-                    )
-                    if self.token_updater:
-                        log.debug('Updating token to %s using %s.',
-                                  token, self.token_updater)
-                        self.token_updater(token)
-                        url, headers, data = self._client.add_token(url,
-                                http_method=method, body=data, headers=headers)
-                    else:
-                        raise TokenUpdated(token)
-                else:
-                    raise
-
-        log.debug('Requesting url %s using method %s.', url, method)
-        log.debug('Supplying headers %s and data %s', headers, data)
-        log.debug('Passing through key word arguments %s.', kwargs)
-        return self.resource_session.request(method, url, headers=headers,
-                                             data=data, **kwargs)
-
     def register_compliance_hook(self, hook_type, hook):
         """Register a hook for request/response tweaking.
 
@@ -379,3 +314,139 @@ class OAuth2Session(requests.Session):
             raise ValueError('Hook type %s is not in %s.',
                              hook_type, self.compliance_hook)
         self.compliance_hook[hook_type].add(hook)
+
+
+def _request(self, method, url, data=None, headers=None, withhold_token=False,
+             client_id=None, client_secret=None, **kwargs):
+    """Intercept all requests and add the OAuth 2 token if present."""
+    if not is_secure_transport(url):
+        raise InsecureTransportError()
+    if self.token and not withhold_token:
+        log.debug('Invoking %d protected resource request hooks.',
+                  len(self.compliance_hook['protected_request']))
+        for hook in self.compliance_hook['protected_request']:
+            log.debug('Invoking hook %s.', hook)
+            url, headers, data = hook(url, headers, data)
+
+        log.debug('Adding token %s to request.', self.token)
+        try:
+            url, headers, data = self._client.add_token(url,
+                    http_method=method, body=data, headers=headers)
+        # Attempt to retrieve and save new access token if expired
+        except TokenExpiredError:
+            if self.auto_refresh_url:
+                log.debug('Auto refresh is set, attempting to refresh at %s.',
+                          self.auto_refresh_url)
+
+                # We mustn't pass auth twice.
+                auth = kwargs.pop('auth', None)
+                if client_id and client_secret and (auth is None):
+                    log.debug('Encoding client_id "%s" with client_secret as Basic auth credentials.', client_id)
+                    auth = requests.auth.HTTPBasicAuth(client_id, client_secret)
+                token = self.refresh_token(
+                    self.auto_refresh_url, auth=auth, **kwargs
+                )
+                if self.token_updater:
+                    log.debug('Updating token to %s using %s.',
+                              token, self.token_updater)
+                    self.token_updater(token)
+                    url, headers, data = self._client.add_token(url,
+                            http_method=method, body=data, headers=headers)
+                else:
+                    raise TokenUpdated(token)
+            else:
+                raise
+
+    log.debug('Requesting url %s using method %s.', url, method)
+    log.debug('Supplying headers %s and data %s', headers, data)
+    log.debug('Passing through key word arguments %s.', kwargs)
+    session = self.session or self.resource_session or super(self.__class__, self)
+    return session.request(method, url, headers=headers, data=data,
+                           **kwargs)
+
+
+class OAuth2Session(OAuth2SessionMixin, requests.Session):
+    """Versatile OAuth 2 extension to :class:`requests.Session`.
+
+    Supports any grant type adhering to :class:`oauthlib.oauth2.Client` spec
+    including the four core OAuth 2 grants.
+
+    Can be used to create authorization urls, fetch tokens and access protected
+    resources using the :class:`requests.Session` interface you are used to.
+
+    - :class:`oauthlib.oauth2.WebApplicationClient` (default): Authorization Code Grant
+    - :class:`oauthlib.oauth2.MobileApplicationClient`: Implicit Grant
+    - :class:`oauthlib.oauth2.LegacyApplicationClient`: Password Credentials Grant
+    - :class:`oauthlib.oauth2.BackendApplicationClient`: Client Credentials Grant
+
+    Note that the only time you will be using Implicit Grant from Python is if
+    you are driving a user agent able to obtain URL fragments.
+    """
+
+    def __init__(self, client_id=None, client=None, auto_refresh_url=None,
+            auto_refresh_kwargs=None, scope=None, redirect_uri=None, token=None,
+            state=None, token_updater=None, resource_session=None, **kwargs):
+        """Construct a new OAuth 2 client session.
+
+        :param client_id: Client id obtained during registration
+        :param client: :class:`oauthlib.oauth2.Client` to be used. Default is
+                       WebApplicationClient which is useful for any
+                       hosted application but not mobile or desktop.
+        :param scope: List of scopes you wish to request access to
+        :param redirect_uri: Redirect URI you registered as callback
+        :param token: Token dictionary, must include access_token
+                      and token_type.
+        :param state: State string used to prevent CSRF. This will be given
+                      when creating the authorization url and must be supplied
+                      when parsing the authorization response.
+                      Can be either a string or a no argument callable.
+        :auto_refresh_url: Refresh token endpoint URL, must be HTTPS. Supply
+                           this if you wish the client to automatically refresh
+                           your access tokens.
+        :auto_refresh_kwargs: Extra arguments to pass to the refresh token
+                              endpoint.
+        :token_updater: Method with one argument, token, to be used to update
+                        your token database on automatic token refresh. If not
+                        set a TokenUpdated warning will be raised when a token
+                        has been refreshed. This warning will carry the token
+                        in its token argument.
+        :resource_session: Requests `Session` object to communicate with
+                           resource servers. By default, the same session as
+                           used to communicate with authentification server
+                           (`super(OAuth2Session, self)`).
+        :param kwargs: Arguments to pass to the Session constructor.
+        """
+        requests.Session.__init__(self, **kwargs)
+        OAuth2SessionMixin.__init__(self, resource_session,
+            client_id=client_id, client=client,
+            auto_refresh_url=auto_refresh_url,
+            auto_refresh_kwargs=auto_refresh_kwargs, scope=scope,
+            redirect_uri=redirect_uri, token=token, state=state,
+            token_updater=token_updater)
+
+    request = _request
+
+
+def with_oauth2(session, client_id=None, client=None, auto_refresh_url=None,
+            auto_refresh_kwargs=None, scope=None, redirect_uri=None, token=None,
+            state=None, token_updater=None, resource_session=None):
+    """Extend :class:`requests.Session`-like object with OAuth 2
+    capabilities.
+
+    Extended `session` object can be used to create authorization
+    urls, fetch tokens and access protected resources using the
+    :class:`requests.Session` interface you are used to.
+
+    See :class:`OAuth2Session` for details.
+    """
+
+    session.__class__ = type('OAuth2Session',
+                             (OAuth2SessionMixin, session.__class__),
+                             {'request': _request})
+    OAuth2SessionMixin.__init__(session, resource_session,
+            client_id=client_id, client=client,
+            auto_refresh_url=auto_refresh_url,
+            auto_refresh_kwargs=auto_refresh_kwargs, scope=scope,
+            redirect_uri=redirect_uri, token=token, state=state,
+            token_updater=token_updater)
+    return session
