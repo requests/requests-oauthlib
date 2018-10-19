@@ -6,6 +6,7 @@ from oauthlib.common import generate_token, urldecode
 from oauthlib.oauth2 import WebApplicationClient, InsecureTransportError
 from oauthlib.oauth2 import TokenExpiredError, is_secure_transport
 import requests
+from contextlib import contextmanager
 import types
 
 log = logging.getLogger(__name__)
@@ -35,10 +36,10 @@ class OAuth2SessionMixin:
     you are driving a user agent able to obtain URL fragments.
     """
 
-    def __init__(self, resource_session, client_id=None, client=None,
+    def __init__(self, auth_session, client_id=None, client=None,
             auto_refresh_url=None, auto_refresh_kwargs=None, scope=None,
             redirect_uri=None, token=None, state=None, token_updater=None):
-        self.resource_session = resource_session
+        self._auth_session = auth_session
         self._client = client or WebApplicationClient(client_id, token=token)
         self.token = token or {}
         self.scope = scope
@@ -57,7 +58,16 @@ class OAuth2SessionMixin:
             'protected_request': set(),
         }
 
-        self.session = None
+        self.active_session = self
+
+    @contextmanager
+    def auth_session(self):
+        s = self.active_session
+        self.active_session = self._auth_session
+        try:
+            yield self.active_session
+        finally:
+            self.active_session = s
 
     def new_state(self):
         """Generates a state string to be used in authorizations."""
@@ -192,23 +202,20 @@ class OAuth2SessionMixin:
             'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
         }
         self.token = {}
-        self.session = super(self.__class__, self)
-        try:
+        with self.auth_session():
             if method.upper() == 'POST':
                 r = self.post(token_url, data=dict(urldecode(body)),
-                    timeout=timeout, headers=headers, auth=auth,
-                    verify=verify, proxies=proxies)
+                              timeout=timeout, headers=headers,
+                              auth=auth, verify=verify, proxies=proxies)
                 log.debug('Prepared fetch token request body %s', body)
             elif method.upper() == 'GET':
                 # if method is not 'POST', switch body to querystring and GET
                 r = self.get(token_url, params=dict(urldecode(body)),
-                    timeout=timeout, headers=headers, auth=auth,
-                    verify=verify, proxies=proxies)
+                             timeout=timeout, headers=headers, auth=auth,
+                             verify=verify, proxies=proxies)
                 log.debug('Prepared fetch token request querystring %s', body)
             else:
                 raise ValueError('The method kwarg must be POST or GET.')
-        finally:
-            self.session = None
 
         log.debug('Request to fetch token completed with status %s.',
                   r.status_code)
@@ -275,14 +282,11 @@ class OAuth2SessionMixin:
                 ),
             }
 
-        self.session = super(self.__class__, self)
-        try:
+        with self.auth_session():
             r = self.post(token_url, data=dict(urldecode(body)),
                           auth=auth, timeout=timeout, headers=headers,
                           verify=verify, withhold_token=True,
                           proxies=proxies)
-        finally:
-            self.session = None
         log.debug('Request to refresh token completed with status %s.',
                   r.status_code)
         log.debug('Response headers were %s and content %s.',
@@ -360,9 +364,12 @@ def _request(self, method, url, data=None, headers=None, withhold_token=False,
     log.debug('Requesting url %s using method %s.', url, method)
     log.debug('Supplying headers %s and data %s', headers, data)
     log.debug('Passing through key word arguments %s.', kwargs)
-    session = self.session or self.resource_session or super(self.__class__, self)
-    return session.request(method, url, headers=headers, data=data,
-                           **kwargs)
+    session = self.active_session or self
+    if session == self:
+        request = self._inherited_request
+    else:
+        request = session.request
+    return request(method, url, headers=headers, data=data, **kwargs)
 
 
 class OAuth2Session(OAuth2SessionMixin, requests.Session):
@@ -385,7 +392,7 @@ class OAuth2Session(OAuth2SessionMixin, requests.Session):
 
     def __init__(self, client_id=None, client=None, auto_refresh_url=None,
             auto_refresh_kwargs=None, scope=None, redirect_uri=None, token=None,
-            state=None, token_updater=None, resource_session=None, **kwargs):
+            state=None, token_updater=None, auth_session=None, **kwargs):
         """Construct a new OAuth 2 client session.
 
         :param client_id: Client id obtained during registration
@@ -410,26 +417,27 @@ class OAuth2Session(OAuth2SessionMixin, requests.Session):
                         set a TokenUpdated warning will be raised when a token
                         has been refreshed. This warning will carry the token
                         in its token argument.
-        :resource_session: Requests `Session` object to communicate with
-                           resource servers. By default, the same session as
-                           used to communicate with authentification server
-                           (`super(OAuth2Session, self)`).
+        :auth_session: Requests `Session` object to communicate with
+                       authorization server. By default, the same
+                       session as used to communicate with resource
+                       servers (`super(OAuth2Session, self)`).
         :param kwargs: Arguments to pass to the Session constructor.
         """
         requests.Session.__init__(self, **kwargs)
-        OAuth2SessionMixin.__init__(self, resource_session,
+        OAuth2SessionMixin.__init__(self, auth_session,
             client_id=client_id, client=client,
             auto_refresh_url=auto_refresh_url,
             auto_refresh_kwargs=auto_refresh_kwargs, scope=scope,
             redirect_uri=redirect_uri, token=token, state=state,
             token_updater=token_updater)
+        self._inherited_request = super(OAuth2Session, self).request
 
     request = _request
 
 
 def with_oauth2(session, client_id=None, client=None, auto_refresh_url=None,
             auto_refresh_kwargs=None, scope=None, redirect_uri=None, token=None,
-            state=None, token_updater=None, resource_session=None):
+            state=None, token_updater=None, auth_session=None):
     """Extend :class:`requests.Session`-like object with OAuth 2
     capabilities.
 
@@ -441,9 +449,10 @@ def with_oauth2(session, client_id=None, client=None, auto_refresh_url=None,
     """
 
     session.__class__ = type('OAuth2Session',
-                             (OAuth2SessionMixin, session.__class__),
-                             {'request': _request})
-    OAuth2SessionMixin.__init__(session, resource_session,
+                             (OAuth2SessionMixin, session.__class__), {})
+    session._inherited_request = session.request
+    session.request = types.MethodType(_request, session)
+    OAuth2SessionMixin.__init__(session, auth_session,
             client_id=client_id, client=client,
             auto_refresh_url=auto_refresh_url,
             auto_refresh_kwargs=auto_refresh_kwargs, scope=scope,
