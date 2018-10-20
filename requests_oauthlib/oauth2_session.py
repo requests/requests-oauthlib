@@ -448,7 +448,7 @@ def oauth2_session(session, client_id=None, client=None, auto_refresh_url=None,
     See :class:`OAuth2Session` for details.
     """
 
-    session.__class__ = type('OAuth2Session',
+    session.__class__ = type(str('OAuth2Session'),
                              (OAuth2SessionMixin, session.__class__), {})
     session._inherited_request = session.request
     session.request = types.MethodType(_request, session)
