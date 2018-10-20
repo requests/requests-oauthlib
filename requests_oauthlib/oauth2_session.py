@@ -435,7 +435,7 @@ class OAuth2Session(OAuth2SessionMixin, requests.Session):
     request = _request
 
 
-def with_oauth2(session, client_id=None, client=None, auto_refresh_url=None,
+def oauth2_session(session, client_id=None, client=None, auto_refresh_url=None,
             auto_refresh_kwargs=None, scope=None, redirect_uri=None, token=None,
             state=None, token_updater=None, auth_session=None):
     """Extend :class:`requests.Session`-like object with OAuth 2

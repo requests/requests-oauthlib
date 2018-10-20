@@ -11,7 +11,7 @@ from oauthlib.oauth2 import TokenExpiredError, OAuth2Error
 from oauthlib.oauth2 import MismatchingStateError
 from oauthlib.oauth2 import WebApplicationClient, MobileApplicationClient
 from oauthlib.oauth2 import LegacyApplicationClient, BackendApplicationClient
-from requests_oauthlib import OAuth2Session, TokenUpdated
+from requests_oauthlib import OAuth2Session, TokenUpdated, oauth2_session
 
 
 fake_time = time.time()
@@ -243,3 +243,52 @@ class OAuth2SessionTest(TestCase):
             self.assertFalse(sess.authorized)
             sess.fetch_token(url)
             self.assertTrue(sess.authorized)
+
+    def test_oauth2_session(self):
+
+        testcase = self
+        token = self.token
+
+        class FakeSession:
+            def get(self, url, *args, **kwargs):
+                return self.request('GET', url, *args, **kwargs)
+            def put(self, url, *args, **kwargs):
+                return self.request('PUT', url, *args, **kwargs)
+            def post(self, url, *args, **kwargs):
+                return self.request('POST', url, *args, **kwargs)
+            def delete(self, url, *args, **kwargs):
+                return self.request('DELETE', url, *args, **kwargs)
+            def request(self, method, url, *args, **kwargs):
+                pass
+
+        class FakeAuthSession(FakeSession):
+            def request(self, method, url, *args, **kwargs):
+                testcase.assertEqual(url, 'https://corporation.com/token')
+                resp = mock.MagicMock()
+                resp.text = json.dumps(token)
+                return resp
+
+        class FakeResourceSession(FakeSession):
+            def request(self, method, url, *args, **kwargs):
+                testcase.assertEqual(url, 'https://resource.corporation.com/protected')
+                auth_header = kwargs.get('headers').get(str('Authorization'), None)
+                testcase.assertEqual(auth_header, 'Bearer ' + token['access_token'])
+                resp = mock.MagicMock()
+                resp.text = 'Great success!'
+                return resp
+
+        for client in self.clients:
+            resource_sess = FakeResourceSession()
+            auth_sess = FakeAuthSession()
+
+            sess = oauth2_session(resource_sess, auth_session=auth_sess, client=client)
+            self.assertFalse(sess.authorized)
+
+            fetched_token = sess.fetch_token('https://corporation.com/token')
+            for key, value in self.token.items():
+                if key != 'expires_at':
+                    self.assertEqual(fetched_token[key], value)
+            self.assertTrue(sess.authorized)
+
+            self.assertEqual(sess.get('https://resource.corporation.com/protected').text,
+                             'Great success!')
