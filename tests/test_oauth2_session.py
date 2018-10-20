@@ -249,7 +249,7 @@ class OAuth2SessionTest(TestCase):
         testcase = self
         token = self.token
 
-        class FakeSession:
+        class FakeSession(object):
             def get(self, url, *args, **kwargs):
                 return self.request('GET', url, *args, **kwargs)
             def put(self, url, *args, **kwargs):
