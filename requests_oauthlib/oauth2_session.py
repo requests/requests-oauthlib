@@ -282,6 +282,15 @@ class OAuth2Session(requests.Session):
         log.debug('Adding auto refresh key word arguments %s.',
                   self.auto_refresh_kwargs)
         kwargs.update(self.auto_refresh_kwargs)
+
+        auth = auth or kwargs.get('auth', None)
+        client_id = kwargs.get('client_id', None)
+        client_secret = kwargs.get('client_secret', '')
+
+        if client_id and (auth is None):
+            log.debug('Encoding client_id "%s" with client_secret as Basic auth credentials.', client_id)
+            auth = requests.auth.HTTPBasicAuth(client_id, client_secret)
+
         body = self._client.prepare_refresh_body(body=body,
                 refresh_token=refresh_token, scope=self.scope, **kwargs)
         log.debug('Prepared refresh token request body %s', body)
@@ -312,8 +321,7 @@ class OAuth2Session(requests.Session):
             self.token['refresh_token'] = refresh_token
         return self.token
 
-    def request(self, method, url, data=None, headers=None, withhold_token=False,
-                client_id=None, client_secret='', **kwargs):
+    def request(self, method, url, data=None, headers=None, withhold_token=False, **kwargs):
         """Intercept all requests and add the OAuth 2 token if present."""
         if not is_secure_transport(url):
             raise InsecureTransportError()
@@ -334,14 +342,7 @@ class OAuth2Session(requests.Session):
                     log.debug('Auto refresh is set, attempting to refresh at %s.',
                               self.auto_refresh_url)
 
-                    # We mustn't pass auth twice.
-                    auth = kwargs.pop('auth', None)
-                    if client_id and (auth is None):
-                        log.debug('Encoding client_id "%s" with client_secret as Basic auth credentials.', client_id)
-                        auth = requests.auth.HTTPBasicAuth(client_id, client_secret)
-                    token = self.refresh_token(
-                        self.auto_refresh_url, auth=auth, **kwargs
-                    )
+                    token = self.refresh_token(self.auto_refresh_url, **kwargs)
                     if self.token_updater:
                         log.debug('Updating token to %s using %s.',
                                   token, self.token_updater)
