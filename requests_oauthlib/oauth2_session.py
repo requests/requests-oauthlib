@@ -313,7 +313,7 @@ class OAuth2Session(requests.Session):
         return self.token
 
     def request(self, method, url, data=None, headers=None, withhold_token=False,
-                client_id=None, client_secret=None, **kwargs):
+                client_id=None, client_secret='', **kwargs):
         """Intercept all requests and add the OAuth 2 token if present."""
         if not is_secure_transport(url):
             raise InsecureTransportError()
@@ -336,7 +336,7 @@ class OAuth2Session(requests.Session):
 
                     # We mustn't pass auth twice.
                     auth = kwargs.pop('auth', None)
-                    if client_id and client_secret and (auth is None):
+                    if client_id and (auth is None):
                         log.debug('Encoding client_id "%s" with client_secret as Basic auth credentials.', client_id)
                         auth = requests.auth.HTTPBasicAuth(client_id, client_secret)
                     token = self.refresh_token(
