@@ -283,8 +283,8 @@ class OAuth2Session(requests.Session):
                   self.auto_refresh_kwargs)
         kwargs.update(self.auto_refresh_kwargs)
 
-        auth = auth or kwargs.get('auth', None)
-        client_id = kwargs.get('client_id', None)
+        auth = auth or kwargs.get('auth')
+        client_id = kwargs.get('client_id')
         client_secret = kwargs.get('client_secret', '')
 
         if client_id and (auth is None):
