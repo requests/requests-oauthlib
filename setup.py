@@ -45,7 +45,7 @@ setup(
     packages=['requests_oauthlib', 'requests_oauthlib.compliance_fixes'],
     python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
     install_requires=['oauthlib>=2.1.0,<3.0.0', 'requests>=2.0.0'],
-    extras_require={'rsa': ['oauthlib[rsa]>=2.1.0,<3.0.0', 'requests>=2.0.0']},
+    extras_require={'rsa': ['oauthlib[rsa]>=2.1.0,<3.0.0']},
     license='ISC',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
