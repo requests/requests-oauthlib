@@ -20,7 +20,7 @@ command line interactive example below.
     >>> #generate HTTPBasicAuth Header
     >>> basic_auth = HTTPBasicAuth(client_id, client_secret)
     >>> client = BackendApplicationClient(client_id=client_id)
-    
+
     >>> #start oauth session
     >>> oauth = OAuth2Session(client=client)
     >>> token = oauth.fetch_token(token_url=token_url,

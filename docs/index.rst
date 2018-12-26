@@ -41,7 +41,7 @@ approximately like this:
         return redirect(authorization_url)
 
     @app.route("/callback")
-    def callback(): 
+    def callback():
         github = OAuth2Session(client_id, state=session['oauth_state'])
         token = github.fetch_token(token_url, client_secret=client_secret,
                                    authorization_response=request.url)
@@ -81,4 +81,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
