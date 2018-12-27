@@ -15,6 +15,6 @@ install:
   - pip install requests-mock
   - pip install coveralls
 script:
-  - coverage run --source=requests_oauthlib -m nose
+  - coverage run --source=requests_oauthlib -m unittest discover
 after_success:
   - coveralls
