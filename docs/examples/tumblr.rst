@@ -1,7 +1,7 @@
 Tumblr OAuth1 Tutorial
 ======================
 
-Register a new application on the `tumblr application page`_. 
+Register a new application on the `tumblr application page`_.
 Enter a call back url (can just be http://www.tumblr.com/dashboard) and get the ``OAuth Consumer Key`` and ``Secret Key``.
 
 .. _`tumblr application page`: http://www.tumblr.com/oauth/apps
@@ -35,4 +35,3 @@ Enter a call back url (can just be http://www.tumblr.com/dashboard) and get the 
 
     >>> # Fetch a protected resource
     >>> print tumblr.get('http://api.tumblr.com/v2/user/dashboard')
-
