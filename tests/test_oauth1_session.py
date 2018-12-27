@@ -17,10 +17,8 @@ except ImportError:
 
 if sys.version[0] == '3':
     unicode_type = str
-    bytes_type = bytes
 else:
     unicode_type = unicode
-    bytes_type = str
 
 
 TEST_RSA_KEY = (
@@ -74,7 +72,7 @@ class OAuth1SessionTest(unittest.TestCase):
         def verify_signature(getter):
             def fake_send(r, **kwargs):
                 signature = getter(r)
-                if isinstance(signature, bytes_type):
+                if isinstance(signature, bytes):
                     signature = signature.decode('utf-8')
                 self.assertIn('oauth_signature', signature)
                 resp = mock.MagicMock(spec=requests.Response)
@@ -320,7 +318,7 @@ class OAuth1SessionTest(unittest.TestCase):
     def verify_signature(self, signature):
         def fake_send(r, **kwargs):
             auth_header = r.headers['Authorization']
-            if isinstance(auth_header, bytes_type):
+            if isinstance(auth_header, bytes):
                 auth_header = auth_header.decode('utf-8')
             self.assertEqual(auth_header, signature)
             resp = mock.MagicMock(spec=requests.Response)
