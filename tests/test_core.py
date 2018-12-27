@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 import mock
-import sys
 import requests
 import requests_oauthlib
 import oauthlib
