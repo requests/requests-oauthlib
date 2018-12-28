@@ -62,12 +62,6 @@ TEST_RSA_OAUTH_SIGNATURE = (
 
 
 class OAuth1SessionTest(unittest.TestCase):
-
-    def setUp(self):
-        # For python 2.6
-        if not hasattr(self, 'assertIn'):
-            self.assertIn = lambda a, b: self.assertTrue(a in b)
-
     def test_signature_types(self):
         def verify_signature(getter):
             def fake_send(r, **kwargs):
@@ -204,14 +198,9 @@ class OAuth1SessionTest(unittest.TestCase):
         passed in to the client.
         """
         auth.send = self.fake_body('oauth_token=foo')
-
-        # Use a try-except block so that we can assert on the exception message
-        # being raised and also keep the Python2.6 compatibility where
-        # assertRaises is not a context manager.
-        try:
+        with self.assertRaises(ValueError) as cm:
             auth.fetch_access_token('https://example.com/token')
-        except ValueError as exc:
-            self.assertEqual('No client verifier has been set.', str(exc))
+        self.assertEqual('No client verifier has been set.', str(cm.exception))
 
     def test_fetch_token_invalid_response(self):
         auth = OAuth1Session('foo')
@@ -221,15 +210,10 @@ class OAuth1SessionTest(unittest.TestCase):
 
         for code in (400, 401, 403):
             auth.send = self.fake_body('valid=response', code)
-            # use try/catch rather than self.assertRaises, so we can
-            # assert on the properties of the exception
-            try:
+            with self.assertRaises(ValueError) as cm:
                 auth.fetch_request_token('https://example.com/token')
-            except ValueError as err:
-                self.assertEqual(err.status_code, code)
-                self.assertTrue(isinstance(err.response, requests.Response))
-            else:  # no exception raised
-                self.fail("ValueError not raised")
+            self.assertEqual(cm.exception.status_code, code)
+            self.assertIsInstance(cm.exception.response, requests.Response)
 
     def test_fetch_access_token_missing_verifier(self):
         self._test_fetch_access_token_raises_error(OAuth1Session('foo'))
