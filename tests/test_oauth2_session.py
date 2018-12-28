@@ -29,10 +29,6 @@ def fake_token(token):
 class OAuth2SessionTest(TestCase):
 
     def setUp(self):
-        # For python 2.6
-        if not hasattr(self, 'assertIn'):
-            self.assertIn = lambda a, b: self.assertTrue(a in b)
-
         self.token = {
             'token_type': 'Bearer',
             'access_token': 'asdfoiw37850234lkjsdfsdf',
