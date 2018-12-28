@@ -152,8 +152,8 @@ class OAuth1SessionTest(unittest.TestCase):
         self.assertEqual(resp['oauth_token'], 'foo')
         self.assertEqual(resp['oauth_verifier'], 'bar')
         for k, v in resp.items():
-            self.assertTrue(isinstance(k, unicode_type))
-            self.assertTrue(isinstance(v, unicode_type))
+            self.assertIsInstance(k, unicode_type)
+            self.assertIsInstance(v, unicode_type)
 
     def test_fetch_request_token(self):
         auth = OAuth1Session('foo')
@@ -161,8 +161,8 @@ class OAuth1SessionTest(unittest.TestCase):
         resp = auth.fetch_request_token('https://example.com/token')
         self.assertEqual(resp['oauth_token'], 'foo')
         for k, v in resp.items():
-            self.assertTrue(isinstance(k, unicode_type))
-            self.assertTrue(isinstance(v, unicode_type))
+            self.assertIsInstance(k, unicode_type)
+            self.assertIsInstance(v, unicode_type)
 
     def test_fetch_request_token_with_optional_arguments(self):
         auth = OAuth1Session('foo')
@@ -171,8 +171,8 @@ class OAuth1SessionTest(unittest.TestCase):
                                         verify=False, stream=True)
         self.assertEqual(resp['oauth_token'], 'foo')
         for k, v in resp.items():
-            self.assertTrue(isinstance(k, unicode_type))
-            self.assertTrue(isinstance(v, unicode_type))
+            self.assertIsInstance(k, unicode_type)
+            self.assertIsInstance(v, unicode_type)
 
     def test_fetch_access_token(self):
         auth = OAuth1Session('foo', verifier='bar')
@@ -180,8 +180,8 @@ class OAuth1SessionTest(unittest.TestCase):
         resp = auth.fetch_access_token('https://example.com/token')
         self.assertEqual(resp['oauth_token'], 'foo')
         for k, v in resp.items():
-            self.assertTrue(isinstance(k, unicode_type))
-            self.assertTrue(isinstance(v, unicode_type))
+            self.assertIsInstance(k, unicode_type)
+            self.assertIsInstance(v, unicode_type)
 
     def test_fetch_access_token_with_optional_arguments(self):
         auth = OAuth1Session('foo', verifier='bar')
@@ -190,8 +190,8 @@ class OAuth1SessionTest(unittest.TestCase):
                                        verify=False, stream=True)
         self.assertEqual(resp['oauth_token'], 'foo')
         for k, v in resp.items():
-            self.assertTrue(isinstance(k, unicode_type))
-            self.assertTrue(isinstance(v, unicode_type))
+            self.assertIsInstance(k, unicode_type)
+            self.assertIsInstance(v, unicode_type)
 
     def _test_fetch_access_token_raises_error(self, auth):
         """Assert that an error is being raised whenever there's no verifier
@@ -261,7 +261,7 @@ class OAuth1SessionTest(unittest.TestCase):
 
     def test_authorized_false(self):
         sess = OAuth1Session('foo')
-        self.assertFalse(sess.authorized)
+        self.assertIs(sess.authorized, False)
 
     def test_authorized_false_rsa(self):
         signature = ('OAuth '
@@ -272,13 +272,13 @@ class OAuth1SessionTest(unittest.TestCase):
         sess = OAuth1Session('foo', signature_method=SIGNATURE_RSA,
                              rsa_key=TEST_RSA_KEY)
         sess.send = self.verify_signature(signature)
-        self.assertFalse(sess.authorized)
+        self.assertIs(sess.authorized, False)
 
     def test_authorized_true(self):
         sess = OAuth1Session('key', 'secret', verifier='bar')
         sess.send = self.fake_body('oauth_token=foo&oauth_token_secret=bar')
         sess.fetch_access_token('https://example.com/token')
-        self.assertTrue(sess.authorized)
+        self.assertIs(sess.authorized, True)
 
     @mock.patch('oauthlib.oauth1.rfc5849.generate_timestamp')
     @mock.patch('oauthlib.oauth1.rfc5849.generate_nonce')
@@ -297,7 +297,7 @@ class OAuth1SessionTest(unittest.TestCase):
                              rsa_key=TEST_RSA_KEY, verifier='bar')
         sess.send = self.fake_body('oauth_token=foo&oauth_token_secret=bar')
         sess.fetch_access_token('https://example.com/token')
-        self.assertTrue(sess.authorized)
+        self.assertIs(sess.authorized, True)
 
     def verify_signature(self, signature):
         def fake_send(r, **kwargs):

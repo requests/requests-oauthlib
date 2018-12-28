@@ -221,7 +221,7 @@ class OAuth2SessionTest(TestCase):
 
     def test_authorized_false(self):
         sess = OAuth2Session('foo')
-        self.assertFalse(sess.authorized)
+        self.assertIs(sess.authorized, False)
 
     @mock.patch("time.time", new=lambda: fake_time)
     def test_authorized_true(self):
@@ -236,6 +236,6 @@ class OAuth2SessionTest(TestCase):
         for client in self.clients:
             sess = OAuth2Session(client=client)
             sess.send = fake_token(self.token)
-            self.assertFalse(sess.authorized)
+            self.assertIs(sess.authorized, False)
             sess.fetch_token(url)
-            self.assertTrue(sess.authorized)
+            self.assertIs(sess.authorized, True)
