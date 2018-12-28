@@ -89,7 +89,7 @@ class OAuth1Test(unittest.TestCase):
         oauth = requests_oauthlib.OAuth1('client_key')
 
         r = requests.get('http://httpbin.org/get', auth=oauth)
-        self.assertTrue(isinstance(r.request.url, str))
+        self.assertIsInstance(r.request.url, str)
 
     def test_content_type_override(self, generate_nonce, generate_timestamp):
         """
@@ -120,8 +120,8 @@ class OAuth1Test(unittest.TestCase):
 
         normal = requests_oauthlib.OAuth1('client_key')
 
-        self.assertTrue(isinstance(normal.client, oauthlib.oauth1.Client))
-        self.assertFalse(isinstance(normal.client, ClientSubclass))
+        self.assertIsInstance(normal.client, oauthlib.oauth1.Client)
+        self.assertNotIsInstance(normal.client, ClientSubclass)
 
         requests_oauthlib.OAuth1.client_class = ClientSubclass
 
@@ -129,11 +129,11 @@ class OAuth1Test(unittest.TestCase):
 
         custom = requests_oauthlib.OAuth1('client_key')
 
-        self.assertTrue(isinstance(custom.client, oauthlib.oauth1.Client))
-        self.assertTrue(isinstance(custom.client, ClientSubclass))
+        self.assertIsInstance(custom.client, oauthlib.oauth1.Client)
+        self.assertIsInstance(custom.client, ClientSubclass)
 
         overridden = requests_oauthlib.OAuth1('client_key',
             client_class = oauthlib.oauth1.Client)
 
-        self.assertTrue(isinstance(overridden.client, oauthlib.oauth1.Client))
-        self.assertFalse(isinstance(normal.client, ClientSubclass))
+        self.assertIsInstance(overridden.client, oauthlib.oauth1.Client)
+        self.assertNotIsInstance(normal.client, ClientSubclass)
