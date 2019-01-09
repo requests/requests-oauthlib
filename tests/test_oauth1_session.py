@@ -15,6 +15,11 @@ try:
 except ImportError:
     cryptography = None
 
+try:
+    import jwt
+except ImportError:
+    jwt = None
+
 if sys.version[0] == '3':
     unicode_type = str
 else:
@@ -92,6 +97,8 @@ class OAuth1SessionTest(unittest.TestCase):
     def test_signature_methods(self, generate_nonce, generate_timestamp):
         if not cryptography:
             raise unittest.SkipTest('cryptography module is required')
+        if not jwt:
+            raise unittest.SkipTest('pyjwt module is required')
 
         generate_nonce.return_value = 'abc'
         generate_timestamp.return_value = '123'
@@ -285,6 +292,8 @@ class OAuth1SessionTest(unittest.TestCase):
     def test_authorized_true_rsa(self, generate_nonce, generate_timestamp):
         if not cryptography:
             raise unittest.SkipTest('cryptography module is required')
+        if not jwt:
+            raise unittest.SkipTest('pyjwt module is required')
 
         generate_nonce.return_value = 'abc'
         generate_timestamp.return_value = '123'
