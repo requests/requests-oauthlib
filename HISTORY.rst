@@ -4,6 +4,11 @@ History
 UNRELEASED
 ++++++++++
 
+nothing yet
+
+v1.1.0 (9 January 2019)
++++++++++++++++++++++++
+
 - Adjusted version specifier for ``oauthlib`` dependency: this project is
   not yet compatible with ``oauthlib`` 3.0.0.
 - Dropped dependency on ``nose``.
