@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import mock
 import requests
 import requests_oauthlib
 import oauthlib
 import os.path
 from io import StringIO
 import unittest
+
+try:
+    import mock
+except ImportError:
+    from unittest import mock
 
 
 @mock.patch('oauthlib.oauth1.rfc5849.generate_timestamp')

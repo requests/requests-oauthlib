@@ -1,10 +1,13 @@
 from __future__ import unicode_literals
 import json
-import mock
 import time
 from base64 import b64encode
 from copy import deepcopy
 from unittest import TestCase
+try:
+    import mock
+except ImportError:
+    from unittest import mock
 
 from oauthlib.common import urlencode
 from oauthlib.oauth2 import TokenExpiredError, OAuth2Error
