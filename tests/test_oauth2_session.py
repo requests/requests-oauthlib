@@ -132,8 +132,12 @@ class OAuth2SessionTest(TestCase):
         def fake_refresh_with_auth(r, **kwargs):
             if "/refresh" in r.url:
                 self.assertIn("Authorization", r.headers)
-                encoded = b64encode(b"%s:%s" % (self.client_id, self.client_secret))
-                content = (b"Basic " + encoded).decode('latin1')
+                encoded = b64encode(
+                    "{client_id}:{client_secret}"
+                    .format(client_id=self.client_id, client_secret=self.client_secret)
+                    .encode('latin1')
+                )
+                content = "Basic {encoded}".format(encoded=encoded.decode('latin1'))
                 self.assertEqual(r.headers["Authorization"], content)
             resp = mock.MagicMock()
             resp.text = json.dumps(self.token)
