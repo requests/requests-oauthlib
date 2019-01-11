@@ -4,7 +4,8 @@ History
 UNRELEASED
 ++++++++++
 
-- Avoid automatic netrc authentication for OAuth2Session.
+- This project now depends on OAuthlib 3.0.0 and above. It does **not** support
+  versions of OAuthlib before 3.0.0.
 - Updated oauth2 tests to use 'sess' for an OAuth2Session instance instead of `auth`
   because OAuth2Session objects and methods acceept an `auth` paramether which is
   typically an instance of `requests.auth.HTTPBasicAuth`
@@ -14,6 +15,7 @@ UNRELEASED
   correctly provide the `client_id`. The older implementation also did not raise
   the correct exceptions when username and password are not present on Legacy
   clients.
+- Avoid automatic netrc authentication for OAuth2Session.
 
 v1.1.0 (9 January 2019)
 +++++++++++++++++++++++
