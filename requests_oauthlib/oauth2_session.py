@@ -154,7 +154,7 @@ class OAuth2Session(requests.Session):
 
     def fetch_token(self, token_url, code=None, authorization_response=None,
             body='', auth=None, username=None, password=None, method='POST',
-            timeout=None, headers=None, verify=True, proxies=None, **kwargs):
+            timeout=None, headers=None, verify=True, proxies=None, post_params=None, **kwargs):
         """Generic method for fetching an access token from the token endpoint.
 
         If you are using the MobileApplicationClient you will want to use
@@ -177,6 +177,7 @@ class OAuth2Session(requests.Session):
         :param timeout: Timeout of the request in seconds.
         :param verify: Verify SSL certificate.
         :param kwargs: Extra parameters to include in the token request.
+        :param post_params: If True, sends body as url query string.
         :return: A token dict
         """
         if not is_secure_transport(token_url):
@@ -215,8 +216,13 @@ class OAuth2Session(requests.Session):
             'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
         }
         self.token = {}
-        if method.upper() == 'POST':
+        if method.upper() == 'POST' and not post_params:
             r = self.post(token_url, data=dict(urldecode(body)),
+                timeout=timeout, headers=headers, auth=auth,
+                verify=verify, proxies=proxies)
+            log.debug('Prepared fetch token request body %s', body)
+        elif method.upper() == 'POST':
+            r = self.post(token_url, params=dict(urldecode(body)),
                 timeout=timeout, headers=headers, auth=auth,
                 verify=verify, proxies=proxies)
             log.debug('Prepared fetch token request body %s', body)
@@ -258,7 +264,7 @@ class OAuth2Session(requests.Session):
         return self.token
 
     def refresh_token(self, token_url, refresh_token=None, body='', auth=None,
-                      timeout=None, headers=None, verify=True, proxies=None, **kwargs):
+                      timeout=None, headers=None, verify=True, proxies=None, post_params=None, **kwargs):
         """Fetch a new access token using a refresh token.
 
         :param token_url: The token endpoint, must be HTTPS.
@@ -269,6 +275,7 @@ class OAuth2Session(requests.Session):
         :param timeout: Timeout of the request in seconds.
         :param verify: Verify SSL certificate.
         :param kwargs: Extra parameters to include in the token request.
+        :param post_params: If True, sends body as url query string.
         :return: A token dict
         """
         if not token_url:
@@ -293,8 +300,11 @@ class OAuth2Session(requests.Session):
                     'application/x-www-form-urlencoded;charset=UTF-8'
                 ),
             }
-
-        r = self.post(token_url, data=dict(urldecode(body)), auth=auth,
+        if not post_params:
+            r = self.post(token_url, data=dict(urldecode(body)), auth=auth,
+            timeout=timeout, headers=headers, verify=verify, withhold_token=True, proxies=proxies)
+        else:
+            r = self.post(token_url, data=params(urldecode(body)), auth=auth,
             timeout=timeout, headers=headers, verify=verify, withhold_token=True, proxies=proxies)
         log.debug('Request to refresh token completed with status %s.',
                   r.status_code)
