@@ -4,7 +4,7 @@ History
 UNRELEASED
 ++++++++++
 
-nothing yet
+- Avoid automatic netrc authentication for OAuth2Session.
 
 v1.1.0 (9 January 2019)
 +++++++++++++++++++++++

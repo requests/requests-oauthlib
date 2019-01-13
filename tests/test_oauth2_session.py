@@ -1,6 +1,9 @@
 from __future__ import unicode_literals
 import json
 import time
+import tempfile
+import shutil
+import os
 from base64 import b64encode
 from copy import deepcopy
 from unittest import TestCase
@@ -242,3 +245,36 @@ class OAuth2SessionTest(TestCase):
             self.assertIs(sess.authorized, False)
             sess.fetch_token(url)
             self.assertIs(sess.authorized, True)
+
+
+class OAuth2SessionNetrcTest(OAuth2SessionTest):
+    """Ensure that there is no magic auth handling.
+
+    By default, requests sessions have magic handling of netrc files,
+    which is undesirable for this library because it will take
+    precedence over manually set authentication headers.
+    """
+
+    def setUp(self):
+        # Set up a temporary home directory
+        self.homedir = tempfile.mkdtemp()
+        self.prehome = os.environ.get('HOME', None)
+        os.environ['HOME'] = self.homedir
+
+        # Write a .netrc file that will cause problems
+        netrc_loc = os.path.expanduser('~/.netrc')
+        with open(netrc_loc, 'w') as f:
+            f.write(
+                'machine i.b\n'
+                '  password abc123\n'
+                '  login spam@eggs.co\n'
+            )
+
+        super(OAuth2SessionNetrcTest, self).setUp()
+
+    def tearDown(self):
+        super(OAuth2SessionNetrcTest, self).tearDown()
+
+        if self.prehome is not None:
+            os.environ['HOME'] = self.prehome
+        shutil.rmtree(self.homedir)
