@@ -4,6 +4,11 @@ History
 UNRELEASED
 ++++++++++
 
+nothing yet
+
+v1.2.0 (14 January 2019)
+++++++++++++++++++++++++
+
 - This project now depends on OAuthlib 3.0.0 and above. It does **not** support
   versions of OAuthlib before 3.0.0.
 - Updated oauth2 tests to use 'sess' for an OAuth2Session instance instead of `auth`
