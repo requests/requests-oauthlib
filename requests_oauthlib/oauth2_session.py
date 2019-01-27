@@ -158,9 +158,9 @@ class OAuth2Session(requests.Session):
                 **kwargs), state
 
     def fetch_token(self, token_url, code=None, authorization_response=None,
-            body='', auth=None, username=None, password=None, method='POST',
-            timeout=None, headers=None, verify=True, proxies=None,
-            include_client_id=None, client_secret=None, **kwargs):
+                    body='', auth=None, username=None, password=None, method='POST',
+                    timeout=None, headers=None, verify=True, proxies=None,
+                    include_client_id=None, client_secret=None, url_params=False, **kwargs):
         """Generic method for fetching an access token from the token endpoint.
 
         If you are using the MobileApplicationClient you will want to use
@@ -197,6 +197,9 @@ class OAuth2Session(requests.Session):
                               `auth` tuple. If the value is `None`, it will be
                               omitted from the request, however if the value is
                               an empty string, an empty string will be sent.
+        :param url_params: In POST request,
+                            decides whether to send request data as data or in URL.
+                            some APIs require URL params.
         :param kwargs: Extra parameters to include in the token request.
         :return: A token dict
         """
@@ -261,7 +264,8 @@ class OAuth2Session(requests.Session):
                     log.debug('Encoding `client_id` "%s" with `client_secret` '
                               'as Basic auth credentials.', client_id)
                     client_secret = client_secret if client_secret is not None else ''
-                    auth = requests.auth.HTTPBasicAuth(client_id, client_secret)
+                    auth = requests.auth.HTTPBasicAuth(
+                        client_id, client_secret)
 
         if include_client_id:
             # this was pulled out of the params
@@ -279,9 +283,12 @@ class OAuth2Session(requests.Session):
         }
         self.token = {}
         if method.upper() == 'POST':
-            r = self.post(token_url, data=dict(urldecode(body)),
-                timeout=timeout, headers=headers, auth=auth,
-                verify=verify, proxies=proxies)
+            post_body = {'data': dict(urldecode(body))}
+            if url_params:
+                post_body = {'params': body}
+            r = self.post(token_url, timeout=timeout, headers=headers,
+                          auth=auth, verify=verify,
+                          proxies=proxies, **post_body)
             log.debug('Prepared fetch token request body %s', body)
         elif method.upper() == 'GET':
             # if method is not 'POST', switch body to querystring and GET
@@ -321,7 +328,8 @@ class OAuth2Session(requests.Session):
         return self.token
 
     def refresh_token(self, token_url, refresh_token=None, body='', auth=None,
-                      timeout=None, headers=None, verify=True, proxies=None, **kwargs):
+                      timeout=None, headers=None, verify=True,
+                      proxies=None, url_params=False, **kwargs):
         """Fetch a new access token using a refresh token.
 
         :param token_url: The token endpoint, must be HTTPS.
@@ -333,6 +341,9 @@ class OAuth2Session(requests.Session):
         :param headers: A dict of headers to be used by `requests`.
         :param verify: Verify SSL certificate.
         :param proxies: The `proxies` argument will be passed to `requests`.
+        :param url_params: In POST request,
+                            decides whether to send request data as data or in URL.
+                            some APIs require URL params.
         :param kwargs: Extra parameters to include in the token request.
         :return: A token dict
         """
@@ -359,8 +370,12 @@ class OAuth2Session(requests.Session):
                 ),
             }
 
-        r = self.post(token_url, data=dict(urldecode(body)), auth=auth,
-            timeout=timeout, headers=headers, verify=verify, withhold_token=True, proxies=proxies)
+        post_body = {'data': dict(urldecode(body))}
+        if url_params:
+            post_body = {'params': body}
+        r = self.post(token_url, auth=auth, timeout=timeout,
+                      headers=headers, verify=verify,
+                      withhold_token=True, proxies=proxies, **post_body)
         log.debug('Request to refresh token completed with status %s.',
                   r.status_code)
         log.debug('Response headers were %s and content %s.',
@@ -371,7 +386,8 @@ class OAuth2Session(requests.Session):
             log.debug('Invoking hook %s.', hook)
             r = hook(r)
 
-        self.token = self._client.parse_request_body_response(r.text, scope=self.scope)
+        self.token = self._client.parse_request_body_response(
+            r.text, scope=self.scope)
         if not 'refresh_token' in self.token:
             log.debug('No new refresh token given. Re-using old.')
             self.token['refresh_token'] = refresh_token
@@ -402,8 +418,10 @@ class OAuth2Session(requests.Session):
                     # We mustn't pass auth twice.
                     auth = kwargs.pop('auth', None)
                     if client_id and client_secret and (auth is None):
-                        log.debug('Encoding client_id "%s" with client_secret as Basic auth credentials.', client_id)
-                        auth = requests.auth.HTTPBasicAuth(client_id, client_secret)
+                        log.debug(
+                            'Encoding client_id "%s" with client_secret as Basic auth credentials.', client_id)
+                        auth = requests.auth.HTTPBasicAuth(
+                            client_id, client_secret)
                     token = self.refresh_token(
                         self.auto_refresh_url, auth=auth, **kwargs
                     )
