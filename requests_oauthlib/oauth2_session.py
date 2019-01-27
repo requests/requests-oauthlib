@@ -253,15 +253,17 @@ class OAuth2Session(requests.Session):
         else:
             # since we don't have an auth header, we MAY need to create one
             # it is possible that we want to send the `client_id` in the body
-            # if so, `include_client_id` should be set to True
-            # otherwise, we will generate an auth header
-            if include_client_id is not True:
+            # if no auth header supplied AND include_client_id is not False,
+            # we probably need to include client id
+            if include_client_id is False:
                 client_id = self.client_id
                 if client_id:
                     log.debug('Encoding `client_id` "%s" with `client_secret` '
                               'as Basic auth credentials.', client_id)
                     client_secret = client_secret if client_secret is not None else ''
                     auth = requests.auth.HTTPBasicAuth(client_id, client_secret)
+            else:
+                include_client_id = True
 
         if include_client_id:
             # this was pulled out of the params
