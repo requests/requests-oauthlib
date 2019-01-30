@@ -8,15 +8,12 @@ from oauthlib.common import add_params_to_uri
 
 def instagram_compliance_fix(session):
     def _non_compliant_param_name(url, headers, data):
-        # If the user has already specified the token, either in the URL
-        # or in a data dictionary, then there's nothing to do.
+        # If the user has already specified the token in the URL
+        # then there's nothing to do.
         # If the specified token is different from ``session.access_token``,
         # we assume the user intends to override the access token.
         url_query = dict(parse_qs(urlparse(url).query))
-        token = url_query.get("token")
-        if not token and isinstance(data, dict):
-            token = data.get("token")
-
+        token = url_query.get("access_token")
         if token:
             # Nothing to do, just return.
             return url, headers, data

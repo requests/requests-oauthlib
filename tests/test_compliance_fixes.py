@@ -17,6 +17,7 @@ from requests_oauthlib.compliance_fixes import linkedin_compliance_fix
 from requests_oauthlib.compliance_fixes import mailchimp_compliance_fix
 from requests_oauthlib.compliance_fixes import weibo_compliance_fix
 from requests_oauthlib.compliance_fixes import slack_compliance_fix
+from requests_oauthlib.compliance_fixes import instagram_compliance_fix
 from requests_oauthlib.compliance_fixes import plentymarkets_compliance_fix
 
 
@@ -274,6 +275,58 @@ class SlackComplianceFixTest(TestCase):
         self.assertEqual(query["token"], ["different-token"])
         self.assertIsNone(response.request.body)
 
+
+class InstagramComplianceFixTest(TestCase):
+
+    def setUp(self):
+        mocker = requests_mock.Mocker()
+        mocker.request(
+            method="GET",
+            url="https://api.instagram.com/v1/users/self",
+            json={
+                "data": {
+                    "id": "1574083",
+                    "username": "snoopdogg",
+                    "full_name": "Snoop Dogg",
+                    "profile_picture": "http://distillery.s3.amazonaws.com/profiles/profile_1574083_75sq_1295469061.jpg",
+                    "bio": "This is my bio",
+                    "website": "http://snoopdogg.com",
+                    "is_business": False,
+                    "counts": {
+                        "media": 1320,
+                        "follows": 420,
+                        "followed_by": 3410
+                    }
+                }
+            }
+        )
+        mocker.start()
+        self.addCleanup(mocker.stop)
+
+        instagram = OAuth2Session('someclientid', redirect_uri='https://i.b')
+        self.session = instagram_compliance_fix(instagram)
+
+    def test_protected_request(self):
+        self.session.token = {"access_token": 'dummy-access-token'}
+        response = self.session.get(
+            "https://api.instagram.com/v1/users/self"
+        )
+        url = response.request.url
+        query = parse_qs(urlparse(url).query)
+        self.assertIn("access_token", query)
+        self.assertEqual(query["access_token"], ["dummy-access-token"])
+
+    def test_protected_request_dont_override(self):
+        """check that if the access_token param
+        already exist we don't override it"""
+        self.session.token = {"access_token": 'dummy-access-token'}
+        response = self.session.get(
+            "https://api.instagram.com/v1/users/self?access_token=correct-access-token"
+        )
+        url = response.request.url
+        query = parse_qs(urlparse(url).query)
+        self.assertIn("access_token", query)
+        self.assertEqual(query["access_token"], ["correct-access-token"])
 
 class PlentymarketsComplianceFixTest(TestCase):
 
