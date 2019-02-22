@@ -4,7 +4,7 @@ History
 UNRELEASED
 ++++++++++
 
-nothing yet
+- Instagram compliance fix
 
 v1.2.0 (14 January 2019)
 ++++++++++++++++++++++++
