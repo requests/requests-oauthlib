@@ -23,7 +23,7 @@ try:
 except ImportError:
     jwt = None
 
-if sys.version[0] == '3':
+if sys.version[0] == "3":
     unicode_type = str
 else:
     unicode_type = unicode
@@ -75,130 +75,135 @@ class OAuth1SessionTest(unittest.TestCase):
             def fake_send(r, **kwargs):
                 signature = getter(r)
                 if isinstance(signature, bytes):
-                    signature = signature.decode('utf-8')
-                self.assertIn('oauth_signature', signature)
+                    signature = signature.decode("utf-8")
+                self.assertIn("oauth_signature", signature)
                 resp = mock.MagicMock(spec=requests.Response)
                 resp.cookies = []
                 return resp
+
             return fake_send
 
-        header = OAuth1Session('foo')
-        header.send = verify_signature(lambda r: r.headers['Authorization'])
-        header.post('https://i.b')
+        header = OAuth1Session("foo")
+        header.send = verify_signature(lambda r: r.headers["Authorization"])
+        header.post("https://i.b")
 
-        query = OAuth1Session('foo', signature_type=SIGNATURE_TYPE_QUERY)
+        query = OAuth1Session("foo", signature_type=SIGNATURE_TYPE_QUERY)
         query.send = verify_signature(lambda r: r.url)
-        query.post('https://i.b')
+        query.post("https://i.b")
 
-        body = OAuth1Session('foo', signature_type=SIGNATURE_TYPE_BODY)
-        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        body = OAuth1Session("foo", signature_type=SIGNATURE_TYPE_BODY)
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
         body.send = verify_signature(lambda r: r.body)
-        body.post('https://i.b', headers=headers, data='')
+        body.post("https://i.b", headers=headers, data="")
 
-    @mock.patch('oauthlib.oauth1.rfc5849.generate_timestamp')
-    @mock.patch('oauthlib.oauth1.rfc5849.generate_nonce')
+    @mock.patch("oauthlib.oauth1.rfc5849.generate_timestamp")
+    @mock.patch("oauthlib.oauth1.rfc5849.generate_nonce")
     def test_signature_methods(self, generate_nonce, generate_timestamp):
         if not cryptography:
-            raise unittest.SkipTest('cryptography module is required')
+            raise unittest.SkipTest("cryptography module is required")
         if not jwt:
-            raise unittest.SkipTest('pyjwt module is required')
+            raise unittest.SkipTest("pyjwt module is required")
 
-        generate_nonce.return_value = 'abc'
-        generate_timestamp.return_value = '123'
+        generate_nonce.return_value = "abc"
+        generate_timestamp.return_value = "123"
 
         signature = 'OAuth oauth_nonce="abc", oauth_timestamp="123", oauth_version="1.0", oauth_signature_method="HMAC-SHA1", oauth_consumer_key="foo", oauth_signature="h2sRqLArjhlc5p3FTkuNogVHlKE%3D"'
-        auth = OAuth1Session('foo')
+        auth = OAuth1Session("foo")
         auth.send = self.verify_signature(signature)
-        auth.post('https://i.b')
+        auth.post("https://i.b")
 
         signature = 'OAuth oauth_nonce="abc", oauth_timestamp="123", oauth_version="1.0", oauth_signature_method="PLAINTEXT", oauth_consumer_key="foo", oauth_signature="%26"'
-        auth = OAuth1Session('foo', signature_method=SIGNATURE_PLAINTEXT)
+        auth = OAuth1Session("foo", signature_method=SIGNATURE_PLAINTEXT)
         auth.send = self.verify_signature(signature)
-        auth.post('https://i.b')
+        auth.post("https://i.b")
 
-        signature = ('OAuth '
+        signature = (
+            "OAuth "
             'oauth_nonce="abc", oauth_timestamp="123", oauth_version="1.0", '
             'oauth_signature_method="RSA-SHA1", oauth_consumer_key="foo", '
             'oauth_signature="{sig}"'
         ).format(sig=TEST_RSA_OAUTH_SIGNATURE)
-        auth = OAuth1Session('foo', signature_method=SIGNATURE_RSA,
-                             rsa_key=TEST_RSA_KEY)
+        auth = OAuth1Session(
+            "foo", signature_method=SIGNATURE_RSA, rsa_key=TEST_RSA_KEY
+        )
         auth.send = self.verify_signature(signature)
-        auth.post('https://i.b')
+        auth.post("https://i.b")
 
-    @mock.patch('oauthlib.oauth1.rfc5849.generate_timestamp')
-    @mock.patch('oauthlib.oauth1.rfc5849.generate_nonce')
+    @mock.patch("oauthlib.oauth1.rfc5849.generate_timestamp")
+    @mock.patch("oauthlib.oauth1.rfc5849.generate_nonce")
     def test_binary_upload(self, generate_nonce, generate_timestamp):
-        generate_nonce.return_value = 'abc'
-        generate_timestamp.return_value = '123'
-        fake_xml = StringIO('hello world')
-        headers = {'Content-Type': 'application/xml'}
+        generate_nonce.return_value = "abc"
+        generate_timestamp.return_value = "123"
+        fake_xml = StringIO("hello world")
+        headers = {"Content-Type": "application/xml"}
         signature = 'OAuth oauth_nonce="abc", oauth_timestamp="123", oauth_version="1.0", oauth_signature_method="HMAC-SHA1", oauth_consumer_key="foo", oauth_signature="h2sRqLArjhlc5p3FTkuNogVHlKE%3D"'
-        auth = OAuth1Session('foo')
+        auth = OAuth1Session("foo")
         auth.send = self.verify_signature(signature)
-        auth.post('https://i.b', headers=headers, files=[('fake', fake_xml)])
+        auth.post("https://i.b", headers=headers, files=[("fake", fake_xml)])
 
-    @mock.patch('oauthlib.oauth1.rfc5849.generate_timestamp')
-    @mock.patch('oauthlib.oauth1.rfc5849.generate_nonce')
+    @mock.patch("oauthlib.oauth1.rfc5849.generate_timestamp")
+    @mock.patch("oauthlib.oauth1.rfc5849.generate_nonce")
     def test_nonascii(self, generate_nonce, generate_timestamp):
-        generate_nonce.return_value = 'abc'
-        generate_timestamp.return_value = '123'
+        generate_nonce.return_value = "abc"
+        generate_timestamp.return_value = "123"
         signature = 'OAuth oauth_nonce="abc", oauth_timestamp="123", oauth_version="1.0", oauth_signature_method="HMAC-SHA1", oauth_consumer_key="foo", oauth_signature="W0haoue5IZAZoaJiYCtfqwMf8x8%3D"'
-        auth = OAuth1Session('foo')
+        auth = OAuth1Session("foo")
         auth.send = self.verify_signature(signature)
-        auth.post('https://i.b?cjk=%E5%95%A6%E5%95%A6')
+        auth.post("https://i.b?cjk=%E5%95%A6%E5%95%A6")
 
     def test_authorization_url(self):
-        auth = OAuth1Session('foo')
-        url = 'https://example.comm/authorize'
-        token = 'asluif023sf'
+        auth = OAuth1Session("foo")
+        url = "https://example.comm/authorize"
+        token = "asluif023sf"
         auth_url = auth.authorization_url(url, request_token=token)
-        self.assertEqual(auth_url, url + '?oauth_token=' + token)
+        self.assertEqual(auth_url, url + "?oauth_token=" + token)
 
     def test_parse_response_url(self):
-        url = 'https://i.b/callback?oauth_token=foo&oauth_verifier=bar'
-        auth = OAuth1Session('foo')
+        url = "https://i.b/callback?oauth_token=foo&oauth_verifier=bar"
+        auth = OAuth1Session("foo")
         resp = auth.parse_authorization_response(url)
-        self.assertEqual(resp['oauth_token'], 'foo')
-        self.assertEqual(resp['oauth_verifier'], 'bar')
+        self.assertEqual(resp["oauth_token"], "foo")
+        self.assertEqual(resp["oauth_verifier"], "bar")
         for k, v in resp.items():
             self.assertIsInstance(k, unicode_type)
             self.assertIsInstance(v, unicode_type)
 
     def test_fetch_request_token(self):
-        auth = OAuth1Session('foo')
-        auth.send = self.fake_body('oauth_token=foo')
-        resp = auth.fetch_request_token('https://example.com/token')
-        self.assertEqual(resp['oauth_token'], 'foo')
+        auth = OAuth1Session("foo")
+        auth.send = self.fake_body("oauth_token=foo")
+        resp = auth.fetch_request_token("https://example.com/token")
+        self.assertEqual(resp["oauth_token"], "foo")
         for k, v in resp.items():
             self.assertIsInstance(k, unicode_type)
             self.assertIsInstance(v, unicode_type)
 
     def test_fetch_request_token_with_optional_arguments(self):
-        auth = OAuth1Session('foo')
-        auth.send = self.fake_body('oauth_token=foo')
-        resp = auth.fetch_request_token('https://example.com/token',
-                                        verify=False, stream=True)
-        self.assertEqual(resp['oauth_token'], 'foo')
+        auth = OAuth1Session("foo")
+        auth.send = self.fake_body("oauth_token=foo")
+        resp = auth.fetch_request_token(
+            "https://example.com/token", verify=False, stream=True
+        )
+        self.assertEqual(resp["oauth_token"], "foo")
         for k, v in resp.items():
             self.assertIsInstance(k, unicode_type)
             self.assertIsInstance(v, unicode_type)
 
     def test_fetch_access_token(self):
-        auth = OAuth1Session('foo', verifier='bar')
-        auth.send = self.fake_body('oauth_token=foo')
-        resp = auth.fetch_access_token('https://example.com/token')
-        self.assertEqual(resp['oauth_token'], 'foo')
+        auth = OAuth1Session("foo", verifier="bar")
+        auth.send = self.fake_body("oauth_token=foo")
+        resp = auth.fetch_access_token("https://example.com/token")
+        self.assertEqual(resp["oauth_token"], "foo")
         for k, v in resp.items():
             self.assertIsInstance(k, unicode_type)
             self.assertIsInstance(v, unicode_type)
 
     def test_fetch_access_token_with_optional_arguments(self):
-        auth = OAuth1Session('foo', verifier='bar')
-        auth.send = self.fake_body('oauth_token=foo')
-        resp = auth.fetch_access_token('https://example.com/token',
-                                       verify=False, stream=True)
-        self.assertEqual(resp['oauth_token'], 'foo')
+        auth = OAuth1Session("foo", verifier="bar")
+        auth.send = self.fake_body("oauth_token=foo")
+        resp = auth.fetch_access_token(
+            "https://example.com/token", verify=False, stream=True
+        )
+        self.assertEqual(resp["oauth_token"], "foo")
         for k, v in resp.items():
             self.assertIsInstance(k, unicode_type)
             self.assertIsInstance(v, unicode_type)
@@ -207,119 +212,129 @@ class OAuth1SessionTest(unittest.TestCase):
         """Assert that an error is being raised whenever there's no verifier
         passed in to the client.
         """
-        auth.send = self.fake_body('oauth_token=foo')
+        auth.send = self.fake_body("oauth_token=foo")
         with self.assertRaises(ValueError) as cm:
-            auth.fetch_access_token('https://example.com/token')
-        self.assertEqual('No client verifier has been set.', str(cm.exception))
+            auth.fetch_access_token("https://example.com/token")
+        self.assertEqual("No client verifier has been set.", str(cm.exception))
 
     def test_fetch_token_invalid_response(self):
-        auth = OAuth1Session('foo')
-        auth.send = self.fake_body('not valid urlencoded response!')
-        self.assertRaises(ValueError, auth.fetch_request_token,
-                'https://example.com/token')
+        auth = OAuth1Session("foo")
+        auth.send = self.fake_body("not valid urlencoded response!")
+        self.assertRaises(
+            ValueError, auth.fetch_request_token, "https://example.com/token"
+        )
 
         for code in (400, 401, 403):
-            auth.send = self.fake_body('valid=response', code)
+            auth.send = self.fake_body("valid=response", code)
             with self.assertRaises(ValueError) as cm:
-                auth.fetch_request_token('https://example.com/token')
+                auth.fetch_request_token("https://example.com/token")
             self.assertEqual(cm.exception.status_code, code)
             self.assertIsInstance(cm.exception.response, requests.Response)
 
     def test_fetch_access_token_missing_verifier(self):
-        self._test_fetch_access_token_raises_error(OAuth1Session('foo'))
+        self._test_fetch_access_token_raises_error(OAuth1Session("foo"))
 
     def test_fetch_access_token_has_verifier_is_none(self):
-        auth = OAuth1Session('foo')
+        auth = OAuth1Session("foo")
         del auth._client.client.verifier
         self._test_fetch_access_token_raises_error(auth)
 
     def test_token_proxy_set(self):
         token = {
-            'oauth_token': 'fake-key',
-            'oauth_token_secret': 'fake-secret',
-            'oauth_verifier': 'fake-verifier',
+            "oauth_token": "fake-key",
+            "oauth_token_secret": "fake-secret",
+            "oauth_verifier": "fake-verifier",
         }
-        sess = OAuth1Session('foo')
+        sess = OAuth1Session("foo")
         self.assertIsNone(sess._client.client.resource_owner_key)
         self.assertIsNone(sess._client.client.resource_owner_secret)
         self.assertIsNone(sess._client.client.verifier)
         self.assertEqual(sess.token, {})
 
         sess.token = token
-        self.assertEqual(sess._client.client.resource_owner_key, 'fake-key')
-        self.assertEqual(sess._client.client.resource_owner_secret, 'fake-secret')
-        self.assertEqual(sess._client.client.verifier, 'fake-verifier')
+        self.assertEqual(sess._client.client.resource_owner_key, "fake-key")
+        self.assertEqual(sess._client.client.resource_owner_secret, "fake-secret")
+        self.assertEqual(sess._client.client.verifier, "fake-verifier")
 
     def test_token_proxy_get(self):
         token = {
-            'oauth_token': 'fake-key',
-            'oauth_token_secret': 'fake-secret',
-            'oauth_verifier': 'fake-verifier',
+            "oauth_token": "fake-key",
+            "oauth_token_secret": "fake-secret",
+            "oauth_verifier": "fake-verifier",
         }
         sess = OAuth1Session(
-            'foo',
-            resource_owner_key=token['oauth_token'],
-            resource_owner_secret=token['oauth_token_secret'],
-            verifier=token['oauth_verifier'],
+            "foo",
+            resource_owner_key=token["oauth_token"],
+            resource_owner_secret=token["oauth_token_secret"],
+            verifier=token["oauth_verifier"],
         )
         self.assertEqual(sess.token, token)
 
         sess._client.client.resource_owner_key = "different-key"
-        token['oauth_token'] = "different-key"
+        token["oauth_token"] = "different-key"
 
         self.assertEqual(sess.token, token)
 
     def test_authorized_false(self):
-        sess = OAuth1Session('foo')
+        sess = OAuth1Session("foo")
         self.assertIs(sess.authorized, False)
 
     def test_authorized_false_rsa(self):
-        signature = ('OAuth '
+        signature = (
+            "OAuth "
             'oauth_nonce="abc", oauth_timestamp="123", oauth_version="1.0", '
             'oauth_signature_method="RSA-SHA1", oauth_consumer_key="foo", '
             'oauth_signature="{sig}"'
         ).format(sig=TEST_RSA_OAUTH_SIGNATURE)
-        sess = OAuth1Session('foo', signature_method=SIGNATURE_RSA,
-                             rsa_key=TEST_RSA_KEY)
+        sess = OAuth1Session(
+            "foo", signature_method=SIGNATURE_RSA, rsa_key=TEST_RSA_KEY
+        )
         sess.send = self.verify_signature(signature)
         self.assertIs(sess.authorized, False)
 
     def test_authorized_true(self):
-        sess = OAuth1Session('key', 'secret', verifier='bar')
-        sess.send = self.fake_body('oauth_token=foo&oauth_token_secret=bar')
-        sess.fetch_access_token('https://example.com/token')
+        sess = OAuth1Session("key", "secret", verifier="bar")
+        sess.send = self.fake_body("oauth_token=foo&oauth_token_secret=bar")
+        sess.fetch_access_token("https://example.com/token")
         self.assertIs(sess.authorized, True)
 
-    @mock.patch('oauthlib.oauth1.rfc5849.generate_timestamp')
-    @mock.patch('oauthlib.oauth1.rfc5849.generate_nonce')
+    @mock.patch("oauthlib.oauth1.rfc5849.generate_timestamp")
+    @mock.patch("oauthlib.oauth1.rfc5849.generate_nonce")
     def test_authorized_true_rsa(self, generate_nonce, generate_timestamp):
         if not cryptography:
-            raise unittest.SkipTest('cryptography module is required')
+            raise unittest.SkipTest("cryptography module is required")
         if not jwt:
-            raise unittest.SkipTest('pyjwt module is required')
+            raise unittest.SkipTest("pyjwt module is required")
 
-        generate_nonce.return_value = 'abc'
-        generate_timestamp.return_value = '123'
-        signature = ('OAuth '
+        generate_nonce.return_value = "abc"
+        generate_timestamp.return_value = "123"
+        signature = (
+            "OAuth "
             'oauth_nonce="abc", oauth_timestamp="123", oauth_version="1.0", '
             'oauth_signature_method="RSA-SHA1", oauth_consumer_key="foo", '
             'oauth_verifier="bar", oauth_signature="{sig}"'
         ).format(sig=TEST_RSA_OAUTH_SIGNATURE)
-        sess = OAuth1Session('key', 'secret', signature_method=SIGNATURE_RSA,
-                             rsa_key=TEST_RSA_KEY, verifier='bar')
-        sess.send = self.fake_body('oauth_token=foo&oauth_token_secret=bar')
-        sess.fetch_access_token('https://example.com/token')
+        sess = OAuth1Session(
+            "key",
+            "secret",
+            signature_method=SIGNATURE_RSA,
+            rsa_key=TEST_RSA_KEY,
+            verifier="bar",
+        )
+        sess.send = self.fake_body("oauth_token=foo&oauth_token_secret=bar")
+        sess.fetch_access_token("https://example.com/token")
         self.assertIs(sess.authorized, True)
 
     def verify_signature(self, signature):
         def fake_send(r, **kwargs):
-            auth_header = r.headers['Authorization']
+            auth_header = r.headers["Authorization"]
             if isinstance(auth_header, bytes):
-                auth_header = auth_header.decode('utf-8')
+                auth_header = auth_header.decode("utf-8")
             self.assertEqual(auth_header, signature)
             resp = mock.MagicMock(spec=requests.Response)
             resp.cookies = []
             return resp
+
         return fake_send
 
     def fake_body(self, body, status_code=200):
@@ -329,4 +344,5 @@ class OAuth1SessionTest(unittest.TestCase):
             resp.text = body
             resp.status_code = status_code
             return resp
+
         return fake_send
