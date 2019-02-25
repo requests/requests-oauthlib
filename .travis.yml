@@ -18,3 +18,11 @@ script:
   - coverage run --source=requests_oauthlib -m unittest discover
 after_success:
   - coveralls
+
+matrix:
+  include:
+  - name: "Black"
+    python: 3.7
+    install: travis_retry pip install black
+    script: black --check .
+    after_success: skip

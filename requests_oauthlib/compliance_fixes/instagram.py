@@ -18,10 +18,9 @@ def instagram_compliance_fix(session):
             # Nothing to do, just return.
             return url, headers, data
 
-        token = [('access_token', session.access_token)]
+        token = [("access_token", session.access_token)]
         url = add_params_to_uri(url, token)
         return url, headers, data
 
-    session.register_compliance_hook(
-        'protected_request', _non_compliant_param_name)
+    session.register_compliance_hook("protected_request", _non_compliant_param_name)
     return session
