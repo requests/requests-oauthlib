@@ -5,6 +5,7 @@ UNRELEASED
 ++++++++++
 
 - Instagram compliance fix
+- Added ``force_querystring`` argument to fetch_token() method on OAuth2Session
 
 v1.2.0 (14 January 2019)
 ++++++++++++++++++++++++

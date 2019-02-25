@@ -182,6 +182,7 @@ class OAuth2Session(requests.Session):
         username=None,
         password=None,
         method="POST",
+        force_querystring=False,
         timeout=None,
         headers=None,
         verify=True,
@@ -212,6 +213,8 @@ class OAuth2Session(requests.Session):
         :param method: The HTTP method used to make the request. Defaults
                        to POST, but may also be GET. Other methods should
                        be added as needed.
+        :param force_querystring: If True, force the request body to be sent
+            in the querystring instead.
         :param timeout: Timeout of the request in seconds.
         :param headers: Dict to default request headers with.
         :param verify: Verify SSL certificate.
@@ -320,33 +323,29 @@ class OAuth2Session(requests.Session):
             "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
         }
         self.token = {}
+        request_kwargs = {}
         if method.upper() == "POST":
-            r = self.post(
-                token_url,
-                data=dict(urldecode(body)),
-                timeout=timeout,
-                headers=headers,
-                auth=auth,
-                verify=verify,
-                proxies=proxies,
+            request_kwargs["params" if force_querystring else "data"] = dict(
+                urldecode(body)
             )
-            log.debug("Prepared fetch token request body %s", body)
         elif method.upper() == "GET":
-            # if method is not 'POST', switch body to querystring and GET
-            r = self.get(
-                token_url,
-                params=dict(urldecode(body)),
-                timeout=timeout,
-                headers=headers,
-                auth=auth,
-                verify=verify,
-                proxies=proxies,
-            )
-            log.debug("Prepared fetch token request querystring %s", body)
+            request_kwargs["params"] = dict(urldecode(body))
         else:
             raise ValueError("The method kwarg must be POST or GET.")
 
+        r = self.request(
+            method=method,
+            url=token_url,
+            timeout=timeout,
+            headers=headers,
+            auth=auth,
+            verify=verify,
+            proxies=proxies,
+            **request_kwargs
+        )
+
         log.debug("Request to fetch token completed with status %s.", r.status_code)
+        log.debug("Request url was %s", r.request.url)
         log.debug("Request headers were %s", r.request.headers)
         log.debug("Request body was %s", r.request.body)
         log.debug("Response headers were %s and content %s.", r.headers, r.text)
