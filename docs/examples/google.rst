@@ -13,7 +13,10 @@ a callback URL then you can try out the command line interactive example below.
     >>> client_id = '<the id you get from google>.apps.googleusercontent.com'
     >>> client_secret = '<the secret you get from google>'
     >>> redirect_uri = 'https://your.registered/callback'
-
+    
+    # just for development !!!
+    >>> os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+    
     >>> # OAuth endpoints given in the Google API documentation
     >>> authorization_base_url = "https://accounts.google.com/o/oauth2/v2/auth"
     >>> token_url = "https://www.googleapis.com/oauth2/v4/token"
@@ -37,7 +40,7 @@ a callback URL then you can try out the command line interactive example below.
 
     >>> # Fetch the access token
     >>> google.fetch_token(token_url, client_secret=client_secret,
-    ...         authorization_response=redirect_response)
+    ...         code=redirect_response)
 
     >>> # Fetch a protected resource, i.e. user profile
     >>> r = google.get('https://www.googleapis.com/oauth2/v1/userinfo')
