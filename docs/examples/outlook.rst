@@ -1,11 +1,9 @@
 Outlook Calendar OAuth 2 Tutorial
 ==========================
 
-Create a new web application client in the `Microsoft Application Registration Portal`_
+Create a new web application client in the `Microsoft application registration portal <https://go.microsoft.com/fwlink/?linkid=2083908>`_
 When you have obtained a ``client_id``, ``client_secret`` and registered
 a callback URL then you can try out the command line interactive example below.
-
-.. _`Outlook App console`: https://apps.dev.microsoft.com
 
 .. code-block:: pycon
 
