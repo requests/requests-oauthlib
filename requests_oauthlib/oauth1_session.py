@@ -344,7 +344,6 @@ class OAuth1Session(requests.Session):
         log.debug("Parsing token from query part of url %s", url)
         token = dict(urldecode(urlparse(url).query))
         log.debug("Updating internal client token attribute.")
-        self._populate_attributes(token)
         self.token = token
         return token
 
@@ -383,7 +382,6 @@ class OAuth1Session(requests.Session):
 
         log.debug("Obtained token %s", token)
         log.debug("Updating internal client attributes from token data.")
-        self._populate_attributes(token)
         self.token = token
         return token
 
