@@ -9,7 +9,7 @@ __version__ = "1.2.0"
 
 import requests
 
-if requests.__version__ < "2.0.0":
+if str(requests.__version__) < "2.0.0":
     msg = (
         "You are using requests version %s, which is older than "
         "requests-oauthlib expects, please upgrade to 2.0.0 or later."
