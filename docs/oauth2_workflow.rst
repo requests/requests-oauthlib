@@ -175,6 +175,7 @@ The steps below outline how to use the Resource Owner Client Credentials Grant T
     .. code-block:: pycon
 
         >>> from oauthlib.oauth2 import BackendApplicationClient
+        >>> from requests_oauthlib import OAuth2Session
         >>> client = BackendApplicationClient(client_id=client_id)
         >>> oauth = OAuth2Session(client=client)
         >>> token = oauth.fetch_token(token_url='https://provider.com/oauth2/token', client_id=client_id,
@@ -185,6 +186,7 @@ The steps below outline how to use the Resource Owner Client Credentials Grant T
     .. code-block:: pycon
 
         >>> from oauthlib.oauth2 import BackendApplicationClient
+        >>> from requests_oauthlib import OAuth2Session
         >>> from requests.auth import HTTPBasicAuth
         >>> auth = HTTPBasicAuth(client_id, client_secret)
         >>> client = BackendApplicationClient(client_id=client_id)
