@@ -255,7 +255,7 @@ class OAuth2Session(requests.Session):
         # to this function.
         # This check will allow for empty strings, but not `None`.
         #
-        # Refernences
+        # References
         # 4.3.2 - Resource Owner Password Credentials Grant
         #         https://tools.ietf.org/html/rfc6749#section-4.3.2
 
