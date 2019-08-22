@@ -267,7 +267,7 @@ class OAuth2Session(requests.Session):
                 )
             if password is None:
                 raise ValueError(
-                    "The required paramter `username` was supplied, "
+                    "The required parameter `username` was supplied, "
                     "but `password` was not."
                 )
 
