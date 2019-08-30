@@ -1,6 +1,5 @@
 from __future__ import unicode_literals, print_function
 import unittest
-import sys
 import requests
 from io import StringIO
 
@@ -22,11 +21,6 @@ try:
     import jwt
 except ImportError:
     jwt = None
-
-if sys.version[0] == "3":
-    unicode_type = str
-else:
-    unicode_type = unicode
 
 
 TEST_RSA_KEY = (
@@ -165,8 +159,8 @@ class OAuth1SessionTest(unittest.TestCase):
         self.assertEqual(resp["oauth_token"], "foo")
         self.assertEqual(resp["oauth_verifier"], "bar")
         for k, v in resp.items():
-            self.assertIsInstance(k, unicode_type)
-            self.assertIsInstance(v, unicode_type)
+            self.assertIsInstance(k, str)
+            self.assertIsInstance(v, str)
 
     def test_fetch_request_token(self):
         auth = OAuth1Session("foo")
@@ -174,8 +168,8 @@ class OAuth1SessionTest(unittest.TestCase):
         resp = auth.fetch_request_token("https://example.com/token")
         self.assertEqual(resp["oauth_token"], "foo")
         for k, v in resp.items():
-            self.assertIsInstance(k, unicode_type)
-            self.assertIsInstance(v, unicode_type)
+            self.assertIsInstance(k, str)
+            self.assertIsInstance(v, str)
 
     def test_fetch_request_token_with_optional_arguments(self):
         auth = OAuth1Session("foo")
@@ -185,8 +179,8 @@ class OAuth1SessionTest(unittest.TestCase):
         )
         self.assertEqual(resp["oauth_token"], "foo")
         for k, v in resp.items():
-            self.assertIsInstance(k, unicode_type)
-            self.assertIsInstance(v, unicode_type)
+            self.assertIsInstance(k, str)
+            self.assertIsInstance(v, str)
 
     def test_fetch_access_token(self):
         auth = OAuth1Session("foo", verifier="bar")
@@ -194,8 +188,8 @@ class OAuth1SessionTest(unittest.TestCase):
         resp = auth.fetch_access_token("https://example.com/token")
         self.assertEqual(resp["oauth_token"], "foo")
         for k, v in resp.items():
-            self.assertIsInstance(k, unicode_type)
-            self.assertIsInstance(v, unicode_type)
+            self.assertIsInstance(k, str)
+            self.assertIsInstance(v, str)
 
     def test_fetch_access_token_with_optional_arguments(self):
         auth = OAuth1Session("foo", verifier="bar")
@@ -205,8 +199,8 @@ class OAuth1SessionTest(unittest.TestCase):
         )
         self.assertEqual(resp["oauth_token"], "foo")
         for k, v in resp.items():
-            self.assertIsInstance(k, unicode_type)
-            self.assertIsInstance(v, unicode_type)
+            self.assertIsInstance(k, str)
+            self.assertIsInstance(v, str)
 
     def _test_fetch_access_token_raises_error(self, auth):
         """Assert that an error is being raised whenever there's no verifier
