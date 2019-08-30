@@ -30,7 +30,7 @@ def urldecode(body):
 
 class TokenRequestDenied(ValueError):
     def __init__(self, message, response):
-        super(TokenRequestDenied, self).__init__(message)
+        super().__init__(message)
         self.response = response
 
     @property
@@ -41,7 +41,7 @@ class TokenRequestDenied(ValueError):
 
 class TokenMissing(ValueError):
     def __init__(self, message, response):
-        super(TokenMissing, self).__init__(message)
+        super().__init__(message)
         self.response = response
 
 
@@ -154,7 +154,7 @@ class OAuth1Session(requests.Session):
                                    signature creation.
         :param **kwargs: Additional keyword arguments passed to `OAuth1`
         """
-        super(OAuth1Session, self).__init__()
+        super().__init__()
         self._client = OAuth1(
             client_key,
             client_secret=client_secret,

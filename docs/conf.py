@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # Requests-OAuthlib documentation build configuration file, created by
 # sphinx-quickstart on Fri May 10 11:49:01 2013.
 #
@@ -41,8 +39,8 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = u"Requests-OAuthlib"
-copyright = u"2014, Kenneth Reitz"
+project = "Requests-OAuthlib"
+copyright = "2014, Kenneth Reitz"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -188,8 +186,8 @@ latex_documents = [
     (
         "index",
         "Requests-OAuthlib.tex",
-        u"Requests-OAuthlib Documentation",
-        u"Requests-OAuthlib Contributors",
+        "Requests-OAuthlib Documentation",
+        "Requests-OAuthlib Contributors",
         "manual",
     )
 ]
@@ -223,8 +221,8 @@ man_pages = [
     (
         "index",
         "requests-oauthlib",
-        u"Requests-OAuthlib Documentation",
-        [u"Requests-OAuthlib Contributors"],
+        "Requests-OAuthlib Documentation",
+        ["Requests-OAuthlib Contributors"],
         1,
     )
 ]
@@ -242,8 +240,8 @@ texinfo_documents = [
     (
         "index",
         "Requests-OAuthlib",
-        u"Requests-OAuthlib Documentation",
-        u"Requests-OAuthlib Contributors",
+        "Requests-OAuthlib Documentation",
+        "Requests-OAuthlib Contributors",
         "Requests-OAuthlib",
         "One line description of project.",
         "Miscellaneous",

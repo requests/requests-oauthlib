@@ -13,7 +13,7 @@ log = logging.getLogger(__name__)
 
 class TokenUpdated(Warning):
     def __init__(self, token):
-        super(TokenUpdated, self).__init__()
+        super().__init__()
         self.token = token
 
 
@@ -74,7 +74,7 @@ class OAuth2Session(requests.Session):
                         in its token argument.
         :param kwargs: Arguments to pass to the Session constructor.
         """
-        super(OAuth2Session, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self._client = client or WebApplicationClient(client_id, token=token)
         self.token = token or {}
         self.scope = scope
@@ -512,9 +512,7 @@ class OAuth2Session(requests.Session):
         log.debug("Requesting url %s using method %s.", url, method)
         log.debug("Supplying headers %s and data %s", headers, data)
         log.debug("Passing through key word arguments %s.", kwargs)
-        return super(OAuth2Session, self).request(
-            method, url, headers=headers, data=data, **kwargs
-        )
+        return super().request(method, url, headers=headers, data=data, **kwargs)
 
     def register_compliance_hook(self, hook_type, hook):
         """Register a hook for request/response tweaking.
