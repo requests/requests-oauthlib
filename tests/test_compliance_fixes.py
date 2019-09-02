@@ -128,13 +128,6 @@ class LinkedInComplianceFixTest(TestCase):
         )
         self.assertEqual(token, {"access_token": "linkedin", "token_type": "Bearer"})
 
-    def test_protected_request(self):
-        self.session.token = {"access_token": "dummy-access-token"}
-        response = self.session.post("https://api.linkedin.com/v1/people/~/shares")
-        url = response.request.url
-        query = parse_qs(urlparse(url).query)
-        self.assertEqual(query["oauth2_access_token"], ["dummy-access-token"])
-
 
 class MailChimpComplianceFixTest(TestCase):
     def setUp(self):
