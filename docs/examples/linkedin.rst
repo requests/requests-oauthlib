@@ -14,26 +14,26 @@ command line interactive example below.
     >>> client_secret = '<the secret you get from linkedin>'
 
     >>> # OAuth endpoints given in the LinkedIn API documentation
-    >>> authorization_base_url = 'https://www.linkedin.com/uas/oauth2/authorization'
-    >>> token_url = 'https://www.linkedin.com/uas/oauth2/accessToken'
+    >>> authorization_base_url = 'https://www.linkedin.com/oauth/v2/authorization'
+    >>> token_url = 'https://www.linkedin.com/oauth/v2/accessToken'
 
     >>> from requests_oauthlib import OAuth2Session
     >>> from requests_oauthlib.compliance_fixes import linkedin_compliance_fix
 
-    >>> linkedin = OAuth2Session(client_id, redirect_uri='http://127.0.0.1')
+    >>> linkedin = OAuth2Session(client_id, redirect_uri='https://localhost/')
     >>> linkedin = linkedin_compliance_fix(linkedin)
 
     >>> # Redirect user to LinkedIn for authorization
     >>> authorization_url, state = linkedin.authorization_url(authorization_base_url)
-    >>> print 'Please go here and authorize,', authorization_url
+    >>> print('Please go here and authorize,', authorization_url)
 
     >>> # Get the authorization verifier code from the callback url
     >>> redirect_response = raw_input('Paste the full redirect URL here:')
 
     >>> # Fetch the access token
     >>> linkedin.fetch_token(token_url, client_secret=client_secret,
-    ...                      authorization_response=redirect_response)
+    ...                      authorization_response=redirect_response,include_client_id=True)
 
     >>> # Fetch a protected resource, i.e. user profile
-    >>> r = linkedin.get('https://api.linkedin.com/v1/people/~')
-    >>> print r.content
+    >>> r = linkedin.get('https://api.linkedin.com/v2/me')
+    >>> print(r.json())
