@@ -30,10 +30,10 @@ a callback URL then you can try out the command line interactive example below.
     ...     # offline for refresh token
     ...     # force to always make user click authorize
     ...     access_type="offline", prompt="select_account")
-    >>> print 'Please go here and authorize,', authorization_url
+    >>> print('Please go here and authorize:', authorization_url)
 
     >>> # Get the authorization verifier code from the callback url
-    >>> redirect_response = raw_input('Paste the full redirect URL here:')
+    >>> redirect_response = input('Paste the full redirect URL here: ')
 
     >>> # Fetch the access token
     >>> google.fetch_token(token_url, client_secret=client_secret,
@@ -41,4 +41,4 @@ a callback URL then you can try out the command line interactive example below.
 
     >>> # Fetch a protected resource, i.e. user profile
     >>> r = google.get('https://www.googleapis.com/oauth2/v1/userinfo')
-    >>> print r.content
+    >>> print(r.content)
