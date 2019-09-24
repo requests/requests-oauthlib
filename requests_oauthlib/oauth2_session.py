@@ -474,6 +474,10 @@ class OAuth2Session(requests.Session):
 
             log.debug("Adding token %s to request.", self.token)
             try:
+                old_version_url = url
+                # Chk for and remove duplicate access token value in url
+                if "&access_token=" in url:
+                    url = old_version_url
                 url, headers, data = self._client.add_token(
                     url, http_method=method, body=data, headers=headers
                 )
