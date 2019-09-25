@@ -464,20 +464,18 @@ class OAuth2Session(requests.Session):
         if not is_secure_transport(url):
             raise InsecureTransportError()
         if self.token and not withhold_token:
-            log.debug(
-                "Invoking %d protected resource request hooks.",
-                len(self.compliance_hook["protected_request"]),
-            )
-            for hook in self.compliance_hook["protected_request"]:
-                log.debug("Invoking hook %s.", hook)
-                url, headers, data = hook(url, headers, data)
-
             log.debug("Adding token %s to request.", self.token)
             try:
-                if "&oauth2_access_token=" not in url:
-                    url, headers, data = self._client.add_token(url, http_method=method, body=data, headers=headers)
-                else:
-                    log.debug("Duplicate token, access token %s not added to request.", self.token)
+                url, headers, data = self._client.add_token(url, http_method=method, body=data, headers=headers)
+                # Moving this compliance hook invocation until after the access_token is added and handling the
+                # token venacular within the compliance hook.
+                log.debug(
+                "Invoking %d protected resource request hooks.",
+                len(self.compliance_hook["protected_request"]),
+                )
+                for hook in self.compliance_hook["protected_request"]:
+                    log.debug("Invoking hook %s.", hook)
+                    url, headers, data = hook(url, headers, data)
                     
             # Attempt to retrieve and save new access token if expired
             except TokenExpiredError:
