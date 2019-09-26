@@ -7,18 +7,31 @@ def linkedin_compliance_fix(session):
     def _missing_token_type(r):
         token = loads(r.text)
         token["token_type"] = "Bearer"
-        r._content = to_unicode(dumps(token)).encode("UTF-8")
+        r._content = to_unicode(dumps(token)).encode(
+            "UTF-8"
+        )
         return r
 
     def _non_compliant_param_name(url, headers, data):
         if "&access_token=" in url:
-            url = url.replace("access_token", "oauth2_access_token")
+            url = url.replace(
+                "access_token", "oauth2_access_token"
+            )
         else:
-            token = [("oauth2_access_token", session.access_token)]
+            token = [
+                (
+                    "oauth2_access_token",
+                    session.access_token,
+                )
+            ]
             url = add_params_to_uri(url, token)
         return url, headers, data
 
     session._client.default_token_placement = "query"
-    session.register_compliance_hook("access_token_response", _missing_token_type)
-    session.register_compliance_hook("protected_request", _non_compliant_param_name)
+    session.register_compliance_hook(
+        "access_token_response", _missing_token_type
+    )
+    session.register_compliance_hook(
+        "protected_request", _non_compliant_param_name
+    )
     return session
