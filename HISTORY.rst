@@ -4,6 +4,11 @@ History
 UNRELEASED
 ++++++++++
 
+nothing yet
+
+v1.3.0 (6 November 2019)
+++++++++++++++++++++++++
+
 - Instagram compliance fix
 - Added ``force_querystring`` argument to fetch_token() method on OAuth2Session
 
