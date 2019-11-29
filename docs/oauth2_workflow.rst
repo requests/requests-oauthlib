@@ -288,4 +288,16 @@ however that you still need to update ``expires_in`` to trigger the refresh.
     ...     auto_refresh_kwargs=extra, token_updater=token_saver)
     >>> r = client.get(protected_url)
 
+TLS Client Authentication
+-------------------------
+
+To use TLS Client Authentication (draft-ietf-oauth-mtls) via a
+self-signed or CA-issued certificate, pass the certificate in the
+token request and ensure that the client id is sent in the request:
+
+.. code-block:: pycon
+
+   >>> oauth.fetch_token(token_url='https://somesite.com/oauth2/token',
+   ...     include_client_id=True, cert=('test-client.pem', 'test-client-key.pem'))
+
 .. _write this section: https://github.com/requests/requests-oauthlib/issues/48
