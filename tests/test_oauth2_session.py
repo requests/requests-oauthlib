@@ -79,11 +79,15 @@ class OAuth2SessionTest(TestCase):
             sess.get("https://i.b")
 
     def test_mtls(self):
-        cert = ('testsomething.example-client.pem', 'testsomething.example-client-key.pem')
+        cert = (
+            "testsomething.example-client.pem",
+            "testsomething.example-client-key.pem",
+        )
+
         def verifier(r, **kwargs):
-            self.assertIn('cert', kwargs)
-            self.assertEqual(cert, kwargs['cert'])
-            self.assertIn('client_id=' + self.client_id, r.body)
+            self.assertIn("cert", kwargs)
+            self.assertEqual(cert, kwargs["cert"])
+            self.assertIn("client_id=" + self.client_id, r.body)
             resp = mock.MagicMock()
             resp.text = json.dumps(self.token)
             return resp
@@ -91,11 +95,17 @@ class OAuth2SessionTest(TestCase):
         for client in self.clients:
             sess = OAuth2Session(client=client)
             sess.send = verifier
-            
+
             if isinstance(client, LegacyApplicationClient):
-                sess.fetch_token('https://i.b', include_client_id=True, cert=cert, username="username1", password="password1")
+                sess.fetch_token(
+                    "https://i.b",
+                    include_client_id=True,
+                    cert=cert,
+                    username="username1",
+                    password="password1",
+                )
             else:
-                sess.fetch_token('https://i.b', include_client_id=True, cert=cert)
+                sess.fetch_token("https://i.b", include_client_id=True, cert=cert)
 
     def test_authorization_url(self):
         url = "https://example.com/authorize?foo=bar"
