@@ -4,7 +4,7 @@ History
 UNRELEASED
 ++++++++++
 
-nothing yet
+- Add initial support for OAuth Mutual TLS (draft-ietf-oauth-mtls)
 
 v1.3.0 (6 November 2019)
 ++++++++++++++++++++++++
