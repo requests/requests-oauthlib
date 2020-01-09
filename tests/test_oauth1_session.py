@@ -23,7 +23,7 @@ try:
 except ImportError:
     jwt = None
 
-if sys.version[0] == "3":
+if sys.version_info[0] >= 3:
     unicode_type = str
 else:
     unicode_type = unicode
