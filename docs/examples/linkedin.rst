@@ -40,7 +40,9 @@ command line interactive example below.
     >>> redirect_response = input('Paste the full redirect URL here:')
 
     >>> # Fetch the access token
-    >>> linkedin.fetch_token(token_url,client_secret=client_secret,include_client_id=True,authorization_response=redirect_response)
+    >>> linkedin.fetch_token(token_url,client_secret=client_secret,
+    ...                      include_client_id=True,
+    ...                      authorization_response=redirect_response)
 
     >>> # Fetch a protected resource, i.e. user profile
     >>> r = linkedin.get('https://api.linkedin.com/v2/me')
