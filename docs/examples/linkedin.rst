@@ -40,7 +40,7 @@ command line interactive example below.
     >>> redirect_response = input('Paste the full redirect URL here:')
 
     >>> # Fetch the access token
-    >>> linkedin.fetch_token(token_url,client_secret=client_secret,
+    >>> linkedin.fetch_token(token_url, client_secret=client_secret,
     ...                      include_client_id=True,
     ...                      authorization_response=redirect_response)
 
