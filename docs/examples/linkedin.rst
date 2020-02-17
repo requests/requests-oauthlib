@@ -34,7 +34,7 @@ command line interactive example below.
 
     >>> # Redirect user to LinkedIn for authorization
     >>> authorization_url, state = linkedin.authorization_url(authorization_base_url)
-    >>> print("Please go here and authorize, {}".format(authorization_url))
+    >>> print(f"Please go here and authorize: {authorization_url}")
 
     >>> # Get the authorization verifier code from the callback url
     >>> redirect_response = input('Paste the full redirect URL here:')
