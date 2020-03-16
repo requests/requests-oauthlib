@@ -9,9 +9,9 @@ from oauthlib.oauth1 import SIGNATURE_RSA, SIGNATURE_PLAINTEXT
 from requests_oauthlib import OAuth1Session
 
 try:
-    import mock
-except ImportError:
     from unittest import mock
+except ImportError:
+    import mock
 
 try:
     import cryptography
