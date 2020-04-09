@@ -6,6 +6,9 @@ UNRELEASED
 
 - Add initial support for OAuth Mutual TLS (draft-ietf-oauth-mtls)
 - Removed outdated LinkedIn Compliance Fixes
+- ``OAuth2Session`` now honors the ``self.verify`` value if ``verify`` is not
+  overridden in ``fetch_token`` and ``refresh_token``. Fixes `#404
+  <https://github.com/requests/requests-oauthlib/issues/404>`_.
 
 v1.3.0 (6 November 2019)
 ++++++++++++++++++++++++
