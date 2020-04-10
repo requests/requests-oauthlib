@@ -6,6 +6,9 @@ UNRELEASED
 
 - Add initial support for OAuth Mutual TLS (draft-ietf-oauth-mtls)
 - Removed outdated LinkedIn Compliance Fixes
+- ``OAuth2Session`` constructor now uses its ``client.scope`` when a ``client``
+  is provided and ``scope`` is not overridden. Fixes `#408
+<https://github.com/requests/requests-oauthlib/issues/408>`_
 
 v1.3.0 (6 November 2019)
 ++++++++++++++++++++++++
