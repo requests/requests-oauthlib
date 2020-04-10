@@ -77,7 +77,7 @@ class OAuth2Session(requests.Session):
         super(OAuth2Session, self).__init__(**kwargs)
         self._client = client or WebApplicationClient(client_id, token=token)
         self.token = token or {}
-        self.scope = scope
+        self._scope = scope
         self.redirect_uri = redirect_uri
         self.state = state or generate_token
         self._state = state
@@ -96,6 +96,20 @@ class OAuth2Session(requests.Session):
             "refresh_token_response": set(),
             "protected_request": set(),
         }
+
+    @property
+    def scope(self):
+        """By default the scope from the client is used, except if overridden"""
+        if self._scope is not None:
+            return self._scope
+        elif self._client is not None:
+            return self._client.scope
+        else:
+            return None
+
+    @scope.setter
+    def scope(self, scope):
+        self._scope = scope
 
     def new_state(self):
         """Generates a state string to be used in authorizations."""
