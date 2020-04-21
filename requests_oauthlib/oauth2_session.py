@@ -419,12 +419,15 @@ class OAuth2Session(requests.Session):
         )
         kwargs.update(self.auto_refresh_kwargs)
 
-        auth = auth or kwargs.pop('auth', None)
-        client_id = kwargs.get('client_id')
-        client_secret = kwargs.get('client_secret', '')
+        auth = auth or kwargs.pop("auth", None)
+        client_id = kwargs.get("client_id")
+        client_secret = kwargs.get("client_secret", "")
 
         if client_id and (auth is None):
-            log.debug('Encoding client_id "%s" with client_secret as Basic auth credentials.', client_id)
+            log.debug(
+                'Encoding client_id "%s" with client_secret as Basic auth credentials.',
+                client_id,
+            )
             auth = requests.auth.HTTPBasicAuth(client_id, client_secret)
 
         body = self._client.prepare_refresh_body(
@@ -501,8 +504,10 @@ class OAuth2Session(requests.Session):
                     )
 
                     token = self.refresh_token(
-                        self.auto_refresh_url, client_id=client_id,
-                        client_secret=client_secret, **kwargs
+                        self.auto_refresh_url,
+                        client_id=client_id,
+                        client_secret=client_secret,
+                        **kwargs
                     )
                     if self.token_updater:
                         log.debug(
