@@ -203,8 +203,8 @@ methods of obtaining refresh tokens. All of these are dependant on you
 specifying an accurate ``expires_in`` in the token.
 
 ``expires_in`` is a credential given with the access and refresh token
-indiciating in how many seconds from now the access token expires. Commonly,
-access tokens expire after an hour an the ``expires_in`` would be ``3600``.
+indicating in how many seconds from now the access token expires. Commonly,
+access tokens expire after an hour and the ``expires_in`` would be ``3600``.
 Without this it is impossible for ``requests-oauthlib`` to know when a token
 is expired as the status code of a request failing due to token expiration is
 not defined.
