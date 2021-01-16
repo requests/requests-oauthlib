@@ -24,14 +24,14 @@ a callback URL then you can try out the command line interactive example below.
 
     >>> # Redirect  the user owner to the OAuth provider (i.e. Outlook) using an URL with a few key OAuth parameters.
     >>> authorization_url, state = outlook.authorization_url(authorization_base_url)
-    >>> print 'Please go here and authorize,', authorization_url
+    >>> print('Please go here and authorize,', authorization_url)
 
     >>> # Get the authorization verifier code from the callback url
-    >>> redirect_response = raw_input('Paste the full redirect URL here:')
+    >>> redirect_response = input('Paste the full redirect URL here:')
 
     >>> # Fetch the access token
     >>> token = outlook.fetch_token(token_url,client_secret=client_secret,authorization_response=redirect_response)
 
     >>> # Fetch a protected resource, i.e. calendar information
     >>> o = outlook.get('https://outlook.office.com/api/v1.0/me/calendars')
-    >>> print o.content
+    >>> print(o.content)
