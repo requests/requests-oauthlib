@@ -325,7 +325,7 @@ class OAuth2Session(requests.Session):
 
         headers = headers or {
             "Accept": "application/json",
-            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+            "Content-Type": "application/x-www-form-urlencoded",
         }
         self.token = {}
         request_kwargs = {}
@@ -426,7 +426,7 @@ class OAuth2Session(requests.Session):
         if headers is None:
             headers = {
                 "Accept": "application/json",
-                "Content-Type": ("application/x-www-form-urlencoded;charset=UTF-8"),
+                "Content-Type": ("application/x-www-form-urlencoded"),
             }
 
         r = self.post(
