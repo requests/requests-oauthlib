@@ -31,6 +31,7 @@ CODE = "asdf345xdf"
 def fake_token(token):
     def fake_send(r, **kwargs):
         resp = mock.MagicMock()
+        resp.status_code = 200
         resp.text = json.dumps(token)
         return resp
 
@@ -70,6 +71,7 @@ class OAuth2SessionTest(TestCase):
             auth_header = r.headers.get(str("Authorization"), None)
             self.assertEqual(auth_header, token)
             resp = mock.MagicMock()
+            resp.status_code = 200
             resp.cookes = []
             return resp
 
@@ -89,6 +91,7 @@ class OAuth2SessionTest(TestCase):
             self.assertEqual(cert, kwargs["cert"])
             self.assertIn("client_id=" + self.client_id, r.body)
             resp = mock.MagicMock()
+            resp.status_code = 200
             resp.text = json.dumps(self.token)
             return resp
 
@@ -134,6 +137,7 @@ class OAuth2SessionTest(TestCase):
             if "/refresh" in r.url:
                 self.assertNotIn("Authorization", r.headers)
             resp = mock.MagicMock()
+            resp.status_code = 200
             resp.text = json.dumps(self.token)
             return resp
 
@@ -177,6 +181,7 @@ class OAuth2SessionTest(TestCase):
                 content = "Basic {encoded}".format(encoded=encoded.decode("latin1"))
                 self.assertEqual(r.headers["Authorization"], content)
             resp = mock.MagicMock()
+            resp.status_code = 200
             resp.text = json.dumps(self.token)
             return resp
 
@@ -263,6 +268,7 @@ class OAuth2SessionTest(TestCase):
         def fake_token_history(token):
             def fake_send(r, **kwargs):
                 resp = mock.MagicMock()
+                resp.status_code = 200
                 resp.text = json.dumps(token)
                 _fetch_history.append(
                     (r.url, r.body, r.headers.get("Authorization", None))
@@ -470,6 +476,7 @@ class OAuth2SessionTest(TestCase):
         def fake_token(token):
             def fake_send(r, **kwargs):
                 resp = mock.MagicMock()
+                resp.status_code = 200
                 resp.text = json.dumps(token)
                 return resp
 
