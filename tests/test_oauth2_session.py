@@ -22,16 +22,17 @@ from requests_oauthlib import OAuth2Session, TokenUpdated
 import requests
 
 from requests.auth import _basic_auth_str
+from requests.exceptions import HTTPError
 
 
 fake_time = time.time()
 CODE = "asdf345xdf"
 
 
-def fake_token(token):
+def fake_token(token, status_code=200):
     def fake_send(r, **kwargs):
         resp = mock.MagicMock()
-        resp.status_code = 200
+        resp.status_code = status_code
         resp.text = json.dumps(token)
         return resp
 
@@ -133,11 +134,11 @@ class OAuth2SessionTest(TestCase):
         self.expired_token["expires_in"] = "-1"
         del self.expired_token["expires_at"]
 
-        def fake_refresh(r, **kwargs):
+        def fake_refresh(r, status_code=200, **kwargs):
             if "/refresh" in r.url:
                 self.assertNotIn("Authorization", r.headers)
             resp = mock.MagicMock()
-            resp.status_code = 200
+            resp.status_code = status_code
             resp.text = json.dumps(self.token)
             return resp
 
@@ -169,6 +170,19 @@ class OAuth2SessionTest(TestCase):
             )
             sess.send = fake_refresh
             sess.get("https://i.b")
+
+        # test 5xx error handler
+        for client in self.clients:
+            sess = OAuth2Session(
+                client=client,
+                token=self.expired_token,
+                auto_refresh_url="https://i.b/refresh",
+                token_updater=token_updater,
+            )
+            sess.send = lambda r, **kwargs: fake_refresh(
+                r=r, status_code=503, kwargs=kwargs
+            )
+            self.assertRaises(HTTPError, sess.get, "https://i.b")
 
         def fake_refresh_with_auth(r, **kwargs):
             if "/refresh" in r.url:
@@ -255,6 +269,23 @@ class OAuth2SessionTest(TestCase):
                 )
             else:
                 self.assertRaises(OAuth2Error, sess.fetch_token, url)
+
+        # test 5xx error responses
+        error = {"error": "server error!"}
+        for client in self.clients:
+            sess = OAuth2Session(client=client, token=self.token)
+            sess.send = fake_token(error, status_code=500)
+            if isinstance(client, LegacyApplicationClient):
+                # this client requires a username+password
+                self.assertRaises(
+                    HTTPError,
+                    sess.fetch_token,
+                    url,
+                    username="username1",
+                    password="password1",
+                )
+            else:
+                self.assertRaises(HTTPError, sess.fetch_token, url)
 
         # there are different scenarios in which the `client_id` can be specified
         # reference `oauthlib.tests.oauth2.rfc6749.clients.test_web_application.WebApplicationClientTest.test_prepare_request_body`
