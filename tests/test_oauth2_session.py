@@ -543,7 +543,7 @@ class OAuth2SessionTest(TestCase):
             fake_resp = mock.MagicMock()
             fake_resp.status_code = 504
             fake_resp.reason = reason_bytes
-            reason_unicode = "¡An error occurred!"
+            reason_unicode = "\u00A1An error occurred!"
             fake_resp.url = "https://example.com/token"
             expected = (
                 "504 Server Error: " + reason_unicode + " for url: " + fake_resp.url
