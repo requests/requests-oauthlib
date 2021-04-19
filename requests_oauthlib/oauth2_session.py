@@ -544,7 +544,8 @@ class OAuth2Session(requests.Session):
             )
         self.compliance_hook[hook_type].add(hook)
 
-    def _raise_for_5xx(self, response: requests.models.Response) -> None:
+    def _raise_for_5xx(self, response):
+        # type: (requests.models.Response) -> None
         """
         Raise requests.HTTPError if response is an HTTP 5XX error.
 
