@@ -535,6 +535,31 @@ class OAuth2SessionTest(TestCase):
                 sess.fetch_token(url)
             self.assertTrue(sess.authorized)
 
+    def test_raise_for_5xx(self):
+        for reason_bytes in [
+            b"\xa1An error occurred!",  # iso-8859-i
+            b"\xc2\xa1An error occurred!",  # utf-8
+        ]:
+            fake_resp = mock.MagicMock()
+            fake_resp.status_code = 504
+            fake_resp.reason = reason_bytes
+            reason_unicode = "¡An error occurred!"
+            fake_resp.url = "https://example.com/token"
+            expected = (
+                "504 Server Error: " + reason_unicode + " for url: " + fake_resp.url
+            )
+
+            # Make sure our expected unicode string literal is indeed unicode
+            # in both py2 and py3
+            self.assertEqual(reason_unicode[0].encode("utf-8"), b"\xc2\xa1")
+
+            sess = OAuth2Session("test-id")
+
+            with self.assertRaises(HTTPError) as cm:
+                sess._raise_for_5xx(fake_resp)
+
+            self.assertEqual(cm.exception.args[0], expected)
+
 
 class OAuth2SessionNetrcTest(OAuth2SessionTest):
     """Ensure that there is no magic auth handling.
