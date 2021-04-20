@@ -17,6 +17,10 @@ jobs:
             tox-env: py36
           - python-version: 3.7
             tox-env: py37,docs,readme,black
+          - python-version: 3.8
+            tox-env: py38
+          - python-version: 3.9
+            tox-env: py39
           - python-version: pypy3
             tox-env: pypy3
     steps:
