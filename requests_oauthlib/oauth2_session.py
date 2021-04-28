@@ -85,10 +85,6 @@ class OAuth2Session(requests.Session):
         self.auto_refresh_kwargs = auto_refresh_kwargs or {}
         self.token_updater = token_updater
 
-        # Ensure that requests doesn't do any automatic auth. See #278.
-        # The default behavior can be re-enabled by setting auth to None.
-        self.auth = lambda r: r
-
         # Allow customizations for non compliant providers through various
         # hooks to adjust requests and responses.
         self.compliance_hook = {
@@ -96,6 +92,11 @@ class OAuth2Session(requests.Session):
             "refresh_token_response": set(),
             "protected_request": set(),
         }
+
+    def auth(self, r):
+        # Ensure that requests doesn't do any automatic auth. See #278.
+        # The default behavior can be re-enabled by setting auth to None.
+        return r
 
     def new_state(self):
         """Generates a state string to be used in authorizations."""

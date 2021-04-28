@@ -7,6 +7,7 @@ import os
 from base64 import b64encode
 from copy import deepcopy
 from unittest import TestCase
+import pickle
 
 try:
     import mock
@@ -496,6 +497,13 @@ class OAuth2SessionTest(TestCase):
             else:
                 sess.fetch_token(url)
             self.assertTrue(sess.authorized)
+
+    def test_pickle_session(self):
+        url = "https://example.com/token"
+
+        for client in self.clients:
+            sess = OAuth2Session(client=client)
+            self.assertTrue(pickle.dumps(sess) is not None)
 
 
 class OAuth2SessionNetrcTest(OAuth2SessionTest):
