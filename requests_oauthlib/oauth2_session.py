@@ -390,6 +390,7 @@ class OAuth2Session(requests.Session):
         headers=None,
         verify=True,
         proxies=None,
+        scope=self.scope,
         **kwargs
     ):
         """Fetch a new access token using a refresh token.
@@ -403,6 +404,8 @@ class OAuth2Session(requests.Session):
         :param headers: A dict of headers to be used by `requests`.
         :param verify: Verify SSL certificate.
         :param proxies: The `proxies` argument will be passed to `requests`.
+        :param scope: The scope of the refreshed token, 
+                      Must be None, equal to, or a subset of the original token
         :param kwargs: Extra parameters to include in the token request.
         :return: A token dict
         """
@@ -419,7 +422,7 @@ class OAuth2Session(requests.Session):
         )
         kwargs.update(self.auto_refresh_kwargs)
         body = self._client.prepare_refresh_body(
-            body=body, refresh_token=refresh_token, scope=self.scope, **kwargs
+            body=body, refresh_token=refresh_token, scope=scope, **kwargs
         )
         log.debug("Prepared refresh token request body %s", body)
 
