@@ -390,7 +390,7 @@ class OAuth2Session(requests.Session):
         headers=None,
         verify=True,
         proxies=None,
-        scope=self.scope,
+        scope=1,
         **kwargs
     ):
         """Fetch a new access token using a refresh token.
@@ -421,6 +421,8 @@ class OAuth2Session(requests.Session):
             "Adding auto refresh key word arguments %s.", self.auto_refresh_kwargs
         )
         kwargs.update(self.auto_refresh_kwargs)
+        if scope == 1:
+            scope = self.scope
         body = self._client.prepare_refresh_body(
             body=body, refresh_token=refresh_token, scope=scope, **kwargs
         )
