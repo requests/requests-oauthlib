@@ -14,6 +14,8 @@ install:
   - pip install -r requirements.txt
   - pip install requests-mock
   - pip install coveralls
+env:
+  - CRYPTOGRAPHY_ALLOW_OPENSSL_102=1
 script:
   - coverage run --source=requests_oauthlib -m unittest discover
 after_success:

@@ -2,21 +2,22 @@
 from __future__ import unicode_literals
 
 import logging
+import sys
 
 from oauthlib.common import extract_params
 from oauthlib.oauth1 import Client, SIGNATURE_HMAC, SIGNATURE_TYPE_AUTH_HEADER
 from oauthlib.oauth1 import SIGNATURE_TYPE_BODY
-from requests.compat import is_py3
 from requests.utils import to_native_string
 from requests.auth import AuthBase
 
 CONTENT_TYPE_FORM_URLENCODED = "application/x-www-form-urlencoded"
 CONTENT_TYPE_MULTI_PART = "multipart/form-data"
 
-if is_py3:
+if sys.version_info[0] >= 3:
     unicode = str
 
 log = logging.getLogger(__name__)
+
 
 # OBS!: Correct signing of requests are conditional on invoking OAuth1
 # as the last step of preparing a request, or at least having the
