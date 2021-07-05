@@ -230,9 +230,9 @@ class OAuth2Session(requests.Session):
                               `auth` tuple. If the value is `None`, it will be
                               omitted from the request, however if the value is
                               an empty string, an empty string will be sent.
-        :param cert: Client certificate to send for OAuth 2.0 Mutual-TLS Client 
-                     Authentication (draft-ietf-oauth-mtls). Can either be the 
-                     path of a file containing the private key and certificate or 
+        :param cert: Client certificate to send for OAuth 2.0 Mutual-TLS Client
+                     Authentication (draft-ietf-oauth-mtls). Can either be the
+                     path of a file containing the private key and certificate or
                      a tuple of two filenames for certificate and key.
         :param kwargs: Extra parameters to include in the token request.
         :return: A token dict
@@ -404,7 +404,7 @@ class OAuth2Session(requests.Session):
         :param headers: A dict of headers to be used by `requests`.
         :param verify: Verify SSL certificate.
         :param proxies: The `proxies` argument will be passed to `requests`.
-        :param scope: The scope of the refreshed token, 
+        :param scope: The scope of the refreshed token,
                       Must be None, equal to, or a subset of the original token
         :param kwargs: Extra parameters to include in the token request.
         :return: A token dict
