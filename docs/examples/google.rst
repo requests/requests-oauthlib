@@ -18,6 +18,7 @@ a callback URL then you can try out the command line interactive example below.
     >>> authorization_base_url = "https://accounts.google.com/o/oauth2/v2/auth"
     >>> token_url = "https://www.googleapis.com/oauth2/v4/token"
     >>> scope = [
+    ...     "openid",
     ...     "https://www.googleapis.com/auth/userinfo.email",
     ...     "https://www.googleapis.com/auth/userinfo.profile"
     ... ]
