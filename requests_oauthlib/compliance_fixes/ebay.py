@@ -4,7 +4,7 @@ from oauthlib.common import to_unicode
 
 def ebay_compliance_fix(session):
     def _compliance_fix(response):
-        token = json.loads(response.content)
+        token = json.loads(response.text)
 
         # eBay responds with non-compliant token types.
         # https://developer.ebay.com/api-docs/static/oauth-client-credentials-grant.html
