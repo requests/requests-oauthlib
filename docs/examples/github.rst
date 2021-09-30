@@ -22,7 +22,7 @@ command line interactive example below.
 
     >>> # Redirect user to GitHub for authorization
     >>> authorization_url, state = github.authorization_url(authorization_base_url)
-    >>> print 'Please go here and authorize,', authorization_url
+    >>> print('Please go here and authorize,', authorization_url)
 
     >>> # Get the authorization verifier code from the callback url
     >>> redirect_response = raw_input('Paste the full redirect URL here:')
