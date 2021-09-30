@@ -18,6 +18,6 @@ def ebay_compliance_fix(session):
         return response
 
     session.register_compliance_hook("access_token_response", _compliance_fix)
-    session.register_compliance_hook('refresh_token_response', _compliance_fix)
+    session.register_compliance_hook("refresh_token_response", _compliance_fix)
 
     return session
