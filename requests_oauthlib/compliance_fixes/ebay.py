@@ -10,7 +10,7 @@ def ebay_compliance_fix(session):
         # https://developer.ebay.com/api-docs/static/oauth-client-credentials-grant.html
         # https://developer.ebay.com/api-docs/static/oauth-auth-code-grant-request.html
         # Modify these to be "Bearer".
-        if token["token_type"] in ["Application Access Token", "User Access Token"]:
+        if token.get("token_type") in ["Application Access Token", "User Access Token"]:
             token["token_type"] = "Bearer"
             fixed_token = json.dumps(token)
             response._content = to_unicode(fixed_token).encode("utf-8")
