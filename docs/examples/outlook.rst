@@ -1,5 +1,5 @@
 Outlook Calendar OAuth 2 Tutorial
-==========================
+=================================
 
 Create a new web application client in the `Microsoft Application Registration Portal`_
 When you have obtained a ``client_id``, ``client_secret`` and registered
