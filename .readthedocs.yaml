@@ -7,7 +7,7 @@ build:
 sphinx:
   builder: html
   configuration: docs/conf.py
-  fail_on_warning: true
+  # fail_on_warning: true
 # the requirements.txt override some RTD defaults.
 # ideally it has to be updated from time to time
 # with latest libraries versions.
