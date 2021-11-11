@@ -38,6 +38,7 @@ setup(
     version=VERSION,
     description="OAuthlib authentication support for Requests.",
     long_description=readall("README.rst") + "\n\n" + readall("HISTORY.rst"),
+    long_description_content_type="text/x-rst",
     author="Kenneth Reitz",
     author_email="me@kennethreitz.com",
     url="https://github.com/requests/requests-oauthlib",
