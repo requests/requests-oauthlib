@@ -5,8 +5,14 @@ build:
   tools:
     python: "3.7"
 sphinx:
-   configuration: docs/conf.py
-# Optionally declare the Python requirements required to build your docs
+  builder: html
+  configuration: docs/conf.py
+  fail_on_warning: true
+# the requirements.txt override some RTD defaults.
+# ideally it has to be updated from time to time
+# with latest libraries versions.
 python:
    install:
    - requirements: docs/requirements.txt
+   - method: setuptools
+     path: .

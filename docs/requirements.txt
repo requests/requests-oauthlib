@@ -1,3 +1,4 @@
-sphinx
-docutils<=0.15
-sphinx_rtd_theme
+sphinx<2
+docutils<=0.15  # docutils 0.16 has an error when generating in api.rst
+sphinx_rtd_theme<0.5
+readthedocs-sphinx-ext
