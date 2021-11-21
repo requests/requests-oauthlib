@@ -40,7 +40,7 @@ for whom you wish to retrieve resources for. You can read all about this in the
 full `OAuth 2 workflow guide on RTD <https://requests-oauthlib.readthedocs.io/en/latest/oauth2_workflow.html>`_.
 
 Installation
--------------
+++++++++++++
 
 To install requests and requests_oauthlib you can use pip:
 
