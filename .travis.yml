@@ -24,7 +24,14 @@ matrix:
 before_install:
   - python -m pip install --upgrade pip setuptools
   - python -m pip install tox coveralls
-  script:
+script:
   - tox
 after_success:
   - COVERALLS_PARALLEL=true coveralls
+notifications:
+  webhooks:
+    urls:
+    - https://coveralls.io/webhook
+    on_success: always
+    on_failure: always
+    on_start: never
