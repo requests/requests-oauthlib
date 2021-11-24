@@ -30,7 +30,7 @@ jobs:
         python -m pip install --upgrade pip setuptools
         python -m pip install tox
     - name: Install coveralls dependencies
-      if: ${{ matrix.python-version != "2.7" }}
+      if: ${{ matrix.python-version != '2.7' }}
       run: |
         python -m pip install coveralls coverage-lcov toml
     - name: Execute tests with tox
@@ -39,13 +39,13 @@ jobs:
       run: |
         tox
     - name: Coverage format into lcov
-      if: ${{ matrix.python-version != "2.7" }}
+      if: ${{ matrix.python-version != '2.7' }}
       run: |
         python -m pip install coverage_lc
         coverage-lcov --output_file_path lcov.info
     - name: Coveralls Parallel
       uses: coverallsapp/github-action@master
-      if: ${{ matrix.python-version != "2.7" }}
+      if: ${{ matrix.python-version != '2.7' }}
       with:
         github-token: ${{ secrets.github_token }}
         flag-name: run-${{ matrix.python-version }}
