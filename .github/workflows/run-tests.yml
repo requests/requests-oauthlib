@@ -1,4 +1,4 @@
-name: requests-oauthlib tests
+name: Run Tests
 on:
   push:
     branches: [ master ]
