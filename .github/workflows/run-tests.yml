@@ -37,7 +37,7 @@ jobs:
         python -m pip install tox coveralls
     - name: Execute tests with tox
       env:
-        TOX_ENV=${{ matrix.tox-env }}
+        TOX_ENV: ${{ matrix.tox-env }}
       run: |
         tox
     - name: Coveralls Parallel
