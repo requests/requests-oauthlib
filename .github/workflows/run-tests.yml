@@ -21,9 +21,9 @@ jobs:
             tox-env: py36
           - python-version: 3.7
             tox-env: py37,docs,readme,black
-          - python-version: pypy2.7
+          - python-version: pypy
             tox-env: pypy
-          - python-version: pypy3.7
+          - python-version: pypy3
             tox-env: pypy3
     steps:
     - uses: actions/checkout@v2
