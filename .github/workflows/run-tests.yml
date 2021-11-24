@@ -35,8 +35,9 @@ jobs:
       run: |
         tox
     - name: Coveralls Parallel
-      uses: AndreMiras/coveralls-python-action@develop
+      uses: coverallsapp/github-action@master
       with:
+        fail_ci_if_error: true
         github-token: ${{ secrets.github_token }}
         flag-name: run-${{ matrix.python-version }}
         parallel: true
@@ -45,6 +46,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Coveralls Finished
-      uses: AndreMiras/coveralls-python-action@develop
+      uses: coverallsapp/github-action@master
       with:
+        github-token: ${{ secrets.github_token }}
         parallel-finished: true
