@@ -40,7 +40,7 @@ jobs:
         github-token: ${{ secrets.github_token }}
         flag-name: run-${{ matrix.python-version }}
         parallel: true
-  finish:
+  coverage:
     needs: tests
     runs-on: ubuntu-latest
     steps:
@@ -49,6 +49,10 @@ jobs:
         python -m pip install coverage-lcov toml
         mkdir coverage
         coverage-lcov --output_file_path coverage/lcov.info
+  finish:
+    needs: coverage
+    runs-on: ubuntu-latest
+    steps:
     - name: Coveralls Finished
       uses: coverallsapp/github-action@master
       with:
