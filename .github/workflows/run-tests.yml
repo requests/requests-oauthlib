@@ -47,10 +47,10 @@ jobs:
     - name: Convert into lcov
       run: |
         python -m pip install coverage-lcov toml
-        coverage-lcov
+        mkdir coverage
+        coverage-lcov --output_file_path coverage/lcov.info
     - name: Coveralls Finished
       uses: coverallsapp/github-action@master
       with:
-        path-to-lcov: ./lcov.info
         github-token: ${{ secrets.github_token }}
         parallel-finished: true
