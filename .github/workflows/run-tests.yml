@@ -43,7 +43,7 @@ jobs:
       run: |
         coverage-lcov --output_file_path lcov.info
     - name: Coveralls Parallel
-      uses: coverallsapp/github-action@master
+      uses: coverallsapp/github-action@1.1.3
       if: ${{ matrix.python-version != '2.7' }}
       with:
         github-token: ${{ secrets.github_token }}
