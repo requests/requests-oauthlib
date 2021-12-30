@@ -30,7 +30,7 @@ a callback URL then you can try out the command line interactive example below.
     >>> redirect_response = input('Paste the full redirect URL here:')
 
     >>> # Fetch the access token
-    >>> token = outlook.fetch_token(token_url,client_secret=client_secret,authorization_response=redirect_response)
+    >>> token = outlook.fetch_token(token_url, client_secret=client_secret, authorization_response=redirect_response)
 
     >>> # Fetch a protected resource, i.e. calendar information
     >>> o = outlook.get('https://outlook.office.com/api/v1.0/me/calendars')
