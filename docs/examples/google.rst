@@ -1,8 +1,8 @@
 Google OAuth 2 Tutorial
 ==========================
 
-Setup a new web project in the `Google Cloud Console`_
-When you have obtained a ``client_id``, ``client_secret`` and registered
+Setup a new web project in the `Google Cloud Console`, (application type: web application)_
+When you have obtained a ``client_id``, ``client_secret``, and registered
 a callback URL then you can try out the command line interactive example below.
 
 .. _`Google Cloud Console`: https://cloud.google.com/console/project
@@ -10,7 +10,7 @@ a callback URL then you can try out the command line interactive example below.
 .. code-block:: pycon
 
     >>> # Credentials you get from registering a new application
-    >>> client_id = '<the id you get from google>.apps.googleusercontent.com'
+    >>> client_id = '<the id you get from google>'
     >>> client_secret = '<the secret you get from google>'
     >>> redirect_uri = 'https://your.registered/callback'
 
