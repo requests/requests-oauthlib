@@ -33,7 +33,6 @@ class TokenRequestDenied(ValueError):
         super(TokenRequestDenied, self).__init__(message)
         self.response = response
 
-    @property
     def status_code(self):
         """For backwards-compatibility purposes"""
         return self.response.status_code
@@ -171,7 +170,6 @@ class OAuth1Session(requests.Session):
         )
         self.auth = self._client
 
-    @property
     def token(self):
         oauth_token = self._client.client.resource_owner_key
         oauth_token_secret = self._client.client.resource_owner_secret
@@ -191,7 +189,6 @@ class OAuth1Session(requests.Session):
     def token(self, value):
         self._populate_attributes(value)
 
-    @property
     def authorized(self):
         """Boolean that indicates whether this session has an OAuth token
         or not. If `self.authorized` is True, you can reasonably expect
