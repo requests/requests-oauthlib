@@ -23,3 +23,4 @@ Patches and Suggestions
 - kracekumar <me@kracekumar.com>
 - David Baumgold <david@davidbaumgold.com>
 - Craig Anderson <craiga@craiga.id.au>
+- Hugo van Kemenade <https://github.com/hugovk>

@@ -6,6 +6,7 @@ UNRELEASED
 
 - Add initial support for OAuth Mutual TLS (draft-ietf-oauth-mtls)
 - Removed outdated LinkedIn Compliance Fixes
+- Add support for Python 3.8-3.10
 
 v1.3.0 (6 November 2019)
 ++++++++++++++++++++++++
