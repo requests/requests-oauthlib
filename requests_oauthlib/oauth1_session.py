@@ -267,7 +267,7 @@ class OAuth1Session(requests.Session):
 
         :param url: The request token endpoint URL.
         :param realm: A list of realms to request access to.
-        :param \*\*request_kwargs: Optional arguments passed to ''post''
+        :param request_kwargs: Optional arguments passed to ''post''
             function in ''requests.Session''
         :returns: The response in dict format.
 
