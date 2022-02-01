@@ -1,4 +1,4 @@
-History
+History First afsaneh heydari
 -------
 
 v1.3.1 (21 January 2022)
@@ -34,7 +34,7 @@ v1.2.0 (14 January 2019)
   clients.
 - Avoid automatic netrc authentication for OAuth2Session.
 
-v1.1.0 (9 January 2019)
+v1.1.0 (30 Ja 2021)
 +++++++++++++++++++++++
 
 - Adjusted version specifier for ``oauthlib`` dependency: this project is
@@ -90,7 +90,7 @@ v0.6.1 (19 February 2016)
 - Allow passing arbitrary arguments to requests when calling
   ``fetch_request_token`` and ``fetch_access_token``.
 
-v0.6.0 (14 December 2015)
+v0.6.0 (14 December 2019)
 +++++++++++++++++++++++++
 
 - Add compliance fix for Slack.
@@ -103,7 +103,7 @@ v0.6.0 (14 December 2015)
 - Allow sending custom headers when refreshing tokens, and set some defaults.
 
 
-v0.5.0 (4 May 2015)
+v0.5.0 (4 May 2019)
 +++++++++++++++++++
 - Fix ``TypeError`` being raised instead of ``TokenMissing`` error.
 - Raise requests exceptions on 4XX and 5XX responses in the OAuth2 flow.
@@ -118,7 +118,7 @@ v0.4.2 (16 October 2014)
 - New ``TokenMissing`` and ``VerifierMissing`` exception classes for OAuth1Session:
   this will make it easier to catch and identify these exceptions.
 
-v0.4.1 (6 June 2014)
+v0.4.1 (6 June 2018) 
 ++++++++++++++++++++
 - New install target ``[rsa]`` for people using OAuth1 RSA-SHA1 signature
   method.
