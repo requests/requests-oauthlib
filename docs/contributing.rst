@@ -48,7 +48,27 @@ In order to run successfully, you will need all versions of Python installed. We
    $ pyenv install pypy2.7-7.1.1
    $ pyenv install pypy3.6-7.1.1
 
+
+Publishing a release (for maintainer role)
+==========================================
+
+Maintainer tasks should always be kept to minimum. Once a release is ready, the suggested approach can be followed:
+
+#. Create new branch release-X.Y.Z
+#. Update the HISTORY.rst file
+#. Update the `request_oauthlib/__init__.py`
+#. Raise a pull request to give a chance for all contributors to comment before publishing
+#. Create a TAG vX.Y.Z. By doing this, the pipeline will automatically trigger `twine` and will publish the release to PyPi.
+
+Once verified, complete by doing the following:
+
+#. Create a GitHub release vX.Y.Z in the Releases tab.
+#. Activate the vX.Y.Z version in the documentation (`ReadTheDocs`_)
+#. Merge the PR into master branch.
+
+That's all.
+
 .. _`tox`: https://tox.readthedocs.io/en/latest/install.html
 .. _`virtualenv`: https://virtualenv.pypa.io/en/latest/installation/
 .. _`pyenv`: https://github.com/pyenv/pyenv
-
+.. _`ReadTheDocs`: https://readthedocs.org/projects/requests-oauthlib/versions/
