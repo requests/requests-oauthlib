@@ -14,12 +14,12 @@ from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
 from requests_oauthlib import OAuth2Session
 from requests_oauthlib.compliance_fixes import facebook_compliance_fix
 from requests_oauthlib.compliance_fixes import fitbit_compliance_fix
-from requests_oauthlib.compliance_fixes import linkedin_compliance_fix
 from requests_oauthlib.compliance_fixes import mailchimp_compliance_fix
 from requests_oauthlib.compliance_fixes import weibo_compliance_fix
 from requests_oauthlib.compliance_fixes import slack_compliance_fix
 from requests_oauthlib.compliance_fixes import instagram_compliance_fix
 from requests_oauthlib.compliance_fixes import plentymarkets_compliance_fix
+from requests_oauthlib.compliance_fixes import ebay_compliance_fix
 
 
 class FacebookComplianceFixTest(TestCase):
@@ -97,43 +97,6 @@ class FitbitComplianceFixTest(TestCase):
 
         self.assertEqual(token["access_token"], "access")
         self.assertEqual(token["refresh_token"], "refresh")
-
-
-class LinkedInComplianceFixTest(TestCase):
-    def setUp(self):
-        mocker = requests_mock.Mocker()
-        mocker.post(
-            "https://www.linkedin.com/uas/oauth2/accessToken",
-            json={"access_token": "linkedin"},
-        )
-        mocker.post(
-            "https://api.linkedin.com/v1/people/~/shares",
-            status_code=201,
-            json={
-                "updateKey": "UPDATE-3346389-595113200",
-                "updateUrl": "https://www.linkedin.com/updates?discuss=abc&scope=xyz",
-            },
-        )
-        mocker.start()
-        self.addCleanup(mocker.stop)
-
-        linkedin = OAuth2Session("someclientid", redirect_uri="https://i.b")
-        self.session = linkedin_compliance_fix(linkedin)
-
-    def test_fetch_access_token(self):
-        token = self.session.fetch_token(
-            "https://www.linkedin.com/uas/oauth2/accessToken",
-            client_secret="someclientsecret",
-            authorization_response="https://i.b/?code=hello",
-        )
-        self.assertEqual(token, {"access_token": "linkedin", "token_type": "Bearer"})
-
-    def test_protected_request(self):
-        self.session.token = {"access_token": "dummy-access-token"}
-        response = self.session.post("https://api.linkedin.com/v1/people/~/shares")
-        url = response.request.url
-        query = parse_qs(urlparse(url).query)
-        self.assertEqual(query["oauth2_access_token"], ["dummy-access-token"])
 
 
 class MailChimpComplianceFixTest(TestCase):
@@ -343,3 +306,29 @@ class PlentymarketsComplianceFixTest(TestCase):
                 "refresh_token": "iG2kBGIjcXaRE4xmTVUnv7xwxX7XMcWCHqJmFaSX",
             },
         )
+
+
+class EbayComplianceFixTest(TestCase):
+    def setUp(self):
+        mocker = requests_mock.Mocker()
+        mocker.post(
+            "https://api.ebay.com/identity/v1/oauth2/token",
+            json={
+                "access_token": "this is the access token",
+                "expires_in": 7200,
+                "token_type": "Application Access Token",
+            },
+            headers={"Content-Type": "application/json"},
+        )
+        mocker.start()
+        self.addCleanup(mocker.stop)
+
+        session = OAuth2Session()
+        self.fixed_session = ebay_compliance_fix(session)
+
+    def test_fetch_access_token(self):
+        token = self.fixed_session.fetch_token(
+            "https://api.ebay.com/identity/v1/oauth2/token",
+            authorization_response="https://i.b/?code=hello",
+        )
+        assert token["token_type"] == "Bearer"

@@ -22,3 +22,4 @@ Patches and Suggestions
 - Vinay Raikar <rockraikar@gmail.com>
 - kracekumar <me@kracekumar.com>
 - David Baumgold <david@davidbaumgold.com>
+- Craig Anderson <craiga@craiga.id.au>

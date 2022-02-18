@@ -1,8 +1,19 @@
 History
 -------
 
-UNRELEASED
-++++++++++
+v1.3.1 (21 January 2022)
+++++++++++++++++++++++++
+
+- Add initial support for OAuth Mutual TLS (draft-ietf-oauth-mtls)
+- Add eBay compliance fix
+- Add Spotify OAuth 2 Tutorial
+- Add support for python 3.8, 3.9
+- Fixed LinkedIn Compliance Fixes
+- Fixed ReadTheDocs Documentation and sphinx errors
+- Moved pipeline to GitHub Actions
+
+v1.3.0 (6 November 2019)
+++++++++++++++++++++++++
 
 - Instagram compliance fix
 - Added ``force_querystring`` argument to fetch_token() method on OAuth2Session

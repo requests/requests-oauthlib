@@ -175,6 +175,7 @@ The steps below outline how to use the Resource Owner Client Credentials Grant T
     .. code-block:: pycon
 
         >>> from oauthlib.oauth2 import BackendApplicationClient
+        >>> from requests_oauthlib import OAuth2Session
         >>> client = BackendApplicationClient(client_id=client_id)
         >>> oauth = OAuth2Session(client=client)
         >>> token = oauth.fetch_token(token_url='https://provider.com/oauth2/token', client_id=client_id,
@@ -185,6 +186,7 @@ The steps below outline how to use the Resource Owner Client Credentials Grant T
     .. code-block:: pycon
 
         >>> from oauthlib.oauth2 import BackendApplicationClient
+        >>> from requests_oauthlib import OAuth2Session
         >>> from requests.auth import HTTPBasicAuth
         >>> auth = HTTPBasicAuth(client_id, client_secret)
         >>> client = BackendApplicationClient(client_id=client_id)
@@ -201,8 +203,8 @@ methods of obtaining refresh tokens. All of these are dependant on you
 specifying an accurate ``expires_in`` in the token.
 
 ``expires_in`` is a credential given with the access and refresh token
-indiciating in how many seconds from now the access token expires. Commonly,
-access tokens expire after an hour an the ``expires_in`` would be ``3600``.
+indicating in how many seconds from now the access token expires. Commonly,
+access tokens expire after an hour and the ``expires_in`` would be ``3600``.
 Without this it is impossible for ``requests-oauthlib`` to know when a token
 is expired as the status code of a request failing due to token expiration is
 not defined.
@@ -285,5 +287,17 @@ however that you still need to update ``expires_in`` to trigger the refresh.
     >>> client = OAuth2Session(client_id, token=token, auto_refresh_url=refresh_url,
     ...     auto_refresh_kwargs=extra, token_updater=token_saver)
     >>> r = client.get(protected_url)
+
+TLS Client Authentication
+-------------------------
+
+To use TLS Client Authentication (draft-ietf-oauth-mtls) via a
+self-signed or CA-issued certificate, pass the certificate in the
+token request and ensure that the client id is sent in the request:
+
+.. code-block:: pycon
+
+   >>> oauth.fetch_token(token_url='https://somesite.com/oauth2/token',
+   ...     include_client_id=True, cert=('test-client.pem', 'test-client-key.pem'))
 
 .. _write this section: https://github.com/requests/requests-oauthlib/issues/48
