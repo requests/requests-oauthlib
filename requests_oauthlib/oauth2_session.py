@@ -96,6 +96,7 @@ class OAuth2Session(requests.Session):
             "refresh_token_response": set(),
             "protected_request": set(),
             "refresh_token_request": set(),
+            "access_token_request": set(),
         }
 
     def new_state(self):
@@ -538,6 +539,7 @@ class OAuth2Session(requests.Session):
             access_token_response invoked before token parsing.
             refresh_token_response invoked before refresh token parsing.
             protected_request invoked before making a request.
+            access_token_request invoked before making a token fetch request.
             refresh_token_request invoked before making a refresh request.
 
         If you find a new hook is needed please send a GitHub PR request
