@@ -58,7 +58,7 @@ Installation
 
 Requests-OAuthlib can be installed with `pip <https://pip.pypa.io/>`_: ::
 
-    $ pip install requests_oauthlib
+    $ pip install requests-oauthlib
 
 
 Getting Started:
@@ -72,6 +72,7 @@ Getting Started:
    examples/examples
 
    api
+   contributing
 
 
 

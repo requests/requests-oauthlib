@@ -22,3 +22,6 @@ Patches and Suggestions
 - Vinay Raikar <rockraikar@gmail.com>
 - kracekumar <me@kracekumar.com>
 - David Baumgold <david@davidbaumgold.com>
+- Sylvain Marie <sylvain.marie@se.com>
+- Craig Anderson <craiga@craiga.id.au>
+- Hugo van Kemenade <https://github.com/hugovk>
