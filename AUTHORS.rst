@@ -23,3 +23,4 @@ Patches and Suggestions
 - kracekumar <me@kracekumar.com>
 - David Baumgold <david@davidbaumgold.com>
 - Sylvain Marie <sylvain.marie@se.com>
+- Craig Anderson <craiga@craiga.id.au>

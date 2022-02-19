@@ -48,8 +48,8 @@ To install requests and requests_oauthlib you can use pip:
 
     $ pip install requests requests_oauthlib
 
-.. |build-status| image:: https://travis-ci.org/requests/requests-oauthlib.svg?branch=master
-   :target: https://travis-ci.org/requests/requests-oauthlib
+.. |build-status| image:: https://github.com/requests/requests-oauthlib/actions/workflows/run-tests.yml/badge.svg
+   :target: https://github.com/requests/requests-oauthlib/actions
 .. |coverage-status| image:: https://img.shields.io/coveralls/requests/requests-oauthlib.svg
    :target: https://coveralls.io/r/requests/requests-oauthlib
 .. |docs| image:: https://readthedocs.org/projects/requests-oauthlib/badge/

@@ -1,14 +1,23 @@
 History
 -------
 
-UNRELEASED
-++++++++++
-
-- Add initial support for OAuth Mutual TLS (draft-ietf-oauth-mtls)
-- Removed outdated LinkedIn Compliance Fixes
+v1.3.2 (TBD)
+++++++++++++++++++++++++
 - ``OAuth2Session`` now correctly uses the ``self.verify`` value if ``verify``
   is not overridden in ``fetch_token`` and ``refresh_token``. Fixes `#404
   <https://github.com/requests/requests-oauthlib/issues/404>`_.
+
+v1.3.1 (21 January 2022)
+++++++++++++++++++++++++
+
+- Add initial support for OAuth Mutual TLS (draft-ietf-oauth-mtls)
+- Removed outdated LinkedIn Compliance Fixes
+- Add eBay compliance fix
+- Add Spotify OAuth 2 Tutorial
+- Add support for python 3.8, 3.9
+- Fixed LinkedIn Compliance Fixes
+- Fixed ReadTheDocs Documentation and sphinx errors
+- Moved pipeline to GitHub Actions
 
 v1.3.0 (6 November 2019)
 ++++++++++++++++++++++++

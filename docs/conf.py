@@ -41,8 +41,8 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = u"Requests-OAuthlib"
-copyright = u"2014, Kenneth Reitz"
+project = "Requests-OAuthlib"
+copyright = "2014, Kenneth Reitz"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -95,7 +95,7 @@ pygments_style = "sphinx"
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = "default"
+html_theme = "sphinx_rtd_theme"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -124,7 +124,7 @@ html_theme = "default"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ["_static"]
+# html_static_path = ["_static"]
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
@@ -188,8 +188,8 @@ latex_documents = [
     (
         "index",
         "Requests-OAuthlib.tex",
-        u"Requests-OAuthlib Documentation",
-        u"Requests-OAuthlib Contributors",
+        "Requests-OAuthlib Documentation",
+        "Requests-OAuthlib Contributors",
         "manual",
     )
 ]
@@ -223,8 +223,8 @@ man_pages = [
     (
         "index",
         "requests-oauthlib",
-        u"Requests-OAuthlib Documentation",
-        [u"Requests-OAuthlib Contributors"],
+        "Requests-OAuthlib Documentation",
+        ["Requests-OAuthlib Contributors"],
         1,
     )
 ]
@@ -242,8 +242,8 @@ texinfo_documents = [
     (
         "index",
         "Requests-OAuthlib",
-        u"Requests-OAuthlib Documentation",
-        u"Requests-OAuthlib Contributors",
+        "Requests-OAuthlib Documentation",
+        "Requests-OAuthlib Contributors",
         "Requests-OAuthlib",
         "One line description of project.",
         "Miscellaneous",
