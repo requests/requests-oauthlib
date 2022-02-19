@@ -7,3 +7,4 @@ from .instagram import instagram_compliance_fix
 from .mailchimp import mailchimp_compliance_fix
 from .weibo import weibo_compliance_fix
 from .plentymarkets import plentymarkets_compliance_fix
+from .ebay import ebay_compliance_fix
