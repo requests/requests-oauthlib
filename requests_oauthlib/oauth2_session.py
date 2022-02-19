@@ -185,7 +185,7 @@ class OAuth2Session(requests.Session):
         force_querystring=False,
         timeout=None,
         headers=None,
-        verify=True,
+        verify=None,
         proxies=None,
         include_client_id=None,
         client_secret=None,
@@ -388,7 +388,7 @@ class OAuth2Session(requests.Session):
         auth=None,
         timeout=None,
         headers=None,
-        verify=True,
+        verify=None,
         proxies=None,
         **kwargs
     ):
