@@ -8,9 +8,9 @@ from io import StringIO
 import unittest
 
 try:
-    import mock
-except ImportError:
     from unittest import mock
+except ImportError:
+    import mock
 
 
 @mock.patch("oauthlib.oauth1.rfc5849.generate_timestamp")

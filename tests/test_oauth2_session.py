@@ -9,9 +9,9 @@ from copy import deepcopy
 from unittest import TestCase
 
 try:
-    import mock
-except ImportError:
     from unittest import mock
+except ImportError:
+    import mock
 
 from oauthlib.common import urlencode
 from oauthlib.oauth2 import TokenExpiredError, OAuth2Error
