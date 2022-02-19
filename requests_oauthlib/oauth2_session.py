@@ -478,6 +478,7 @@ class OAuth2Session(requests.Session):
         withhold_token=False,
         client_id=None,
         client_secret=None,
+        files=None,
         **kwargs
     ):
         """Intercept all requests and add the OAuth 2 token if present."""
@@ -533,7 +534,7 @@ class OAuth2Session(requests.Session):
         log.debug("Supplying headers %s and data %s", headers, data)
         log.debug("Passing through key word arguments %s.", kwargs)
         return super(OAuth2Session, self).request(
-            method, url, headers=headers, data=data, **kwargs
+            method, url, headers=headers, data=data, files=files, **kwargs
         )
 
     def register_compliance_hook(self, hook_type, hook):
