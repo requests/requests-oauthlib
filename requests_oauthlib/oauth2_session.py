@@ -77,7 +77,7 @@ class OAuth2Session(requests.Session):
         super(OAuth2Session, self).__init__(**kwargs)
         self._client = client or WebApplicationClient(client_id, token=token)
         self.token = token or {}
-        self.scope = scope
+        self._scope = scope
         self.redirect_uri = redirect_uri
         self.state = state or generate_token
         self._state = state
@@ -96,6 +96,20 @@ class OAuth2Session(requests.Session):
             "refresh_token_response": set(),
             "protected_request": set(),
         }
+
+    @property
+    def scope(self):
+        """By default the scope from the client is used, except if overridden"""
+        if self._scope is not None:
+            return self._scope
+        elif self._client is not None:
+            return self._client.scope
+        else:
+            return None
+
+    @scope.setter
+    def scope(self, scope):
+        self._scope = scope
 
     def new_state(self):
         """Generates a state string to be used in authorizations."""
@@ -185,7 +199,7 @@ class OAuth2Session(requests.Session):
         force_querystring=False,
         timeout=None,
         headers=None,
-        verify=True,
+        verify=None,
         proxies=None,
         include_client_id=None,
         client_secret=None,
@@ -325,7 +339,7 @@ class OAuth2Session(requests.Session):
 
         headers = headers or {
             "Accept": "application/json",
-            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+            "Content-Type": "application/x-www-form-urlencoded",
         }
         self.token = {}
         request_kwargs = {}
@@ -388,7 +402,7 @@ class OAuth2Session(requests.Session):
         auth=None,
         timeout=None,
         headers=None,
-        verify=True,
+        verify=None,
         proxies=None,
         **kwargs
     ):
@@ -426,7 +440,7 @@ class OAuth2Session(requests.Session):
         if headers is None:
             headers = {
                 "Accept": "application/json",
-                "Content-Type": ("application/x-www-form-urlencoded;charset=UTF-8"),
+                "Content-Type": ("application/x-www-form-urlencoded"),
             }
 
         r = self.post(
@@ -464,6 +478,7 @@ class OAuth2Session(requests.Session):
         withhold_token=False,
         client_id=None,
         client_secret=None,
+        files=None,
         **kwargs
     ):
         """Intercept all requests and add the OAuth 2 token if present."""
@@ -519,7 +534,7 @@ class OAuth2Session(requests.Session):
         log.debug("Supplying headers %s and data %s", headers, data)
         log.debug("Passing through key word arguments %s.", kwargs)
         return super(OAuth2Session, self).request(
-            method, url, headers=headers, data=data, **kwargs
+            method, url, headers=headers, data=data, files=files, **kwargs
         )
 
     def register_compliance_hook(self, hook_type, hook):
