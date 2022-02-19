@@ -6,6 +6,9 @@ v1.3.2 (TBD)
 - ``OAuth2Session`` now correctly uses the ``self.verify`` value if ``verify``
   is not overridden in ``fetch_token`` and ``refresh_token``. Fixes `#404
   <https://github.com/requests/requests-oauthlib/issues/404>`_.
+- ``OAuth2Session`` constructor now uses its ``client.scope`` when a ``client``
+  is provided and ``scope`` is not overridden. Fixes `#408
+  <https://github.com/requests/requests-oauthlib/issues/408>`_
 
 v1.3.1 (21 January 2022)
 ++++++++++++++++++++++++
