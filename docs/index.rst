@@ -72,6 +72,7 @@ Getting Started:
    examples/examples
 
    api
+   contributing
 
 
 

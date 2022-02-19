@@ -19,6 +19,7 @@ from requests_oauthlib.compliance_fixes import weibo_compliance_fix
 from requests_oauthlib.compliance_fixes import slack_compliance_fix
 from requests_oauthlib.compliance_fixes import instagram_compliance_fix
 from requests_oauthlib.compliance_fixes import plentymarkets_compliance_fix
+from requests_oauthlib.compliance_fixes import ebay_compliance_fix
 
 
 class FacebookComplianceFixTest(TestCase):
@@ -305,3 +306,29 @@ class PlentymarketsComplianceFixTest(TestCase):
                 "refresh_token": "iG2kBGIjcXaRE4xmTVUnv7xwxX7XMcWCHqJmFaSX",
             },
         )
+
+
+class EbayComplianceFixTest(TestCase):
+    def setUp(self):
+        mocker = requests_mock.Mocker()
+        mocker.post(
+            "https://api.ebay.com/identity/v1/oauth2/token",
+            json={
+                "access_token": "this is the access token",
+                "expires_in": 7200,
+                "token_type": "Application Access Token",
+            },
+            headers={"Content-Type": "application/json"},
+        )
+        mocker.start()
+        self.addCleanup(mocker.stop)
+
+        session = OAuth2Session()
+        self.fixed_session = ebay_compliance_fix(session)
+
+    def test_fetch_access_token(self):
+        token = self.fixed_session.fetch_token(
+            "https://api.ebay.com/identity/v1/oauth2/token",
+            authorization_response="https://i.b/?code=hello",
+        )
+        assert token["token_type"] == "Bearer"
