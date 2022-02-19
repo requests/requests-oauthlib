@@ -24,3 +24,4 @@ Patches and Suggestions
 - David Baumgold <david@davidbaumgold.com>
 - Sylvain Marie <sylvain.marie@se.com>
 - Craig Anderson <craiga@craiga.id.au>
+- Hugo van Kemenade <https://github.com/hugovk>
