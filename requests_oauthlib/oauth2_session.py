@@ -356,7 +356,9 @@ class OAuth2Session(requests.Session):
             
         for hook in self.compliance_hook["access_token_request"]:
             log.debug("Invoking access_token_request hook %s.", hook)
-            token_url, headers, request_kwargs = hook(token_url, headers, request_kwargs)
+            token_url, headers, request_kwargs = hook(
+                token_url, headers, request_kwargs
+            )
 
         r = self.request(
             method=method,
