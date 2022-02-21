@@ -334,7 +334,7 @@ class EbayComplianceFixTest(TestCase):
         assert token["token_type"] == "Bearer"
 
 
-def access_and_refresh_token_request_compliance_fix_test(session, client_secret: str):
+def access_and_refresh_token_request_compliance_fix_test(session, client_secret):
     def _non_compliant_header(url, headers, body):
         headers["X-Client-Secret"] = client_secret
         return url, headers, body
@@ -373,7 +373,9 @@ class RefreshTokenRequestComplianceFixTest(TestCase):
         self.addCleanup(mocker.stop)
 
         session = OAuth2Session()
-        self.fixed_session = access_and_refresh_token_request_compliance_fix_test(session, self.value_to_test_for)
+        self.fixed_session = access_and_refresh_token_request_compliance_fix_test(
+            session, self.value_to_test_for
+        )
 
     def test_access_token(self):
         token = self.fixed_session.fetch_token(
