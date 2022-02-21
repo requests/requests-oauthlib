@@ -10,7 +10,13 @@ v1.4.0 (TBD)
   is provided and ``scope`` is not overridden. Fixes `#408
   <https://github.com/requests/requests-oauthlib/issues/408>`_
 - Add support for Python 3.8-3.10
+- Remove Linkedin compliance fix.
 
+
+v1.3.2 (20 February 2022)
++++++++++++++++++++++++++
+
+- Revert Linkined compliances fix, add deprecation warning.
 
 v1.3.1 (21 January 2022)
 ++++++++++++++++++++++++

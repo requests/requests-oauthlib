@@ -1,2 +1,3 @@
 requests>=2.0.0
 oauthlib[signedtoken]>=3.0.0
+Python-Deprecated==1.1.0

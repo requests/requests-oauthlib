@@ -2,7 +2,10 @@ from json import loads, dumps
 
 from oauthlib.common import add_params_to_uri, to_unicode
 
+from deprecated import deprecated
 
+
+@deprecated("This compliance hook will be removed in version 1.4")
 def linkedin_compliance_fix(session):
     def _missing_token_type(r):
         token = loads(r.text)
