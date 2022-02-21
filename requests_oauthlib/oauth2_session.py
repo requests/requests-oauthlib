@@ -95,6 +95,8 @@ class OAuth2Session(requests.Session):
             "access_token_response": set(),
             "refresh_token_response": set(),
             "protected_request": set(),
+            "refresh_token_request": set(),
+            "access_token_request": set(),
         }
 
     @property
@@ -352,6 +354,12 @@ class OAuth2Session(requests.Session):
         else:
             raise ValueError("The method kwarg must be POST or GET.")
 
+        for hook in self.compliance_hook["access_token_request"]:
+            log.debug("Invoking access_token_request hook %s.", hook)
+            token_url, headers, request_kwargs = hook(
+                token_url, headers, request_kwargs
+            )
+
         r = self.request(
             method=method,
             url=token_url,
@@ -442,6 +450,10 @@ class OAuth2Session(requests.Session):
                 "Accept": "application/json",
                 "Content-Type": ("application/x-www-form-urlencoded"),
             }
+
+        for hook in self.compliance_hook["refresh_token_request"]:
+            log.debug("Invoking refresh_token_request hook %s.", hook)
+            token_url, headers, body = hook(token_url, headers, body)
 
         r = self.post(
             token_url,
@@ -544,6 +556,8 @@ class OAuth2Session(requests.Session):
             access_token_response invoked before token parsing.
             refresh_token_response invoked before refresh token parsing.
             protected_request invoked before making a request.
+            access_token_request invoked before making a token fetch request.
+            refresh_token_request invoked before making a refresh request.
 
         If you find a new hook is needed please send a GitHub PR request
         or open an issue.
