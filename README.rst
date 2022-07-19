@@ -1,7 +1,7 @@
 Requests-OAuthlib |build-status| |coverage-status| |docs|
 =========================================================
 
-This project provides first-class OAuth library support for `Requests <http://python-requests.org>`_.
+This project provides first-class OAuth library support for `Requests <https://requests.readthedocs.io>`_.
 
 The OAuth 1 workflow
 --------------------
