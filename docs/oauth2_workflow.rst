@@ -199,7 +199,7 @@ Refreshing tokens
 Certain providers will give you a ``refresh_token`` along with the
 ``access_token``. These can be used to directly fetch new access tokens without
 going through the normal OAuth workflow. ``requests-oauthlib`` provides three
-methods of obtaining refresh tokens. All of these are dependant on you
+methods of obtaining refresh tokens. All of these are dependent on you
 specifying an accurate ``expires_in`` in the token.
 
 ``expires_in`` is a credential given with the access and refresh token
