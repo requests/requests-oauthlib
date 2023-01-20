@@ -503,7 +503,7 @@ class OAuth2Session(requests.Session):
                 )
             # Attempt to retrieve and save new access token if expired
             except TokenExpiredError:
-                if self.auto_refresh_url:
+                if self.auto_refresh_url and 'refresh_token' in self.token:
                     log.debug(
                         "Auto refresh is set, attempting to refresh at %s.",
                         self.auto_refresh_url,
