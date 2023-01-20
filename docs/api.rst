@@ -26,9 +26,6 @@ OAuth 2.0
 .. autoclass:: OAuth2
     :members:
 
-.. autoclass:: TokenUpdated
-    :members:
-
 
 OAuth 2.0 Session
 -----------------

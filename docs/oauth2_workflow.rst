@@ -257,29 +257,27 @@ is necessary but refreshing is done manually.
     >>> client = OAuth2Session(client_id, token=token)
     >>> r = client.get(protected_url)
 
-(Second) Define automatic token refresh automatic but update manually
+(Second) Define automatic token refresh; no external update required.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This is the, arguably awkward, middle between the basic and convenient refresh
-methods in which a token is automatically refreshed, but saving the new token
-is done manually.
+Use this when the application does not need to take any action when the token
+is updated. It requires no exception catching and results in clean code.
+Remember however that you still need to update ``expires_in`` to trigger the
+refresh. And be sure to save ``client.token`` before destroying ``client``.
 
 .. code-block:: pycon
 
-    >>> from requests_oauthlib import OAuth2Session, TokenUpdated
-    >>> try:
-    ...     client = OAuth2Session(client_id, token=token,
-    ...             auto_refresh_kwargs=extra, auto_refresh_url=refresh_url)
-    ...     r = client.get(protected_url)
-    >>> except TokenUpdated as e:
-    ...     token_saver(e.token)
+    >>> from requests_oauthlib import OAuth2Session
+    >>> client = OAuth2Session(client_id, token=token,
+    ...         auto_refresh_kwargs=extra, auto_refresh_url=refresh_url)
+    >>> r = client.get(protected_url)
 
-(Third, Recommended) Define automatic token refresh and update
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+(Third) Define automatic token refresh with external update
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The third and recommended method will automatically fetch refresh tokens and
-save them. It requires no exception catching and results in clean code. Remember
-however that you still need to update ``expires_in`` to trigger the refresh.
+The third method is the same as the second, only with a custom token update
+handler. Use this if your application needs to react immediately to a change in
+access token.
 
 .. code-block:: pycon
 

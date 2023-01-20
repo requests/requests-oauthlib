@@ -11,12 +11,6 @@ import requests
 log = logging.getLogger(__name__)
 
 
-class TokenUpdated(Warning):
-    def __init__(self, token):
-        super(TokenUpdated, self).__init__()
-        self.token = token
-
-
 class OAuth2Session(requests.Session):
     """Versatile OAuth 2 extension to :class:`requests.Session`.
 
@@ -68,10 +62,7 @@ class OAuth2Session(requests.Session):
         :auto_refresh_kwargs: Extra arguments to pass to the refresh token
                               endpoint.
         :token_updater: Method with one argument, token, to be used to update
-                        your token database on automatic token refresh. If not
-                        set a TokenUpdated warning will be raised when a token
-                        has been refreshed. This warning will carry the token
-                        in its token argument.
+                        your token database on automatic token refresh.
         :param kwargs: Arguments to pass to the Session constructor.
         """
         super(OAuth2Session, self).__init__(**kwargs)
@@ -534,11 +525,9 @@ class OAuth2Session(requests.Session):
                             "Updating token to %s using %s.", token, self.token_updater
                         )
                         self.token_updater(token)
-                        url, headers, data = self._client.add_token(
-                            url, http_method=method, body=data, headers=headers
-                        )
-                    else:
-                        raise TokenUpdated(token)
+                    url, headers, data = self._client.add_token(
+                        url, http_method=method, body=data, headers=headers
+                    )
                 else:
                     raise
 

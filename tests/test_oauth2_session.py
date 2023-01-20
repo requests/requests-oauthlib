@@ -18,7 +18,7 @@ from oauthlib.oauth2 import TokenExpiredError, OAuth2Error
 from oauthlib.oauth2 import MismatchingStateError
 from oauthlib.oauth2 import WebApplicationClient, MobileApplicationClient
 from oauthlib.oauth2 import LegacyApplicationClient, BackendApplicationClient
-from requests_oauthlib import OAuth2Session, TokenUpdated
+from requests_oauthlib import OAuth2Session
 import requests
 
 from requests.auth import _basic_auth_str
@@ -141,16 +141,6 @@ class OAuth2SessionTest(TestCase):
         for client in self.clients:
             sess = OAuth2Session(client=client, token=self.expired_token)
             self.assertRaises(TokenExpiredError, sess.get, "https://i.b")
-
-        # Auto refresh but no auto update
-        for client in self.clients:
-            sess = OAuth2Session(
-                client=client,
-                token=self.expired_token,
-                auto_refresh_url="https://i.b/refresh",
-            )
-            sess.send = fake_refresh
-            self.assertRaises(TokenUpdated, sess.get, "https://i.b")
 
         # Auto refresh and auto update
         def token_updater(token):
