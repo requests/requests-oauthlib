@@ -18,6 +18,7 @@ if is_py3:
 
 log = logging.getLogger(__name__)
 
+
 # OBS!: Correct signing of requests are conditional on invoking OAuth1
 # as the last step of preparing a request, or at least having the
 # content-type set properly.
@@ -42,7 +43,6 @@ class OAuth1(AuthBase):
         force_include_body=False,
         **kwargs
     ):
-
         try:
             signature_type = signature_type.upper()
         except AttributeError:
