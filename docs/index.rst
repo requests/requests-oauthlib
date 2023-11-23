@@ -22,7 +22,7 @@ approximately like this:
 
     from requests_oauthlib import OAuth2Session
 
-    from flask import Flask, request, redirect, session, url_for
+    from flask import Flask, request, redirect, session
     from flask.json import jsonify
 
     # This information is obtained upon registration of a new GitHub
@@ -30,6 +30,10 @@ approximately like this:
     client_secret = "<your client secret>"
     authorization_base_url = 'https://github.com/login/oauth/authorize'
     token_url = 'https://github.com/login/oauth/access_token'
+    secret_key = "<secret_key for use flask session>"
+
+    app = Flask(__name__)
+    app.config['SECRET_KEY'] = secret_key
 
     @app.route("/login")
     def login():
