@@ -7,11 +7,11 @@ Test simple changes
 
 Requests-OAuthlib is using `tox`_ as main test tool.
 It helps creating the required virtualenv for your python version.
-For example, if you have installed Python3.7:
+For example, if you have installed Python3.8:
 
 .. sourcecode:: bash
 
-   $ tox -e py37
+   $ tox -e py38
 
 
 Validate documentation changes
@@ -40,13 +40,8 @@ In order to run successfully, you will need all versions of Python installed. We
 
 .. sourcecode:: bash
 
-   $ pyenv install 2.7.18
-   $ pyenv install 3.4.10
-   $ pyenv install 3.5.10
-   $ pyenv install 3.6.14
-   $ pyenv install 3.7.11
-   $ pyenv install pypy2.7-7.1.1
-   $ pyenv install pypy3.6-7.1.1
+   $ pyenv install 3.8.18
+   $ pyenv install pypy3.10-7.3.13
 
 
 Publishing a release (for maintainer role)
