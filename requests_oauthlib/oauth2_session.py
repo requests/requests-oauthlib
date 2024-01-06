@@ -476,7 +476,7 @@ class OAuth2Session(requests.Session):
             r = hook(r)
 
         self.token = self._client.parse_request_body_response(r.text, scope=self.scope)
-        if not "refresh_token" in self.token:
+        if "refresh_token" not in self.token:
             log.debug("No new refresh token given. Re-using old.")
             self.token["refresh_token"] = refresh_token
         return self.token

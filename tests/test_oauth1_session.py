@@ -26,7 +26,7 @@ except ImportError:
 if sys.version[0] == "3":
     unicode_type = str
 else:
-    unicode_type = unicode
+    unicode_type = unicode # noqa
 
 
 TEST_RSA_KEY = (
@@ -308,12 +308,6 @@ class OAuth1SessionTest(unittest.TestCase):
 
         generate_nonce.return_value = "abc"
         generate_timestamp.return_value = "123"
-        signature = (
-            "OAuth "
-            'oauth_nonce="abc", oauth_timestamp="123", oauth_version="1.0", '
-            'oauth_signature_method="RSA-SHA1", oauth_consumer_key="foo", '
-            'oauth_verifier="bar", oauth_signature="{sig}"'
-        ).format(sig=TEST_RSA_OAUTH_SIGNATURE)
         sess = OAuth1Session(
             "key",
             "secret",
