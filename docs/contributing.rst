@@ -50,7 +50,7 @@ Publishing a release (for maintainer role)
 Maintainer tasks should always be kept to minimum. Once a release is ready, the suggested approach can be followed:
 
 #. Create new branch release-X.Y.Z
-#. Update the HISTORY.rst file
+#. Update HISTORY.rst and AUTHORS.rst if required
 #. Update the `request_oauthlib/__init__.py`
 #. Raise a pull request to give a chance for all contributors to comment before publishing
 #. Create a TAG vX.Y.Z. By doing this, the pipeline will automatically trigger `twine` and will publish the release to PyPi.

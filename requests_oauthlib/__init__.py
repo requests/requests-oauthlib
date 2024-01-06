@@ -1,3 +1,4 @@
+# ruff: noqa: F401
 import logging
 
 from .oauth1_auth import OAuth1
