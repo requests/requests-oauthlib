@@ -194,6 +194,21 @@ class OAuth2SessionTest(TestCase):
                 client_secret=self.client_secret,
             )
 
+        # auto refresh with auth from auto_refresh_kwargs
+        for client in self.clients:
+            sess = OAuth2Session(
+                client=client,
+                token=self.expired_token,
+                auto_refresh_url="https://i.b/refresh",
+                token_updater=token_updater,
+                auto_refresh_kwargs={
+                    "client_id": self.client_id,
+                    "client_secret": self.client_secret,
+                },
+            )
+            sess.send = fake_refresh_with_auth
+            sess.get("https://i.b")
+
     @mock.patch("time.time", new=lambda: fake_time)
     def test_token_from_fragment(self):
         mobile = MobileApplicationClient(self.client_id)
