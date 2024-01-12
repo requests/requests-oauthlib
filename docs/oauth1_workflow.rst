@@ -71,8 +71,8 @@ Workflow example showing use of both OAuth1 and OAuth1Session
 
     >>> # Using OAuth1Session
     >>> authorization_url = oauth.authorization_url(base_authorization_url)
-    >>> print 'Please go here and authorize,', authorization_url
-    >>> redirect_response = raw_input('Paste the full redirect URL here: ')
+    >>> print('Please go here and authorize,', authorization_url)
+    >>> redirect_response = input('Paste the full redirect URL here: ')
     >>> oauth_response = oauth.parse_authorization_response(redirect_response)
     {
         "oauth_token": "Z6eEdO8MOmk394WozF5oKyuAv855l4Mlqo7hhlSLik",
@@ -83,8 +83,8 @@ Workflow example showing use of both OAuth1 and OAuth1Session
     >>> # Using OAuth1 auth helper
     >>> authorize_url = base_authorization_url + '?oauth_token='
     >>> authorize_url = authorize_url + resource_owner_key
-    >>> print 'Please go here and authorize,', authorize_url
-    >>> verifier = raw_input('Please input the verifier')
+    >>> print('Please go here and authorize,', authorize_url)
+    >>> verifier = input('Please input the verifier')
 
 3. Obtain an access token from the OAuth provider. Save this token as it can be
    re-used later. In this step we will re-use most of the credentials obtained
@@ -153,12 +153,12 @@ OAuth takes many forms, so let's take a look at a few different forms:
     import requests
     from requests_oauthlib import OAuth1
 
-    url = u'https://api.twitter.com/1/account/settings.json'
+    url = 'https://api.twitter.com/1/account/settings.json'
 
-    client_key = u'...'
-    client_secret = u'...'
-    resource_owner_key = u'...'
-    resource_owner_secret = u'...'
+    client_key = '...'
+    client_secret = '...'
+    resource_owner_key = '...'
+    resource_owner_secret = '...'
 
 
 Header signing (recommended):
