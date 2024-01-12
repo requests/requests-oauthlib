@@ -22,10 +22,10 @@ command line interactive example below.
 
     >>> # Redirect user to GitHub for authorization
     >>> authorization_url, state = github.authorization_url(authorization_base_url)
-    >>> print 'Please go here and authorize,', authorization_url
+    >>> print('Please go here and authorize,', authorization_url)
 
     >>> # Get the authorization verifier code from the callback url
-    >>> redirect_response = raw_input('Paste the full redirect URL here:')
+    >>> redirect_response = input('Paste the full redirect URL here:')
 
     >>> # Fetch the access token
     >>> github.fetch_token(token_url, client_secret=client_secret,
@@ -33,4 +33,4 @@ command line interactive example below.
 
     >>> # Fetch a protected resource, i.e. user profile
     >>> r = github.get('https://api.github.com/user')
-    >>> print r.content
+    >>> print(r.content)

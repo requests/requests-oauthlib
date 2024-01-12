@@ -72,8 +72,8 @@ the provider is Google and the protected resource is the user's profile.
             # parameters.
             access_type="offline", prompt="select_account")
 
-    >>> print 'Please go to %s and authorize access.' % authorization_url
-    >>> authorization_response = raw_input('Enter the full callback URL')
+    >>> print(f'Please go to {authorization_url} and authorize access.')
+    >>> authorization_response = input('Enter the full callback URL')
 
 2. Fetch an access token from the provider using the authorization code
    obtained during user authorization.

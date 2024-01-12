@@ -85,7 +85,7 @@ class OAuth1Session(requests.Session):
     'https://api.twitter.com/oauth/authorize?oauth_token=sdf0o9823sjdfsdf&oauth_callback=https%3A%2F%2F127.0.0.1%2Fcallback'
     >>>
     >>> # Third step. Fetch the access token
-    >>> redirect_response = raw_input('Paste the full redirect URL here.')
+    >>> redirect_response = input('Paste the full redirect URL here.')
     >>> oauth_session.parse_authorization_response(redirect_response)
     {
         'oauth_token: 'kjerht2309u',

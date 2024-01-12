@@ -27,10 +27,10 @@ try out the command line interactive example below.
 
     >>> # 3. Redirect user to Bitbucket for authorization
     >>> authorization_url = bitbucket.authorization_url(authorization_base_url)
-    >>> print 'Please go here and authorize,', authorization_url
+    >>> print('Please go here and authorize,', authorization_url)
 
     >>> # 4. Get the authorization verifier code from the callback url
-    >>> redirect_response = raw_input('Paste the full redirect URL here:')
+    >>> redirect_response = input('Paste the full redirect URL here:')
     >>> bitbucket.parse_authorization_response(redirect_response)
 
     >>> # 5. Fetch the access token
@@ -38,4 +38,4 @@ try out the command line interactive example below.
 
     >>> # 6. Fetch a protected resource, i.e. user profile
     >>> r = bitbucket.get('https://bitbucket.org/api/1.0/user')
-    >>> print r.content
+    >>> print(r.content)
