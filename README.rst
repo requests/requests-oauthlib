@@ -46,7 +46,7 @@ To install requests and requests_oauthlib you can use pip:
 
 .. code-block:: bash
 
-    $ pip install requests requests-oauthlib
+    pip install requests requests-oauthlib
 
 .. |build-status| image:: https://github.com/requests/requests-oauthlib/actions/workflows/run-tests.yml/badge.svg
    :target: https://github.com/requests/requests-oauthlib/actions
