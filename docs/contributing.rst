@@ -42,7 +42,21 @@ In order to run successfully, you will need all versions of Python installed. We
 
    $ pyenv install 3.8.18
    $ pyenv install pypy3.10-7.3.13
+   $ pyenv global pypy3.10-7.3.13  # switch to pypy
 
+
+Build and test via pipeline
+===========================
+
+If you don't want to install multiple python versions, or if you have
+made changes in the pipeline code, it is possible to execute the Github Action
+locally with the `act` tools available here: https://nektosact.com/usage/index.html
+
+Run tests for `pypy3.9`:
+
+```shell
+act -W .github/workflows/run-tests.yml -j tests --matrix python-version:pypy3.9
+```
 
 Publishing a release (for maintainer role)
 ==========================================
