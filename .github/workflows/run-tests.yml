@@ -24,10 +24,6 @@ jobs:
           - python-version: "pypy3.10"
             tox-env: pypy310
     steps:
-    - name: Install pypy cryptography dependencies
-      if: startsWith(matrix.python-version, 'pypy')
-      run: |
-        sudo apt update && sudo apt install -y build-essential cargo rustc pkg-config libffi-dev libssl-dev pypy3-dev
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
