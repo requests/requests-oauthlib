@@ -22,15 +22,17 @@ from requests_oauthlib import OAuth2Session, TokenUpdated
 import requests
 
 from requests.auth import _basic_auth_str
+from requests.exceptions import HTTPError
 
 
 fake_time = time.time()
 CODE = "asdf345xdf"
 
 
-def fake_token(token):
+def fake_token(token, status_code=200):
     def fake_send(r, **kwargs):
         resp = mock.MagicMock()
+        resp.status_code = status_code
         resp.text = json.dumps(token)
         return resp
 
@@ -70,6 +72,7 @@ class OAuth2SessionTest(TestCase):
             auth_header = r.headers.get(str("Authorization"), None)
             self.assertEqual(auth_header, token)
             resp = mock.MagicMock()
+            resp.status_code = 200
             resp.cookes = []
             return resp
 
@@ -89,6 +92,7 @@ class OAuth2SessionTest(TestCase):
             self.assertEqual(cert, kwargs["cert"])
             self.assertIn("client_id=" + self.client_id, r.body)
             resp = mock.MagicMock()
+            resp.status_code = 200
             resp.text = json.dumps(self.token)
             return resp
 
@@ -130,10 +134,11 @@ class OAuth2SessionTest(TestCase):
         self.expired_token["expires_in"] = "-1"
         del self.expired_token["expires_at"]
 
-        def fake_refresh(r, **kwargs):
+        def fake_refresh(r, status_code=200, **kwargs):
             if "/refresh" in r.url:
                 self.assertNotIn("Authorization", r.headers)
             resp = mock.MagicMock()
+            resp.status_code = status_code
             resp.text = json.dumps(self.token)
             return resp
 
@@ -166,6 +171,19 @@ class OAuth2SessionTest(TestCase):
             sess.send = fake_refresh
             sess.get("https://i.b")
 
+        # test 5xx error handler
+        for client in self.clients:
+            sess = OAuth2Session(
+                client=client,
+                token=self.expired_token,
+                auto_refresh_url="https://i.b/refresh",
+                token_updater=token_updater,
+            )
+            sess.send = lambda r, **kwargs: fake_refresh(
+                r=r, status_code=503, kwargs=kwargs
+            )
+            self.assertRaises(HTTPError, sess.get, "https://i.b")
+
         def fake_refresh_with_auth(r, **kwargs):
             if "/refresh" in r.url:
                 self.assertIn("Authorization", r.headers)
@@ -177,6 +195,7 @@ class OAuth2SessionTest(TestCase):
                 content = "Basic {encoded}".format(encoded=encoded.decode("latin1"))
                 self.assertEqual(r.headers["Authorization"], content)
             resp = mock.MagicMock()
+            resp.status_code = 200
             resp.text = json.dumps(self.token)
             return resp
 
@@ -251,6 +270,23 @@ class OAuth2SessionTest(TestCase):
             else:
                 self.assertRaises(OAuth2Error, sess.fetch_token, url)
 
+        # test 5xx error responses
+        error = {"error": "server error!"}
+        for client in self.clients:
+            sess = OAuth2Session(client=client, token=self.token)
+            sess.send = fake_token(error, status_code=500)
+            if isinstance(client, LegacyApplicationClient):
+                # this client requires a username+password
+                self.assertRaises(
+                    HTTPError,
+                    sess.fetch_token,
+                    url,
+                    username="username1",
+                    password="password1",
+                )
+            else:
+                self.assertRaises(HTTPError, sess.fetch_token, url)
+
         # there are different scenarios in which the `client_id` can be specified
         # reference `oauthlib.tests.oauth2.rfc6749.clients.test_web_application.WebApplicationClientTest.test_prepare_request_body`
         # this only needs to test WebApplicationClient
@@ -263,6 +299,7 @@ class OAuth2SessionTest(TestCase):
         def fake_token_history(token):
             def fake_send(r, **kwargs):
                 resp = mock.MagicMock()
+                resp.status_code = 200
                 resp.text = json.dumps(token)
                 _fetch_history.append(
                     (r.url, r.body, r.headers.get("Authorization", None))
@@ -470,6 +507,7 @@ class OAuth2SessionTest(TestCase):
         def fake_token(token):
             def fake_send(r, **kwargs):
                 resp = mock.MagicMock()
+                resp.status_code = 200
                 resp.text = json.dumps(token)
                 return resp
 
@@ -496,6 +534,31 @@ class OAuth2SessionTest(TestCase):
             else:
                 sess.fetch_token(url)
             self.assertTrue(sess.authorized)
+
+    def test_raise_for_5xx(self):
+        for reason_bytes in [
+            b"\xa1An error occurred!",  # iso-8859-i
+            b"\xc2\xa1An error occurred!",  # utf-8
+        ]:
+            fake_resp = mock.MagicMock()
+            fake_resp.status_code = 504
+            fake_resp.reason = reason_bytes
+            reason_unicode = "\u00A1An error occurred!"
+            fake_resp.url = "https://example.com/token"
+            expected = (
+                "504 Server Error: " + reason_unicode + " for url: " + fake_resp.url
+            )
+
+            # Make sure our expected unicode string literal is indeed unicode
+            # in both py2 and py3
+            self.assertEqual(reason_unicode[0].encode("utf-8"), b"\xc2\xa1")
+
+            sess = OAuth2Session("test-id")
+
+            with self.assertRaises(HTTPError) as cm:
+                sess._raise_for_5xx(fake_resp)
+
+            self.assertEqual(cm.exception.args[0], expected)
 
 
 class OAuth2SessionNetrcTest(OAuth2SessionTest):
