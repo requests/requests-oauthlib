@@ -7,11 +7,11 @@ Test simple changes
 
 Requests-OAuthlib is using `tox`_ as main test tool.
 It helps creating the required virtualenv for your python version.
-For example, if you have installed Python3.7:
+For example, if you have installed Python3.8:
 
 .. sourcecode:: bash
 
-   $ tox -e py37
+   $ tox -e py38
 
 
 Validate documentation changes
@@ -40,14 +40,23 @@ In order to run successfully, you will need all versions of Python installed. We
 
 .. sourcecode:: bash
 
-   $ pyenv install 2.7.18
-   $ pyenv install 3.4.10
-   $ pyenv install 3.5.10
-   $ pyenv install 3.6.14
-   $ pyenv install 3.7.11
-   $ pyenv install pypy2.7-7.1.1
-   $ pyenv install pypy3.6-7.1.1
+   $ pyenv install 3.8.18
+   $ pyenv install pypy3.10-7.3.13
+   $ pyenv global pypy3.10-7.3.13  # switch to pypy
 
+
+Build and test via pipeline
+===========================
+
+If you don't want to install multiple python versions, or if you have
+made changes in the pipeline code, it is possible to execute the Github Action
+locally with the `act` tools available here: https://nektosact.com/usage/index.html
+
+Run tests for `pypy3.9`:
+
+```shell
+act -W .github/workflows/run-tests.yml -j tests --matrix python-version:pypy3.9
+```
 
 Publishing a release (for maintainer role)
 ==========================================
@@ -55,7 +64,7 @@ Publishing a release (for maintainer role)
 Maintainer tasks should always be kept to minimum. Once a release is ready, the suggested approach can be followed:
 
 #. Create new branch release-X.Y.Z
-#. Update the HISTORY.rst file
+#. Update HISTORY.rst and AUTHORS.rst if required
 #. Update the `request_oauthlib/__init__.py`
 #. Raise a pull request to give a chance for all contributors to comment before publishing
 #. Create a TAG vX.Y.Z. By doing this, the pipeline will automatically trigger `twine` and will publish the release to PyPi.
