@@ -330,6 +330,11 @@ class OAuth2Session(requests.Session):
 
         # otherwise we may need to create an auth header
         else:
+            # In case client_secret is none, it means we are in public clients
+            # so OAuth2 AS should read client_id into params instead of Basic Auth.
+            if client_secret is None:
+                include_client_id = True
+
             # since we don't have an auth header, we MAY need to create one
             # it is possible that we want to send the `client_id` in the body
             # if so, `include_client_id` should be set to True
