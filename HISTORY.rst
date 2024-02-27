@@ -14,7 +14,6 @@ v1.4.0 (TBD)
 - Migrated to Github Action
 - Add PKCE support
 
-
 v1.3.1 (21 January 2022)
 ++++++++++++++++++++++++
 
