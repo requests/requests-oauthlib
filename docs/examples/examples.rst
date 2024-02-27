@@ -10,6 +10,7 @@ Examples
    github
    google
    linkedin
+   native_spa_pkce_auth0
    outlook
    spotify
    tumblr

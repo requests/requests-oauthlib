@@ -12,7 +12,7 @@ v1.4.0 (TBD)
 - Add support for Python 3.8-3.12
 - Remove support of Python 2.x, <3.7
 - Migrated to Github Action
-
+- Add PKCE support
 
 v1.3.1 (21 January 2022)
 ++++++++++++++++++++++++

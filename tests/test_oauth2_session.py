@@ -124,6 +124,27 @@ class OAuth2SessionTest(TestCase):
         self.assertIn(self.client_id, auth_url)
         self.assertIn("response_type=token", auth_url)
 
+    def test_pkce_authorization_url(self):
+        url = "https://example.com/authorize?foo=bar"
+
+        web = WebApplicationClient(self.client_id)
+        s = OAuth2Session(client=web, pkce="S256")
+        auth_url, state = s.authorization_url(url)
+        self.assertIn(state, auth_url)
+        self.assertIn(self.client_id, auth_url)
+        self.assertIn("response_type=code", auth_url)
+        self.assertIn("code_challenge=", auth_url)
+        self.assertIn("code_challenge_method=S256", auth_url)
+
+        mobile = MobileApplicationClient(self.client_id)
+        s = OAuth2Session(client=mobile, pkce="S256")
+        auth_url, state = s.authorization_url(url)
+        self.assertIn(state, auth_url)
+        self.assertIn(self.client_id, auth_url)
+        self.assertIn("response_type=token", auth_url)
+        self.assertIn("code_challenge=", auth_url)
+        self.assertIn("code_challenge_method=S256", auth_url)
+
     @mock.patch("time.time", new=lambda: fake_time)
     def test_refresh_token_request(self):
         self.expired_token = dict(self.token)
@@ -423,6 +444,16 @@ class OAuth2SessionTest(TestCase):
             "https://i.b/token",
             authorization_response="https://i.b/no-state?code=abc",
         )
+
+    @mock.patch("time.time", new=lambda: fake_time)
+    def test_pkce_web_app_fetch_token(self):
+        url = "https://example.com/token"
+
+        web = WebApplicationClient(self.client_id, code=CODE)
+        sess = OAuth2Session(client=web, token=self.token, pkce="S256")
+        sess.send = fake_token(self.token)
+        sess._code_verifier = "foobar"
+        self.assertEqual(sess.fetch_token(url), self.token)
 
     def test_client_id_proxy(self):
         sess = OAuth2Session("test-id")

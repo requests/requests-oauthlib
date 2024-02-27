@@ -46,6 +46,7 @@ class OAuth2Session(requests.Session):
         token=None,
         state=None,
         token_updater=None,
+        pkce=None,
         **kwargs
     ):
         """Construct a new OAuth 2 client session.
@@ -72,6 +73,7 @@ class OAuth2Session(requests.Session):
                         set a TokenUpdated warning will be raised when a token
                         has been refreshed. This warning will carry the token
                         in its token argument.
+        :param pkce: Set "S256" or "plain" to enable PKCE. Default is disabled.
         :param kwargs: Arguments to pass to the Session constructor.
         """
         super(OAuth2Session, self).__init__(**kwargs)
@@ -84,6 +86,10 @@ class OAuth2Session(requests.Session):
         self.auto_refresh_url = auto_refresh_url
         self.auto_refresh_kwargs = auto_refresh_kwargs or {}
         self.token_updater = token_updater
+        self._pkce = pkce
+
+        if self._pkce not in ["S256", "plain", None]:
+            raise AttributeError("Wrong value for {}(.., pkce={})".format(self.__class__, self._pkce))
 
         # Ensure that requests doesn't do any automatic auth. See #278.
         # The default behavior can be re-enabled by setting auth to None.
@@ -177,6 +183,13 @@ class OAuth2Session(requests.Session):
         :return: authorization_url, state
         """
         state = state or self.new_state()
+        if self._pkce:
+            self._code_verifier = self._client.create_code_verifier(43)
+            kwargs["code_challenge_method"] = self._pkce
+            kwargs["code_challenge"] = self._client.create_code_challenge(
+                code_verifier=self._code_verifier,
+                code_challenge_method=self._pkce
+            )
         return (
             self._client.prepare_request_uri(
                 url,
@@ -267,6 +280,13 @@ class OAuth2Session(requests.Session):
                 raise ValueError(
                     "Please supply either code or " "authorization_response parameters."
                 )
+
+        if self._pkce:
+            if self._code_verifier is None:
+                raise ValueError(
+                    "Code verifier is not found, authorization URL must be generated before"
+                )
+            kwargs["code_verifier"] = self._code_verifier
 
         # Earlier versions of this library build an HTTPBasicAuth header out of
         # `username` and `password`. The RFC states, however these attributes
