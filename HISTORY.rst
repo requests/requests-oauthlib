@@ -1,18 +1,26 @@
 History
 -------
 
-v1.4.0 (TBD)
+v1.4.0 (27 Feb 2024)
 ++++++++++++++++++++++++
+
+Full set of changes are in [github](https://github.com/requests/requests-oauthlib/milestone/4?closed=1).
+
+Additions & changes:
+
 - ``OAuth2Session`` now correctly uses the ``self.verify`` value if ``verify``
   is not overridden in ``fetch_token`` and ``refresh_token``. Fixes `#404
   <https://github.com/requests/requests-oauthlib/issues/404>`_.
 - ``OAuth2Session`` constructor now uses its ``client.scope`` when a ``client``
   is provided and ``scope`` is not overridden. Fixes `#408
   <https://github.com/requests/requests-oauthlib/issues/408>`_
+- Add ``refresh_token_request`` and ``access_token_request`` compliance hooks
+- Add PKCE support and Auth0 example
 - Add support for Python 3.8-3.12
 - Remove support of Python 2.x, <3.7
 - Migrated to Github Action
-- Add PKCE support
+- Updated dependencies
+- Cleanup some docs and examples
 
 v1.3.1 (21 January 2022)
 ++++++++++++++++++++++++
