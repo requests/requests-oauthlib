@@ -16,5 +16,5 @@ print(authorization_url)
 
 redirect_response = input('Paste the full redirect URL here: ')
 
-token = session.fetch_token(token_url, authorization_response=redirect_response)
+token = session.fetch_token(token_url, authorization_response=redirect_response, include_client_id=True)
 print(token)
