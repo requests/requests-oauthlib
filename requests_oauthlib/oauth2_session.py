@@ -41,6 +41,7 @@ class OAuth2Session(requests.Session):
         client=None,
         auto_refresh_url=None,
         auto_refresh_kwargs=None,
+        auto_refresh_type="refresh_token",
         scope=None,
         redirect_uri=None,
         token=None,
@@ -68,6 +69,8 @@ class OAuth2Session(requests.Session):
                            your access tokens.
         :auto_refresh_kwargs: Extra arguments to pass to the refresh token
                               endpoint.
+        :auto_refresh_type: Type of auto refresh method to use.  Must be either
+                            "refresh_token" (default) or "access_token".
         :token_updater: Method with one argument, token, to be used to update
                         your token database on automatic token refresh. If not
                         set a TokenUpdated warning will be raised when a token
@@ -85,6 +88,7 @@ class OAuth2Session(requests.Session):
         self._state = state
         self.auto_refresh_url = auto_refresh_url
         self.auto_refresh_kwargs = auto_refresh_kwargs or {}
+        self.auto_refresh_type = auto_refresh_type
         self.token_updater = token_updater
         self._pkce = pkce
 
@@ -501,6 +505,20 @@ class OAuth2Session(requests.Session):
             self.token["refresh_token"] = refresh_token
         return self.token
 
+    def update_token(self, auth=None, **kwargs):
+        if self.auto_refresh_type == "refresh_token":
+            return self.refresh_token(
+                self.auto_refresh_url, auth=auth, **kwargs
+            )
+
+        if self.auto_refresh_type == "access_token":
+            return self.fetch_token(
+                self.auto_refresh_url,
+                auth=auth,
+                **dict(kwargs, **self.auto_refresh_kwargs),
+            )
+        raise RuntimeError("Unknown auto_refresh_type: %s" % self.auto_refresh_type)
+
     def request(
         self,
         method,
@@ -546,9 +564,7 @@ class OAuth2Session(requests.Session):
                             client_id,
                         )
                         auth = requests.auth.HTTPBasicAuth(client_id, client_secret)
-                    token = self.refresh_token(
-                        self.auto_refresh_url, auth=auth, **kwargs
-                    )
+                    token = self.update_token(auth=auth, **kwargs)
                     if self.token_updater:
                         log.debug(
                             "Updating token to %s using %s.", token, self.token_updater

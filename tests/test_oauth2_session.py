@@ -1,12 +1,16 @@
 from __future__ import unicode_literals
+
 import json
-import time
-import tempfile
-import shutil
 import os
+import shutil
+import tempfile
+import time
 from base64 import b64encode
 from copy import deepcopy
 from unittest import TestCase
+from unittest.mock import patch, Mock
+
+from requests import Response, Request
 
 try:
     from unittest import mock
@@ -527,6 +531,81 @@ class OAuth2SessionTest(TestCase):
             else:
                 sess.fetch_token(url)
             self.assertTrue(sess.authorized)
+
+    @patch("requests.sessions.Session.request")
+    def test_request_when_auto_refresh_type_is_token_refresh(self, mock_request):
+        # Auto refresh and auto update
+        def token_updater(token):
+            self.assertEqual(token["token_type"], self.token["token_type"])
+            self.assertEqual(token["access_token"], self.token["access_token"])
+            self.assertEqual(token["refresh_token"], self.token["refresh_token"])
+            self.assertEqual(token["expires_in"], self.token["expires_in"])
+            self.assertIsNotNone(token["expires_at"])
+            self.assertIsNotNone(self.token["expires_at"])
+
+        expired_token = dict(self.token)
+        expired_token["expires_at"] = time.time() - 7200
+
+        mock_response = Mock(spec=Response)
+        mock_response.status_code = 200
+        mock_response.headers = {}
+        mock_response.text = json.dumps(dict(self.token))
+        mock_response.json.return_value = dict(self.token)
+        mock_request.return_value = mock_response
+
+        for client in self.clients:
+            sess = OAuth2Session(
+                client=client,
+                token=expired_token,
+                token_updater=token_updater,
+                auto_refresh_url="https://i.b/refresh"
+            )
+            sess.request(
+                method="POST",
+                url="https://example.com",
+                client_id="someclientid",
+                client_secret="someclientsecret"
+            )
+
+    @patch("requests.sessions.Session.request")
+    def test_request_when_auto_refresh_type_is_access_token(self, mock_request):
+        # Auto refresh and auto update
+        def token_updater(token):
+            self.assertEqual(token["token_type"], self.token["token_type"])
+            self.assertEqual(token["access_token"], self.token["access_token"])
+            self.assertEqual(token["refresh_token"], self.token["refresh_token"])
+            self.assertEqual(token["expires_in"], self.token["expires_in"])
+            self.assertIsNotNone(token["expires_at"])
+            self.assertIsNotNone(self.token["expires_at"])
+
+        expired_token = dict(self.token)
+        expired_token["expires_at"] = time.time() - 7200
+
+        mock_response = Mock(spec=Response)
+        mock_response.request = Mock(spec=Request)
+        mock_response.request.url = "https://i.b/access"
+        mock_response.request.headers = {}
+        mock_response.request.body = {}
+        mock_response.status_code = 200
+        mock_response.headers = {}
+        mock_response.request = mock_request
+        mock_response.text = json.dumps(dict(self.token))
+        mock_request.return_value = mock_response
+
+        for client in self.clients:
+            sess = OAuth2Session(
+                client=client,
+                token=expired_token,
+                auto_refresh_type="access_token",
+                token_updater=token_updater,
+                auto_refresh_url="https://i.b/access"
+            )
+            sess.request(
+                method="POST",
+                url="https://example.com",
+                username="someclientid",
+                password="someclientsecret"
+            )
 
 
 class OAuth2SessionNetrcTest(OAuth2SessionTest):
