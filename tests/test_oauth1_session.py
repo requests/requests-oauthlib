@@ -2,15 +2,11 @@ from __future__ import unicode_literals, print_function
 import unittest
 import requests
 from io import StringIO
+from unittest import mock
 
 from oauthlib.oauth1 import SIGNATURE_TYPE_QUERY, SIGNATURE_TYPE_BODY
 from oauthlib.oauth1 import SIGNATURE_RSA, SIGNATURE_PLAINTEXT
 from requests_oauthlib import OAuth1Session
-
-try:
-    from unittest import mock
-except ImportError:
-    import mock
 
 try:
     import cryptography

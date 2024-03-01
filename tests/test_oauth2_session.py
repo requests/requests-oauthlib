@@ -8,10 +8,7 @@ from base64 import b64encode
 from copy import deepcopy
 from unittest import TestCase
 
-try:
-    from unittest import mock
-except ImportError:
-    import mock
+from unittest import mock
 
 from oauthlib.common import urlencode
 from oauthlib.oauth2 import TokenExpiredError, OAuth2Error

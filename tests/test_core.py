@@ -7,10 +7,7 @@ import os.path
 from io import StringIO
 import unittest
 
-try:
-    from unittest import mock
-except ImportError:
-    import mock
+from unittest import mock
 
 
 @mock.patch("oauthlib.oauth1.rfc5849.generate_timestamp")
