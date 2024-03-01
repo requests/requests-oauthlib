@@ -1,4 +1,3 @@
-from __future__ import unicode_literals, print_function
 import unittest
 import requests
 from io import StringIO
