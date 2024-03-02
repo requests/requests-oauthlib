@@ -1,8 +1,8 @@
 
-client_id = 'your_client_id'
+client_id = 'OAUTH_CLIENT_ID'
 
-authorization_base_url = "https://dev-foobar.eu.auth0.com/authorize"
-token_url = "https://dev-foobar.eu.auth0.com/oauth/token"
+authorization_base_url = "https://OAUTH_IDP_DOMAIN/authorize"
+token_url = "https://OAUTH_IDP_DOMAIN/oauth/token"
 scope = ["openid"]
 
 from requests_oauthlib import OAuth2Session
