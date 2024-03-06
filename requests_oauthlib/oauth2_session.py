@@ -47,6 +47,7 @@ class OAuth2Session(requests.Session):
         state=None,
         token_updater=None,
         pkce=None,
+        unsafely_log_headers_on_debug_level=True,
         **kwargs
     ):
         """Construct a new OAuth 2 client session.
@@ -87,6 +88,7 @@ class OAuth2Session(requests.Session):
         self.auto_refresh_kwargs = auto_refresh_kwargs or {}
         self.token_updater = token_updater
         self._pkce = pkce
+        self._unsafely_log_headers_on_debug_level = unsafely_log_headers_on_debug_level
 
         if self._pkce not in ["S256", "plain", None]:
             raise AttributeError("Wrong value for {}(.., pkce={})".format(self.__class__, self._pkce))
@@ -394,9 +396,11 @@ class OAuth2Session(requests.Session):
 
         log.debug("Request to fetch token completed with status %s.", r.status_code)
         log.debug("Request url was %s", r.request.url)
-        log.debug("Request headers were %s", r.request.headers)
+        if self._unsafely_log_headers_on_debug_level:
+            log.debug("Request headers were %s", r.request.headers)
         log.debug("Request body was %s", r.request.body)
-        log.debug("Response headers were %s and content %s.", r.headers, r.text)
+        if self._unsafely_log_headers_on_debug_level:
+            log.debug("Response headers were %s and content %s.", r.headers, r.text)
         log.debug(
             "Invoking %d token response hooks.",
             len(self.compliance_hook["access_token_response"]),
@@ -486,7 +490,8 @@ class OAuth2Session(requests.Session):
             proxies=proxies,
         )
         log.debug("Request to refresh token completed with status %s.", r.status_code)
-        log.debug("Response headers were %s and content %s.", r.headers, r.text)
+        if self._unsafely_log_headers_on_debug_level:
+            log.debug("Response headers were %s and content %s.", r.headers, r.text)
         log.debug(
             "Invoking %d token response hooks.",
             len(self.compliance_hook["refresh_token_response"]),
