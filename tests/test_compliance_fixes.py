@@ -1,14 +1,10 @@
-from __future__ import unicode_literals
 from unittest import TestCase
 
 import requests
 import requests_mock
 import time
 
-try:
-    from urlparse import urlparse, parse_qs
-except ImportError:
-    from urllib.parse import urlparse, parse_qs
+from urllib.parse import urlparse, parse_qs
 
 from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
 from requests_oauthlib import OAuth2Session
