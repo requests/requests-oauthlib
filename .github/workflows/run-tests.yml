@@ -39,6 +39,10 @@ jobs:
         python -m pip install coveralls coverage-lcov toml
     - name: Execute tests with tox
       env:
+        AUTH0_USERNAME: ${{ secrets.AUTH0_USERNAME }}
+        AUTH0_PASSWORD: ${{ secrets.AUTH0_PASSWORD }}
+        AUTH0_PKCE_CLIENT_ID: ${{ secrets.AUTH0_PKCE_CLIENT_ID }}
+        AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
         TOXENV: ${{ matrix.tox-env }}
       run: |
         tox
