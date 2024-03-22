@@ -1,7 +1,7 @@
 History
 -------
 
-v1.4.0 (27 Feb 2024)
+v2.0.0 (22 March 2024)
 ++++++++++++++++++++++++
 
 Full set of changes are in [github](https://github.com/requests/requests-oauthlib/milestone/4?closed=1).
@@ -21,6 +21,11 @@ Additions & changes:
 - Migrated to Github Action
 - Updated dependencies
 - Cleanup some docs and examples
+
+v1.4.0 (27 Feb 2024)
+++++++++++++++++++++++++
+
+- Version 2.0.0 published initially as 1.4.0, it was yanked eventually.
 
 v1.3.1 (21 January 2022)
 ++++++++++++++++++++++++
