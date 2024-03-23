@@ -26,3 +26,4 @@ Maintainers & Contributors
 - Craig Anderson <craiga@craiga.id.au>
 - Hugo van Kemenade <https://github.com/hugovk>
 - Jacques Troussard <https://github.com/jtroussard>
+- Erland Vollset <https://github.com/erlendvollset>
