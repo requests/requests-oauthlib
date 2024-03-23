@@ -25,3 +25,4 @@ Patches and Suggestions
 - Sylvain Marie <sylvain.marie@se.com>
 - Craig Anderson <craiga@craiga.id.au>
 - Hugo van Kemenade <https://github.com/hugovk>
+- Julian Early <jearly@berkeley.edu>
