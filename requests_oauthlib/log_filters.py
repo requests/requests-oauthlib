@@ -20,7 +20,7 @@ class DebugModeTokenFilter(logging.Filter):
         environment variable.
         """
         super().__init__()
-        self.mode = os.getenv('DEBUG_MODE_TOKEN_FILTER', 'DEFAULT').upper() 
+        self.mode = os.getenv('DEBUG_MODE_TOKEN_FILTER', 'DEFAULT').upper()
 
     def filter(self, record):
         """
@@ -37,7 +37,4 @@ class DebugModeTokenFilter(logging.Filter):
                 record.msg = re.sub(r'Bearer (\w+)', '[MASKED]', record.getMessage())
             elif self.mode == "SUPPRESS":
                 return False
-            elif self.mode == "DEFAULT":
-                msg = "Your logger, when in DEBUG mode, will log TOKENS"
-                raise Warning(msg)
-            return True
+            return True # if mode is not MASKED then DEFAULT is implied 
