@@ -6,6 +6,8 @@ from .oauth1_session import OAuth1Session
 from .oauth2_auth import OAuth2
 from .oauth2_session import OAuth2Session, TokenUpdated
 
+from .log_filters import DebugModeTokenFilter
+
 __version__ = "2.0.0"
 
 import requests
@@ -18,3 +20,4 @@ if requests.__version__ < "2.0.0":
     raise Warning(msg % requests.__version__)
 
 logging.getLogger("requests_oauthlib").addHandler(logging.NullHandler())
+logging.getLogger("requests_oauthlib").addFilter(DebugModeTokenFilter())
