@@ -1,6 +1,11 @@
 History
 -------
 
+v1.4.1 (25 March 2024)
+++++++++++++++++++++++++
+
+Identical release compared to v1.3.1. This release is to override pypi 1.4.0 which was published with a wrong major version with incorrect metadata, and lacking permissions from maintainer to yank the 1.4.0 release. See #540
+
 v1.3.1 (21 January 2022)
 ++++++++++++++++++++++++
 
