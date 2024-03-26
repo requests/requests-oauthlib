@@ -56,3 +56,22 @@ To install requests and requests_oauthlib you can use pip:
    :alt: Documentation Status
    :scale: 100%
    :target: https://requests-oauthlib.readthedocs.io/
+
+Advanced Configurations
+-----------------------
+
+### Logger Configuration Framework
+
+`requests-oauthlib` now includes a flexible framework for applying custom filters and configurations to the logger, enhancing control over logging behavior and improving security.
+
+#### Custom Filters
+
+- **Debug Mode Token Filter**: To enhance security and provide more control over logging of sensitive information, requests-oauthlib introduces the Debug Mode Token Filter. This feature is controlled via the DEBUG_MODE_TOKEN_FILTER environment variable, allowing the suppression or masking of sensitive data in logs.
+
+  ##### Configuring the Debug Mode Token Filter
+
+  - **Environment Variable**: `DEBUG_MODE_TOKEN_FILTER`
+  - **Options**:
+    - `DEFAULT`: No alteration to logging behavior.
+    - `MASK`: Masks sensitive tokens in logs.
+    - `SUPPRESS`: Prevents logging of potentially sensitive information. (logger ignores these logs entirely)
