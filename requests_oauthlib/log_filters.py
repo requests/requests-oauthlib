@@ -34,7 +34,7 @@ class DebugModeTokenFilter(logging.Filter):
         """
         if record.levelno == logging.DEBUG:
             if self.mode == "MASK":
-                record.msg = re.sub(r'Bearer (\w+)', '[MASKED]', record.getMessage())
+                record.msg = re.sub(r'Bearer\s+([A-Za-z0-9\-._~+\/]+)', '[MASKED]', record.getMessage())
             elif self.mode == "SUPPRESS":
                 return False
             return True # if mode is not MASKED then DEFAULT is implied 
