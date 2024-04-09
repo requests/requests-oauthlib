@@ -1,9 +1,10 @@
 import os
 import unittest
 
-from . import base
+from . import Sample
+from . import Browser
 
-class TestNativeAuth0Test(base.Sample, base.Browser, unittest.TestCase):
+class TestNativeAuth0Test(Sample, Browser, unittest.TestCase):
     def setUp(self):
         super().setUp()
         self.client_id = os.environ.get("AUTH0_PKCE_CLIENT_ID")

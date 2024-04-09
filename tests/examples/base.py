@@ -35,6 +35,14 @@ class Sample():
                     fout.write(line)
 
     def run_sample(self, filepath, variables):
+        """
+        Execute python sample as a background process.
+
+        :param filepath: Name of the python sample present in docs examples folder.
+        :type filepath: string
+        :param variables: Key Names/Values to replace in the python script before being run
+        :type variables: dict
+        """
         inpath = os.path.join(cwd, "..", "..", "docs", "examples", filepath)
         outpath = os.path.join(cwd, "tmp_{}".format(filepath))
         self.replaceVariables(inpath, outpath, variables)
@@ -48,10 +56,21 @@ class Sample():
         )
 
     def write(self, string):
+        """
+        Write string into standard input. Useful to fill an answer to ``input()``
+
+        :param string: string to write
+        """
         self.proc.stdin.write(string)
         self.proc.stdin.flush()
 
     def wait_for_pattern(self, pattern):
+        """
+        Wait until the background process is writing ``pattern`` in standard output.
+
+        :param pattern: search for this string before returning.
+        :type pattern: string
+        """
         try:
             while True:
                 line = self.proc.stdout.readline()
@@ -62,6 +81,9 @@ class Sample():
             self.assertTrue(False, "timeout when looking for output")
 
     def wait_for_end(self):
+        """
+        Wait until the background process ends. Timeout after 10sec.
+        """
         try:
             outs, err = self.proc.communicate(timeout=10)
             self.outputs += filter(lambda x: x != '', outs.split('\n'))
@@ -88,6 +110,16 @@ class Browser():
         self.driver.quit()
 
     def authorize_auth0(self, authorize_url, expected_redirect_uri):
+        """
+        Start browser based on an Auth0 authorize url, and log user with user and password.
+        Returns once login journey ends with a redirection to ``expected_redirect_uri``.
+        Note this is for Auth0 login dialog specifically.
+
+        :param authorize_url: Full Authorize URL of Identity Provider
+        :type authorize_url: string
+        :param expected_redirect_uri: Expected ``redirect_uri``. Used only to check end of the authorize journey.
+        :type expected_redirect_uri: string
+        """
         self.driver.get(authorize_url)
         username = self.driver.find_element(By.ID, "username")
         password = self.driver.find_element(By.ID, "password")
