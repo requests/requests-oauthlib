@@ -77,6 +77,7 @@ Getting Started:
 
    api
    contributing
+   contributing_examples
 
 
 
