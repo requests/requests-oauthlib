@@ -43,6 +43,8 @@ jobs:
         AUTH0_PASSWORD: ${{ secrets.AUTH0_PASSWORD }}
         AUTH0_PKCE_CLIENT_ID: ${{ secrets.AUTH0_PKCE_CLIENT_ID }}
         AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+        LINKEDIN_CLIENT_ID: ${{ secrets.LINKEDIN_CLIENT_ID }}
+        LINKEDIN_SECRET: ${{ secrets.LINKEDIN_SECRET }}
         TOXENV: ${{ matrix.tox-env }}
       run: |
         tox
