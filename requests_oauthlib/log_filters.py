@@ -2,6 +2,7 @@ import os
 import re
 import logging
 
+
 class DebugModeTokenFilter(logging.Filter):
     """
     A logging filter that while in DEBUG mode can filter TOKENS dependent on configuration.
@@ -14,13 +15,15 @@ class DebugModeTokenFilter(logging.Filter):
         mode (str): The mode of operation based on the environment variable
                     'DEBUG_MODE_TOKEN_FILTER'. Can be 'MASK', 'SUPPRESS', or 'DEFAULT'.
     """
+
     def __init__(self):
         """
         Initializes the DebugModeTokenFilter with the 'DEBUG_MODE_TOKEN_FILTER'
         environment variable.
         """
         super().__init__()
-        self.mode = os.getenv('DEBUG_MODE_TOKEN_FILTER', 'DEFAULT').upper()
+        self.mode = os.getenv(
+            'REQUESTS_OAUTHLIB_DEBUG_MODE_TOKEN_FILTER', 'DEFAULT').upper()
 
     def filter(self, record):
         """
@@ -34,7 +37,10 @@ class DebugModeTokenFilter(logging.Filter):
         """
         if record.levelno == logging.DEBUG:
             if self.mode == "MASK":
-                record.msg = re.sub(r'Bearer\s+([A-Za-z0-9\-._~+\/]+)', '[MASKED]', record.getMessage())
+                record.msg = re.sub(
+                    r'Bearer\s+([A-Za-z0-9\-._~+\/]+)', '[MASKED]', record.getMessage())
             elif self.mode == "SUPPRESS":
+                record.msg = " "
+            else:
                 return False
-            return True # if mode is not MASKED then DEFAULT is implied 
+            return True  # if mode is not MASKED then DEFAULT is implied
