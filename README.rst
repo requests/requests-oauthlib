@@ -1,4 +1,4 @@
-Requests-OAuthlib |build-status| |coverage-status| |docs|
+Requests-OAuthlib |build-status| |coverage-status| |docs| |downloads|
 =========================================================
 
 This project provides first-class OAuth library support for `Requests <https://requests.readthedocs.io>`_.
@@ -56,3 +56,6 @@ To install requests and requests_oauthlib you can use pip:
    :alt: Documentation Status
    :scale: 100%
    :target: https://requests-oauthlib.readthedocs.io/
+.. |downloads| image:: https://assets.piptrends.com/get-last-month-downloads-badge/requests-oauthlib.svg
+    :alt: requests-oauthlib Downloads Last Month by pip Trends
+    :target: https://piptrends.com/package/requests-oauthlib
