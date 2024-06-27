@@ -5,6 +5,7 @@ from oauthlib.oauth2 import WebApplicationClient, InsecureTransportError
 from oauthlib.oauth2 import LegacyApplicationClient
 from oauthlib.oauth2 import TokenExpiredError, is_secure_transport
 import requests
+from requests.exceptions import HTTPError
 
 log = logging.getLogger(__name__)
 
@@ -403,6 +404,8 @@ class OAuth2Session(requests.Session):
             log.debug("Invoking hook %s.", hook)
             r = hook(r)
 
+        self._raise_for_5xx(response=r)
+
         self._client.parse_request_body_response(r.text, scope=self.scope)
         self.token = self._client.token
         log.debug("Obtained token %s.", self.token)
@@ -492,6 +495,8 @@ class OAuth2Session(requests.Session):
         for hook in self.compliance_hook["refresh_token_response"]:
             log.debug("Invoking hook %s.", hook)
             r = hook(r)
+
+        self._raise_for_5xx(response=r)
 
         self.token = self._client.parse_request_body_response(r.text, scope=self.scope)
         if "refresh_token" not in self.token:
@@ -585,3 +590,40 @@ class OAuth2Session(requests.Session):
                 "Hook type %s is not in %s.", hook_type, self.compliance_hook
             )
         self.compliance_hook[hook_type].add(hook)
+
+    def _raise_for_5xx(self, response):
+        # type: (requests.models.Response) -> None
+        """
+        Raise requests.HTTPError if response is an HTTP 5XX error.
+
+        Just like the existing Response.raise_for_status() but ignores 4XX
+        errors.
+
+        :param response: HTTP response object from requests
+        Raises :class:`requests.exceptions.HTTPError`, if a 5XX error occurred.
+        """
+        http_error_msg = ""
+        if isinstance(response.reason, bytes):
+            # We attempt to decode utf-8 first because some servers
+            # choose to localize their reason strings. If the string
+            # isn't utf-8, we fall back to iso-8859-1 for all other
+            # encodings. (See psf/requests PR #3538)
+            try:
+                reason = response.reason.decode("utf-8")
+            except UnicodeDecodeError:
+                reason = response.reason.decode("iso-8859-1")
+        else:
+            reason = response.reason
+
+        if 400 <= response.status_code < 500:
+            pass  # ignored
+
+        elif 500 <= response.status_code < 600:
+            http_error_msg = "%s Server Error: %s for url: %s" % (
+                response.status_code,
+                reason,
+                response.url,
+            )
+
+        if http_error_msg:
+            raise HTTPError(http_error_msg, response=response)
