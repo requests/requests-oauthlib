@@ -1,2 +1,10 @@
-requests==2.31.0
+certifi==2024.2.2
+cffi==1.16.0
+charset-normalizer==3.3.2
+cryptography==42.0.7
+idna==3.7
 oauthlib[signedtoken]==3.2.2
+pycparser==2.22
+pyjwt==2.8.0
+requests==2.32.0
+urllib3==2.2.1
