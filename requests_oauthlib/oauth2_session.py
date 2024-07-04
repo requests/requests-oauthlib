@@ -547,14 +547,14 @@ class OAuth2Session(requests.Session):
                     token = self.refresh_token(
                         self.auto_refresh_url, auth=auth, **kwargs
                     )
+                    url, headers, data = self._client.add_token(
+                        url, http_method=method, body=data, headers=headers
+                    )
                     if self.token_updater:
                         log.debug(
                             "Updating token to %s using %s.", token, self.token_updater
                         )
                         self.token_updater(token)
-                        url, headers, data = self._client.add_token(
-                            url, http_method=method, body=data, headers=headers
-                        )
                     else:
                         raise TokenUpdated(token)
                 else:
