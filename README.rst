@@ -7,7 +7,7 @@ The OAuth 1 workflow
 --------------------
 
 OAuth 1 can seem overly complicated and it sure has its quirks. Luckily,
-requests_oauthlib hides most of these and let you focus at the task at hand.
+requests_oauthlib hides most of these and lets you focus on the task at hand.
 
 Accessing protected resources using requests_oauthlib is as simple as:
 
@@ -23,7 +23,7 @@ Accessing protected resources using requests_oauthlib is as simple as:
 
 Before accessing resources you will need to obtain a few credentials from your
 provider (e.g. Twitter) and authorization from the user for whom you wish to
-retrieve resources for. You can read all about this in the full
+retrieve resources. You can read all about this in the full
 `OAuth 1 workflow guide on RTD <https://requests-oauthlib.readthedocs.io/en/latest/oauth1_workflow.html>`_.
 
 The OAuth 2 workflow
@@ -36,11 +36,11 @@ flow.
 Fetching a protected resource after obtaining an access token can be extremely
 simple. However, before accessing resources you will need to obtain a few
 credentials from your provider (e.g. Google) and authorization from the user
-for whom you wish to retrieve resources for. You can read all about this in the
+for whom you wish to retrieve resources. You can read all about this in the
 full `OAuth 2 workflow guide on RTD <https://requests-oauthlib.readthedocs.io/en/latest/oauth2_workflow.html>`_.
 
 Installation
--------------
+------------
 
 To install requests and requests_oauthlib you can use pip:
 
@@ -60,17 +60,20 @@ To install requests and requests_oauthlib you can use pip:
 Advanced Configurations
 -----------------------
 
-### Logger Configuration Framework
+Logger Configuration Framework
+------------------------------
 
 `requests-oauthlib` now includes a flexible framework for applying custom filters and configurations to the logger, enhancing control over logging behavior and improving security.
 
-#### Custom Filters
+Custom Filters
+--------------
 
 - **Debug Mode Token Filter**: To enhance security and provide more control over logging of sensitive information, requests-oauthlib introduces the Debug Mode Token Filter. This feature is controlled via the DEBUG_MODE_TOKEN_FILTER environment variable, allowing the suppression or masking of sensitive data in logs.
 
-  ##### Configuring the Debug Mode Token Filter
+  Configuring the Debug Mode Token Filter
+  ---------------------------------------
 
-  - **Environment Variable**: `DEBUG_MODE_TOKEN_FILTER`
+  - **Environment Variable**: `REQUESTS_OAUTHLIB_DEBUG_MODE_TOKEN_FILTER`
   - **Options**:
     - `DEFAULT`: No alteration to logging behavior.
     - `MASK`: Masks sensitive tokens in logs.
