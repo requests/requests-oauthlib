@@ -4,6 +4,8 @@ from oauthlib.common import generate_token, urldecode
 from oauthlib.oauth2 import WebApplicationClient, InsecureTransportError
 from oauthlib.oauth2 import LegacyApplicationClient
 from oauthlib.oauth2 import TokenExpiredError, is_secure_transport
+from oauthlib.oauth2 import UnsupportedTokenTypeError
+from oauthlib.oauth2 import TemporarilyUnavailableError, ServerError
 import requests
 
 log = logging.getLogger(__name__)
@@ -98,8 +100,10 @@ class OAuth2Session(requests.Session):
         self.compliance_hook = {
             "access_token_response": set(),
             "refresh_token_response": set(),
+            "revoke_token_response": set(),
             "protected_request": set(),
             "refresh_token_request": set(),
+            "revoke_token_request": set(),
             "access_token_request": set(),
         }
 
@@ -499,6 +503,85 @@ class OAuth2Session(requests.Session):
             self.token["refresh_token"] = refresh_token
         return self.token
 
+    def revoke_token(
+        self,
+        token_url,
+        token=None,
+        token_type=None,
+        body="",
+        auth=None,
+        timeout=None,
+        headers=None,
+        verify=None,
+        proxies=None,
+        **kwargs
+    ):
+        """Revoke a token pair using a token.
+
+        :param token_url: The token endpoint, must be HTTPS.
+        :param token: The token to revoke.
+        :param token_type: The type of token to revoke.
+        :param body: Optional application/x-www-form-urlencoded body to add the
+                     include in the token request. Prefer kwargs over body.
+        :param auth: An auth tuple or method as accepted by `requests`.
+        :param timeout: Timeout of the request in seconds.
+        :param headers: A dict of headers to be used by `requests`.
+        :param verify: Verify SSL certificate.
+        :param proxies: The `proxies` argument will be passed to `requests`.
+        :param kwargs: Extra parameters to include in the token request.
+        :return: A token dict
+        """
+        if not token_url:
+            raise ValueError("No token endpoint set for revoke.")
+
+        if not is_secure_transport(token_url):
+            raise InsecureTransportError()
+
+        token = token or self.token.get("access_token")
+        token_type = token_type or self.token.get("token_type")
+
+        _request_headers = headers or {}
+
+        if token_type:
+            (url, _headers, body) = self._client.prepare_token_revocation_request(
+                token_url, token, token_type, body=body, scope=self.scope, **kwargs)
+        else:
+            (url, _headers, body) = self._client.prepare_revocation_request(
+                token_url, token, body=body, scope=self.scope, **kwargs)
+        _request_headers.update(_headers)
+        log.debug("Prepared revocation request %s", body)
+
+        for hook in self.compliance_hook["revoke_token_request"]:
+            log.debug("Invoking revoke_token_request hook %s.", hook)
+            url, _request_headers, body = hook(url, _headers, body)
+
+        r = self.post(
+            url,
+            data=dict(urldecode(body)),
+            auth=auth,
+            timeout=timeout,
+            headers=_request_headers,
+            verify=verify,
+            withhold_token=True,
+            proxies=proxies,
+        )
+        log.debug("Request to revoke token completed with status %s.", r.status_code)
+        log.debug("Response headers were %s and content %s.", r.headers, r.text)
+        log.debug(
+            "Invoking %d token response hooks.",
+            len(self.compliance_hook["revoke_token_response"]),
+        )
+        for hook in self.compliance_hook["revoke_token_response"]:
+            log.debug("Invoking hook %s.", hook)
+            r = hook(r)
+
+        if not r.ok and r.status_code == 400:
+            if 'unsupported_token_type' in r.text:
+                raise UnsupportedTokenTypeError("Revocation not supported by server")
+            raise ServerError('Server error')
+        elif not r.ok and r.code == 503:
+            raise TemporarilyUnavailableError("Service unavailable")
+
     def request(
         self,
         method,
@@ -573,9 +656,11 @@ class OAuth2Session(requests.Session):
         Available hooks are:
             access_token_response invoked before token parsing.
             refresh_token_response invoked before refresh token parsing.
+            revoke_token_response invoked after token revocation.
             protected_request invoked before making a request.
             access_token_request invoked before making a token fetch request.
             refresh_token_request invoked before making a refresh request.
+            revoke_token_request invoked before making a revoke request.
 
         If you find a new hook is needed please send a GitHub PR request
         or open an issue.

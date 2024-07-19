@@ -288,6 +288,36 @@ however that you still need to update ``expires_in`` to trigger the refresh.
     ...     auto_refresh_kwargs=extra, token_updater=token_saver)
     >>> r = oauth.get(protected_url)
 
+
+Revoking tokens
+---------------
+
+Certain providers will provide a ``revoke`` API. It can be used to revoke the
+access token or the refresh token.
+
+.. code-block:: pycon
+
+    >>> token = {
+    ...     'access_token': 'eswfld123kjhn1v5423',
+    ...     'refresh_token': 'asdfkljh23490sdf',
+    ...     'token_type': 'Bearer',
+    ...     'expires_in': '-30',     # initially 3600, need to be updated by you
+    ...  }
+    >>> client_id = r'foo'
+    >>> revoke_url = 'https://provider.com/revoke'
+
+    >>> # some providers will ask you for extra credentials to be passed along
+    >>> # when refreshing tokens, usually for authentication purposes.
+    >>> extra = {
+    ...     'client_id': client_id,
+    ...     'client_secret': r'potato',
+    ... }
+
+    >>> from requests_oauthlib import OAuth2Session
+    >>> from oauthlib.oauth2 import TokenExpiredError
+    >>> oauth = OAuth2Session(client_id, token=token)
+    >>> oauth.revoke_token(revoke_url, **extra)
+
 TLS Client Authentication
 -------------------------
 
