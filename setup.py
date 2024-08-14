@@ -64,6 +64,6 @@ setup(
         "Programming Language :: Python :: Implementation :: PyPy",
     ],
     zip_safe=False,
-    tests_require=['mock;python_version<"3.3"', "requests-mock"],
+    tests_require=["requests-mock"],
     test_suite="tests",
 )
