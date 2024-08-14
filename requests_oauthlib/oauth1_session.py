@@ -25,7 +25,7 @@ def urldecode(body):
 
 class TokenRequestDenied(ValueError):
     def __init__(self, message, response):
-        super(TokenRequestDenied, self).__init__(message)
+        super().__init__(message)
         self.response = response
 
     @property
@@ -36,7 +36,7 @@ class TokenRequestDenied(ValueError):
 
 class TokenMissing(ValueError):
     def __init__(self, message, response):
-        super(TokenMissing, self).__init__(message)
+        super().__init__(message)
         self.response = response
 
 
@@ -149,7 +149,7 @@ class OAuth1Session(requests.Session):
                                    signature creation.
         :param **kwargs: Additional keyword arguments passed to `OAuth1`
         """
-        super(OAuth1Session, self).__init__()
+        super().__init__()
         self._client = OAuth1(
             client_key,
             client_secret=client_secret,
@@ -348,7 +348,7 @@ class OAuth1Session(requests.Session):
             self._client.client.resource_owner_key = token["oauth_token"]
         else:
             raise TokenMissing(
-                "Response does not contain a token: {resp}".format(resp=token), token
+                f"Response does not contain a token: {token}", token
             )
         if "oauth_token_secret" in token:
             self._client.client.resource_owner_secret = token["oauth_token_secret"]

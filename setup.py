@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 import os
 import sys
 import re
@@ -10,7 +8,7 @@ from setuptools import setup
 
 # Get the version
 version_regex = r'__version__ = ["\']([^"\']*)["\']'
-with open("requests_oauthlib/__init__.py", "r") as f:
+with open("requests_oauthlib/__init__.py") as f:
     text = f.read()
     match = re.search(version_regex, text)
 

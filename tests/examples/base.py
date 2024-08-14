@@ -27,8 +27,8 @@ class Sample():
             self.proc.kill()
     
     def replaceVariables(self, filein ,fileout, vars):
-        with open(filein, "rt") as fin:
-            with open(fileout, "wt") as fout:
+        with open(filein) as fin:
+            with open(fileout, "w") as fout:
                 for line in fin:
                     for k, v in vars.items():
                         line = line.replace(k, v)
@@ -44,7 +44,7 @@ class Sample():
         :type variables: dict
         """
         inpath = os.path.join(cwd, "..", "..", "docs", "examples", filepath)
-        outpath = os.path.join(cwd, "tmp_{}".format(filepath))
+        outpath = os.path.join(cwd, f"tmp_{filepath}")
         self.replaceVariables(inpath, outpath, variables)
 
         self.proc = subprocess.Popen(
