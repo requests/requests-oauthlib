@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import logging
 
 from oauthlib.common import extract_params

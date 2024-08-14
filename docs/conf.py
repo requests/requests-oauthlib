@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # Requests-OAuthlib documentation build configuration file, created by
 # sphinx-quickstart on Fri May 10 11:49:01 2013.
 #

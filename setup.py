@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 import os
 import sys
 import re
@@ -10,7 +8,7 @@ from setuptools import setup
 
 # Get the version
 version_regex = r'__version__ = ["\']([^"\']*)["\']'
-with open("requests_oauthlib/__init__.py", "r") as f:
+with open("requests_oauthlib/__init__.py") as f:
     text = f.read()
     match = re.search(version_regex, text)
 
@@ -43,7 +41,7 @@ setup(
     author_email="me@kennethreitz.com",
     url="https://github.com/requests/requests-oauthlib",
     packages=["requests_oauthlib", "requests_oauthlib.compliance_fixes"],
-    python_requires=">=3.7",
+    python_requires=">=3.8",
     install_requires=["oauthlib>=3.0.0", "requests>=2.0.0"],
     extras_require={"rsa": ["oauthlib[signedtoken]>=3.0.0"]},
     license="ISC",
@@ -54,16 +52,16 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
         "Programming Language :: Python :: Implementation :: CPython",
         "Programming Language :: Python :: Implementation :: PyPy",
     ],
     zip_safe=False,
-    tests_require=['mock;python_version<"3.3"', "requests-mock"],
+    tests_require=["requests-mock"],
     test_suite="tests",
 )

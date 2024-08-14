@@ -63,7 +63,7 @@ class OAuth2SessionTest(TestCase):
         token = "Bearer " + self.token["access_token"]
 
         def verifier(r, **kwargs):
-            auth_header = r.headers.get(str("Authorization"), None)
+            auth_header = r.headers.get("Authorization", None)
             self.assertEqual(auth_header, token)
             resp = mock.MagicMock()
             resp.cookes = []
@@ -544,10 +544,10 @@ class OAuth2SessionNetrcTest(OAuth2SessionTest):
         with open(netrc_loc, "w") as f:
             f.write("machine i.b\n" "  password abc123\n" "  login spam@eggs.co\n")
 
-        super(OAuth2SessionNetrcTest, self).setUp()
+        super().setUp()
 
     def tearDown(self):
-        super(OAuth2SessionNetrcTest, self).tearDown()
+        super().tearDown()
 
         if self.prehome is not None:
             os.environ["HOME"] = self.prehome
