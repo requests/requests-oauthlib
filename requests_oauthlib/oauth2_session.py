@@ -473,11 +473,8 @@ class OAuth2Session(requests.Session):
             log.debug("Invoking refresh_token_request hook %s.", hook)
             token_url, headers, body = hook(token_url, headers, body)
 
-        try:
+        if headers['Content-Type'] == "application/x-www-form-urlencoded":
             body = dict(urldecode(body))
-        except ValueError:
-            log.debug("Could not decode body as urlencoded data. Using body in request as is: %s", body)
-            pass
 
         r = self.post(
             token_url,
