@@ -354,6 +354,7 @@ class OAuth2Session(requests.Session):
             body=body,
             redirect_uri=self.redirect_uri,
             include_client_id=include_client_id,
+            scope=self._scope,
             **kwargs
         )
 
