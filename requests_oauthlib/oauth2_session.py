@@ -430,6 +430,7 @@ class OAuth2Session(requests.Session):
         headers=None,
         verify=None,
         proxies=None,
+        cert=None,
         **kwargs
     ):
         """Fetch a new access token using a refresh token.
@@ -443,6 +444,10 @@ class OAuth2Session(requests.Session):
         :param headers: A dict of headers to be used by `requests`.
         :param verify: Verify SSL certificate.
         :param proxies: The `proxies` argument will be passed to `requests`.
+        :param cert: Client certificate to send for OAuth 2.0 Mutual-TLS Client
+                     Authentication (draft-ietf-oauth-mtls). Can either be the
+                     path of a file containing the private key and certificate or
+                     a tuple of two filenames for certificate and key.
         :param kwargs: Extra parameters to include in the token request.
         :return: A token dict
         """
@@ -482,6 +487,7 @@ class OAuth2Session(requests.Session):
             verify=verify,
             withhold_token=True,
             proxies=proxies,
+            cert=cert
         )
         log.debug("Request to refresh token completed with status %s.", r.status_code)
         log.debug("Response headers were %s and content %s.", r.headers, r.text)
