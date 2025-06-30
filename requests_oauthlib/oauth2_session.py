@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 
 class TokenUpdated(Warning):
     def __init__(self, token):
-        super(TokenUpdated, self).__init__()
+        super().__init__()
         self.token = token
 
 
@@ -74,7 +74,7 @@ class OAuth2Session(requests.Session):
         :param pkce: Set "S256" or "plain" to enable PKCE. Default is disabled.
         :param kwargs: Arguments to pass to the Session constructor.
         """
-        super(OAuth2Session, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self._client = client or WebApplicationClient(client_id, token=token)
         self.token = token or {}
         self._scope = scope
@@ -87,7 +87,7 @@ class OAuth2Session(requests.Session):
         self._pkce = pkce
 
         if self._pkce not in ["S256", "plain", None]:
-            raise AttributeError("Wrong value for {}(.., pkce={})".format(self.__class__, self._pkce))
+            raise AttributeError(f"Wrong value for {self.__class__}(.., pkce={self._pkce})")
 
         # Ensure that requests doesn't do any automatic auth. See #278.
         # The default behavior can be re-enabled by setting auth to None.
@@ -563,7 +563,7 @@ class OAuth2Session(requests.Session):
         log.debug("Requesting url %s using method %s.", url, method)
         log.debug("Supplying headers %s and data %s", headers, data)
         log.debug("Passing through key word arguments %s.", kwargs)
-        return super(OAuth2Session, self).request(
+        return super().request(
             method, url, headers=headers, data=data, files=files, **kwargs
         )
 

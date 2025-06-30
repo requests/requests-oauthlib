@@ -1,7 +1,6 @@
 name: Run Tests
 on:
   push:
-    branches: [ master ]
   pull_request:
     branches: [ master ]
 jobs:
@@ -21,6 +20,8 @@ jobs:
             tox-env: py311
           - python-version: "3.12"
             tox-env: py312
+          - python-version: "3.13"
+            tox-env: py313
           - python-version: "pypy3.10"
             tox-env: pypy310
     steps:
