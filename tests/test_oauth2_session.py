@@ -12,6 +12,7 @@ from unittest import mock
 from oauthlib.common import urlencode
 from oauthlib.oauth2 import TokenExpiredError, OAuth2Error
 from oauthlib.oauth2 import MismatchingStateError
+from oauthlib.oauth2.rfc6749.errors import CustomOAuth2Error
 from oauthlib.oauth2 import WebApplicationClient, MobileApplicationClient
 from oauthlib.oauth2 import LegacyApplicationClient, BackendApplicationClient
 from requests_oauthlib import OAuth2Session, TokenUpdated
@@ -523,6 +524,63 @@ class OAuth2SessionTest(TestCase):
             else:
                 sess.fetch_token(url)
             self.assertTrue(sess.authorized)
+
+    def test_fetch_token_http_error_handling(self):
+        """Test that HTTP errors are properly raised instead of parsing error responses as tokens."""
+        url = "https://example.com/token"
+
+        # Test 400 error response (like the original issue)
+        error_400 = {"messages": [{"logLevel": "Error", "text": "User not Found"}], "status": "Forbidden"}
+
+        def fake_400_error(r, **kwargs):
+            resp = mock.MagicMock()
+            resp.text = json.dumps(error_400)
+            resp.status_code = 400
+            resp.request = mock.MagicMock()
+            resp.request.url = url
+            resp.raise_for_status.side_effect = requests.exceptions.HTTPError(
+                "400 Client Error", response=resp
+            )
+            return resp
+
+        for client in self.clients:
+            sess = OAuth2Session(client=client)
+            sess.send = fake_400_error
+
+            if isinstance(client, LegacyApplicationClient):
+                self.assertRaises(
+                    CustomOAuth2Error,
+                    sess.fetch_token,
+                    url,
+                    username="username1",
+                    password="password1",
+                )
+            else:
+                self.assertRaises(CustomOAuth2Error, sess.fetch_token, url)
+
+    def test_refresh_token_http_error_handling(self):
+        """Test that HTTP errors are properly raised instead of parsing error responses as tokens."""
+        url = "https://example.com/refresh"
+
+        # Test 400 error response
+        error_400 = {"error": "invalid_grant",
+                     "error_description": "Refresh token is invalid"}
+
+        def fake_400_error(r, **kwargs):
+            resp = mock.MagicMock()
+            resp.text = json.dumps(error_400)
+            resp.status_code = 400
+            resp.request = mock.MagicMock()
+            resp.request.url = url
+            resp.raise_for_status.side_effect = requests.exceptions.HTTPError(
+                "400 Client Error", response=resp
+            )
+            return resp
+
+        for client in self.clients:
+            sess = OAuth2Session(client=client, token=self.token)
+            sess.send = fake_400_error
+            self.assertRaises(CustomOAuth2Error, sess.refresh_token, url)
 
 
 class OAuth2SessionNetrcTest(OAuth2SessionTest):

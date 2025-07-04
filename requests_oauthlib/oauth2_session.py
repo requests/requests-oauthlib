@@ -4,6 +4,7 @@ from oauthlib.common import generate_token, urldecode
 from oauthlib.oauth2 import WebApplicationClient, InsecureTransportError
 from oauthlib.oauth2 import LegacyApplicationClient
 from oauthlib.oauth2 import TokenExpiredError, is_secure_transport
+from oauthlib.oauth2.rfc6749.errors import CustomOAuth2Error
 import requests
 
 log = logging.getLogger(__name__)
@@ -198,6 +199,17 @@ class OAuth2Session(requests.Session):
             ),
             state,
         )
+
+    def validate_token_response(self, r):
+        message = ""
+        try:
+            r.raise_for_status()
+        except requests.HTTPError as e:
+            message = str(e)
+            if r.text:
+                message += f"\nBody: {r.text}"
+        if message:
+            raise CustomOAuth2Error('Response error', message, uri=r.request.url, status_code=r.status_code)
 
     def fetch_token(
         self,
@@ -403,6 +415,7 @@ class OAuth2Session(requests.Session):
             log.debug("Invoking hook %s.", hook)
             r = hook(r)
 
+        self.validate_token_response(r)
         self._client.parse_request_body_response(r.text, scope=self.scope)
         self.token = self._client.token
         log.debug("Obtained token %s.", self.token)
@@ -493,6 +506,7 @@ class OAuth2Session(requests.Session):
             log.debug("Invoking hook %s.", hook)
             r = hook(r)
 
+        self.validate_token_response(r)
         self.token = self._client.parse_request_body_response(r.text, scope=self.scope)
         if "refresh_token" not in self.token:
             log.debug("No new refresh token given. Re-using old.")
