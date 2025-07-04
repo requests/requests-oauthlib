@@ -535,9 +535,10 @@ class OAuth2SessionNetrcTest(OAuth2SessionTest):
 
     def setUp(self):
         # Set up a temporary home directory
+        self.home_env = "HOME" if os.name != "nt" else "USERPROFILE"
         self.homedir = tempfile.mkdtemp()
-        self.prehome = os.environ.get("HOME", None)
-        os.environ["HOME"] = self.homedir
+        self.prehome = os.environ.get(self.home_env, None)
+        os.environ[self.home_env] = self.homedir
 
         # Write a .netrc file that will cause problems
         netrc_loc = os.path.expanduser("~/.netrc")
@@ -550,5 +551,5 @@ class OAuth2SessionNetrcTest(OAuth2SessionTest):
         super(OAuth2SessionNetrcTest, self).tearDown()
 
         if self.prehome is not None:
-            os.environ["HOME"] = self.prehome
+            os.environ[self.home_env] = self.prehome
         shutil.rmtree(self.homedir)
