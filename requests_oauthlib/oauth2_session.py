@@ -349,11 +349,19 @@ class OAuth2Session(requests.Session):
             if client_secret is not None:
                 kwargs["client_secret"] = client_secret
 
+        # Proritize the scope passed in constructor
+        # If not passed in constructor, use the kwargs scope if available
+        if 'scope' in kwargs:
+            scope = kwargs.pop('scope', None)
+            if self.scope == None:
+                self.scope = scope
+
         body = self._client.prepare_request_body(
             code=code,
             body=body,
             redirect_uri=self.redirect_uri,
             include_client_id=include_client_id,
+            scope=self.scope,
             **kwargs
         )
 
