@@ -384,7 +384,7 @@ class OAuth2Session(requests.Session):
             timeout=timeout,
             headers=headers,
             auth=auth,
-            verify=verify,
+            verify=verify if verify is not None else self.verify,
             proxies=proxies,
             cert=cert,
             **request_kwargs
@@ -479,7 +479,7 @@ class OAuth2Session(requests.Session):
             auth=auth,
             timeout=timeout,
             headers=headers,
-            verify=verify,
+            verify=verify if verify is not None else self.verify,
             withhold_token=True,
             proxies=proxies,
         )
