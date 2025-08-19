@@ -16,6 +16,7 @@ from requests_oauthlib.compliance_fixes import slack_compliance_fix
 from requests_oauthlib.compliance_fixes import instagram_compliance_fix
 from requests_oauthlib.compliance_fixes import plentymarkets_compliance_fix
 from requests_oauthlib.compliance_fixes import ebay_compliance_fix
+from requests_oauthlib.compliance_fixes.wix import wix_compliance_fix
 
 
 class FacebookComplianceFixTest(TestCase):
@@ -385,3 +386,46 @@ class RefreshTokenRequestComplianceFixTest(TestCase):
             "https://example.com/refresh",
         )
         assert token["token_type"] == "Bearer"
+
+
+class WixComplianceFixTest(TestCase):
+
+    def setUp(self):
+        wix = OAuth2Session()
+        self.session = wix_compliance_fix(wix)
+
+    def test_access_token_request_sent_as_json(self):
+        mocker = requests_mock.Mocker()
+        mocker.post(
+            "https://www.wixapis.com/oauth/access",
+            request_headers={"Content-Type": "application/json"},
+            json={"access_token": "sample_access_token", "refresh_token": "sample_refresh_token"},
+            additional_matcher=lambda req: req.json() == {'grant_type': 'authorization_code', 'code': 'sample_code'}
+        )
+        mocker.start()
+        self.addCleanup(mocker.stop)
+
+        token = self.session.fetch_token(
+            "https://www.wixapis.com/oauth/access",
+            code="sample_code"
+        )
+
+        self.assertEqual(token, {"access_token": "sample_access_token", "refresh_token": "sample_refresh_token"})
+
+    def test_refresh_token_request_sent_as_json(self):
+        mocker = requests_mock.Mocker()
+        mocker.post(
+            "https://www.wixapis.com/oauth/access",
+            request_headers={"Content-Type": "application/json"},
+            json={"access_token": "sample_access_token", "refresh_token": "sample_refresh_token"},
+            additional_matcher=lambda req: req.json() == {'grant_type': 'refresh_token', 'refresh_token': 'sample_refresh_token'}
+        )
+        mocker.start()
+        self.addCleanup(mocker.stop)
+
+        token = self.session.refresh_token(
+            "https://www.wixapis.com/oauth/access",
+            refresh_token="sample_refresh_token"
+        )
+
+        self.assertEqual(token, {"access_token": "sample_access_token", "refresh_token": "sample_refresh_token"})

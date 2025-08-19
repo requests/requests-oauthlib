@@ -473,9 +473,12 @@ class OAuth2Session(requests.Session):
             log.debug("Invoking refresh_token_request hook %s.", hook)
             token_url, headers, body = hook(token_url, headers, body)
 
+        if headers['Content-Type'] == "application/x-www-form-urlencoded":
+            body = dict(urldecode(body))
+
         r = self.post(
             token_url,
-            data=dict(urldecode(body)),
+            data=body,
             auth=auth,
             timeout=timeout,
             headers=headers,
