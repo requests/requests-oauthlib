@@ -1,4 +1,7 @@
 import logging
+import time
+import calendar
+from datetime import datetime
 
 from oauthlib.common import generate_token, urldecode
 from oauthlib.oauth2 import WebApplicationClient, InsecureTransportError
@@ -170,6 +173,39 @@ class OAuth2Session(requests.Session):
         will succeed.
         """
         return bool(self.access_token)
+
+    def _add_expires_at(self, token, response_date=None):
+        """Add expires_at to token if expires_in is present.
+        
+        OAuth2 responses often include expires_in (seconds until token expires) but
+        oauthlib expects expires_at (timestamp when token expires) for expiration checks.
+        
+        Uses response Date header if provided. Falls back to current time if
+        Date header is not provided or malformed.
+        
+        :param token: OAuth2 token dict
+        :param response_date: Optional Date header value from response (e.g. "Thu, 14 Mar 2024 08:30:00 GMT")
+        :return: Token dict with expires_at if expires_in was present
+        """
+        if token and 'expires_in' in token:
+            # RFC 6749 requires expires_in to be 1*DIGIT, but some providers send it as string
+            expires_in = int(token['expires_in'])
+            
+            # Try to use response Date header if provided
+            if response_date:
+                try:
+                    # Parse HTTP date format (RFC 7231)
+                    dt = datetime.strptime(response_date, "%a, %d %b %Y %H:%M:%S GMT")
+                    # Convert UTC time tuple to Unix timestamp (returns integer)
+                    token['expires_at'] = calendar.timegm(dt.utctimetuple()) + expires_in
+                    return token
+                except (TypeError, ValueError):
+                    # Skip if Date header is malformed or uses non-standard format
+                    log.debug("Failed to parse Date header: %s", response_date)
+            
+            # Fall back to current time (truncate to second for conservative expiry)
+            token['expires_at'] = int(time.time()) + expires_in
+        return token
 
     def authorization_url(self, url, state=None, **kwargs):
         """Form an authorization URL.
@@ -404,7 +440,7 @@ class OAuth2Session(requests.Session):
             r = hook(r)
 
         self._client.parse_request_body_response(r.text, scope=self.scope)
-        self.token = self._client.token
+        self.token = self._add_expires_at(self._client.token, response_date=r.headers.get('Date'))
         log.debug("Obtained token %s.", self.token)
         return self.token
 
@@ -494,6 +530,7 @@ class OAuth2Session(requests.Session):
             r = hook(r)
 
         self.token = self._client.parse_request_body_response(r.text, scope=self.scope)
+        self.token = self._add_expires_at(self.token, response_date=r.headers.get('Date'))
         if "refresh_token" not in self.token:
             log.debug("No new refresh token given. Re-using old.")
             self.token["refresh_token"] = refresh_token

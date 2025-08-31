@@ -40,7 +40,7 @@ class OAuth2SessionTest(TestCase):
             "access_token": "asdfoiw37850234lkjsdfsdf",
             "refresh_token": "sldvafkjw34509s8dfsdf",
             "expires_in": 3600,
-            "expires_at": fake_time + 3600,
+            "expires_at": int(fake_time) + 3600,
         }
         # use someclientid:someclientsecret to easily differentiate between client and user credentials
         # these are the values used in oauthlib tests
@@ -401,10 +401,10 @@ class OAuth2SessionTest(TestCase):
 
         """
         new_token = deepcopy(self.token)
-        past = time.time() - 7200
         now = time.time()
-        self.token["expires_at"] = past
-        new_token["expires_at"] = now + 3600
+        past = now - 7200
+        self.token["expires_at"] = int(past)
+        new_token["expires_at"] = int(now) + 3600
         url = "https://example.com/token"
 
         with mock.patch("time.time", lambda: now):
@@ -487,6 +487,35 @@ class OAuth2SessionTest(TestCase):
         # can't delete token attribute
         with self.assertRaises(AttributeError):
             del sess.token
+
+    @mock.patch("time.time", new=lambda: fake_time)
+    def test_add_expires_at_from_expires_in(self):
+        """Test that expires_at is correctly calculated from expires_in"""
+        sess = OAuth2Session("someclientid")
+        now = int(fake_time)
+        
+        # Test with missing expires_in (should not modify token)
+        token = {"access_token": "foo"}
+        updated_token = sess._add_expires_at(token)
+        self.assertNotIn('expires_at', updated_token)
+
+        # Test with Date header
+        date_str = "Thu, 14 Mar 2024 08:30:00 GMT"
+        token = {"access_token": "foo", "expires_in": 3600}
+        updated_token = sess._add_expires_at(token, response_date=date_str)
+        self.assertIn('expires_at', updated_token)
+        expected_timestamp = 1710405000 + 3600  # 2024-03-14 08:30:00 UTC + 1 hour
+        self.assertEqual(updated_token['expires_at'], expected_timestamp)
+
+        # Test with malformed Date header
+        updated_token = sess._add_expires_at(token, response_date="invalid date format")
+        self.assertIn('expires_at', updated_token)
+        self.assertEqual(updated_token['expires_at'], now + 3600)
+
+        # Test with missing Date header
+        updated_token = sess._add_expires_at(token, response_date=None)
+        self.assertIn('expires_at', updated_token)
+        self.assertEqual(updated_token['expires_at'], now + 3600)
 
     def test_authorized_false(self):
         sess = OAuth2Session("someclientid")
