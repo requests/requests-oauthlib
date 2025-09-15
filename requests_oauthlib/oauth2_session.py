@@ -5,6 +5,7 @@ from oauthlib.oauth2 import WebApplicationClient, InsecureTransportError
 from oauthlib.oauth2 import LegacyApplicationClient
 from oauthlib.oauth2 import TokenExpiredError, is_secure_transport
 import requests
+from urllib.parse import quote_plus
 
 log = logging.getLogger(__name__)
 
@@ -341,7 +342,7 @@ class OAuth2Session(requests.Session):
                         client_id,
                     )
                     client_secret = client_secret if client_secret is not None else ""
-                    auth = requests.auth.HTTPBasicAuth(client_id, client_secret)
+                    auth = requests.auth.HTTPBasicAuth(quote_plus(client_id), quote_plus(client_secret))
 
         if include_client_id:
             # this was pulled out of the params
