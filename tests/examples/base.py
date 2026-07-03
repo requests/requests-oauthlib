@@ -1,7 +1,6 @@
 import os.path
 import os
 import subprocess
-import shlex
 import shutil
 from selenium import webdriver
 from selenium.webdriver.common.by import By
