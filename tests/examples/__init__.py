@@ -1,2 +1,2 @@
-from .base import Sample
-from .base import Browser
+from .base import Sample as Sample
+from .base import Browser as Browser
