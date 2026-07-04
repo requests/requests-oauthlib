@@ -1,4 +1,5 @@
 import json
+import pickle
 import time
 import tempfile
 import shutil
@@ -58,6 +59,19 @@ class OAuth2SessionTest(TestCase):
             self.client_BackendApplication,
         ]
         self.all_clients = self.clients + [self.client_MobileApplication]
+
+    def test_pickle(self):
+        # OAuth2Session must be picklable so it can be used in a
+        # multiprocessing context; a lambda in __init__ used to break this
+        # with "Can't pickle local object ...<lambda>" (#849).
+        for client in self.all_clients:
+            sess = OAuth2Session(client=client, token=self.token)
+            restored = pickle.loads(pickle.dumps(sess))
+            self.assertIsInstance(restored, OAuth2Session)
+            # The no-op auth handler must survive pickling and still return
+            # the request unchanged (disabling requests' automatic auth).
+            request = mock.sentinel.request
+            self.assertIs(restored.auth(request), request)
 
     def test_add_token(self):
         token = "Bearer " + self.token["access_token"]

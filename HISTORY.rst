@@ -1,6 +1,14 @@
 History
 -------
 
+Unreleased
+++++++++++
+
+- ``OAuth2Session`` is picklable again: the internal no-op ``auth`` handler is
+  a module-level function instead of a lambda, so sessions can be used in a
+  ``multiprocessing`` context. Fixes `oauthlib #849
+  <https://github.com/oauthlib/oauthlib/issues/849>`_.
+
 v2.0.0 (22 March 2024)
 ++++++++++++++++++++++++
 
