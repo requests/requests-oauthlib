@@ -9,6 +9,17 @@ import requests
 log = logging.getLogger(__name__)
 
 
+def _no_op_auth(request):
+    """A no-op ``requests`` auth handler that returns the request unchanged.
+
+    ``requests`` calls ``auth(request)`` and uses the returned request, so this
+    prevents any automatic auth (e.g. from ``.netrc``); see GH #278. It is
+    defined at module level rather than as a lambda so that ``OAuth2Session``
+    instances remain picklable (GH #849).
+    """
+    return request
+
+
 class TokenUpdated(Warning):
     def __init__(self, token):
         super(TokenUpdated, self).__init__()
@@ -91,7 +102,7 @@ class OAuth2Session(requests.Session):
 
         # Ensure that requests doesn't do any automatic auth. See #278.
         # The default behavior can be re-enabled by setting auth to None.
-        self.auth = lambda r: r
+        self.auth = _no_op_auth
 
         # Allow customizations for non compliant providers through various
         # hooks to adjust requests and responses.
