@@ -1,6 +1,6 @@
 import logging
 
-from oauthlib.common import generate_token, urldecode
+from oauthlib.common import generate_token, urldecode, urlencode
 from oauthlib.oauth2 import WebApplicationClient, InsecureTransportError
 from oauthlib.oauth2 import LegacyApplicationClient
 from oauthlib.oauth2 import TokenExpiredError, is_secure_transport
@@ -13,6 +13,24 @@ class TokenUpdated(Warning):
     def __init__(self, token):
         super(TokenUpdated, self).__init__()
         self.token = token
+
+
+def _pop_multi_value_params(kwargs):
+    extras = []
+    for key, value in list(kwargs.items()):
+        if isinstance(value, (list, tuple)):
+            extras.extend((key, item) for item in value)
+            del kwargs[key]
+    return extras
+
+
+def _join_body(body, extras):
+    if not extras:
+        return body
+    extra = urlencode(extras)
+    if not body:
+        return extra
+    return body + "&" + extra
 
 
 class OAuth2Session(requests.Session):
@@ -349,6 +367,7 @@ class OAuth2Session(requests.Session):
             if client_secret is not None:
                 kwargs["client_secret"] = client_secret
 
+        extras = _pop_multi_value_params(kwargs)
         body = self._client.prepare_request_body(
             code=code,
             body=body,
@@ -356,6 +375,7 @@ class OAuth2Session(requests.Session):
             include_client_id=include_client_id,
             **kwargs
         )
+        body = _join_body(body, extras)
 
         headers = headers or {
             "Accept": "application/json",
@@ -364,11 +384,11 @@ class OAuth2Session(requests.Session):
         self.token = {}
         request_kwargs = {}
         if method.upper() == "POST":
-            request_kwargs["params" if force_querystring else "data"] = dict(
-                urldecode(body)
+            request_kwargs["params" if force_querystring else "data"] = urldecode(
+                body
             )
         elif method.upper() == "GET":
-            request_kwargs["params"] = dict(urldecode(body))
+            request_kwargs["params"] = urldecode(body)
         else:
             raise ValueError("The method kwarg must be POST or GET.")
 
@@ -458,9 +478,11 @@ class OAuth2Session(requests.Session):
             "Adding auto refresh key word arguments %s.", self.auto_refresh_kwargs
         )
         kwargs.update(self.auto_refresh_kwargs)
+        extras = _pop_multi_value_params(kwargs)
         body = self._client.prepare_refresh_body(
             body=body, refresh_token=refresh_token, scope=self.scope, **kwargs
         )
+        body = _join_body(body, extras)
         log.debug("Prepared refresh token request body %s", body)
 
         if headers is None:
@@ -475,7 +497,7 @@ class OAuth2Session(requests.Session):
 
         r = self.post(
             token_url,
-            data=dict(urldecode(body)),
+            data=urldecode(body),
             auth=auth,
             timeout=timeout,
             headers=headers,

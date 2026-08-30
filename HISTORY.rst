@@ -1,6 +1,12 @@
 History
 -------
 
+v2.0.1 (unreleased)
+++++++++++++++++++++++++
+
+- Keep repeated form fields when fetching or refreshing a token, so RFC 8707
+  ``resource`` can be sent more than once.
+
 v2.0.0 (22 March 2024)
 ++++++++++++++++++++++++
 

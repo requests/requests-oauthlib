@@ -431,6 +431,29 @@ class OAuth2SessionTest(TestCase):
                 else:
                     self.assertEqual(sess.fetch_token(url), new_token)
 
+    def test_fetch_token_repeated_resource(self):
+        url = "https://example.com/token"
+        sess = OAuth2Session(client=BackendApplicationClient(self.client_id))
+        recorded = []
+
+        def fake_send(r, **kwargs):
+            recorded.append(r.body)
+            resp = mock.MagicMock()
+            resp.text = json.dumps(self.token)
+            return resp
+
+        sess.send = fake_send
+        sess.fetch_token(
+            url,
+            resource=["https://api.example/a", "https://api.example/b"],
+        )
+        body = recorded[0]
+        if isinstance(body, bytes):
+            body = body.decode()
+        self.assertEqual(body.count("resource="), 2)
+        self.assertIn("resource=https%3A%2F%2Fapi.example%2Fa", body)
+        self.assertIn("resource=https%3A%2F%2Fapi.example%2Fb", body)
+
     def test_web_app_fetch_token(self):
         # Ensure the state parameter is used, see issue #105.
         client = OAuth2Session("someclientid", state="somestate")
