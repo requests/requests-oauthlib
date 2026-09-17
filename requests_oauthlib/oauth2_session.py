@@ -1,9 +1,12 @@
 import logging
+import time
 
 from oauthlib.common import generate_token, urldecode
 from oauthlib.oauth2 import WebApplicationClient, InsecureTransportError
 from oauthlib.oauth2 import LegacyApplicationClient
 from oauthlib.oauth2 import TokenExpiredError, is_secure_transport
+from oauthlib.oauth2.rfc6749.errors import CustomOAuth2Error
+
 import requests
 
 log = logging.getLogger(__name__)
@@ -419,6 +422,97 @@ class OAuth2Session(requests.Session):
         )
         self.token = self._client.token
         return self.token
+
+    # TODO: This should be async to make it not blocking
+    def token_from_device_code(
+         self,
+         device_authorization_endpoint,
+         token_endpoint,
+         client_id=None,
+         client_secret=None,
+         interval=None
+    ):
+        """
+        Prompts request for device code token at `token_endpoint`. Used by
+        DeviceCodeClient. Will continuously loop and poll `token_endpoint` to
+        check if the device code until the number of attempts are met or the
+        access token is given.
+
+
+        :param token_endpoint: Endpoint for retrieving the token code
+        :param client_id: Client id to be used for token retrieval.  If not
+                          given, the client id of this session is used.
+        :param client_secret: The `client_secret` paired with `client_id`. If
+                              the value is `None`, it will be omitted from the
+                              requests.
+        :param interval: Time in seconds between device code polls. By default
+                         will use the interval returned by the first request.
+        :return: Token dict
+        """
+        if client_id is None:
+            client_id = self.client_id
+
+        auth = requests.auth.HTTPBasicAuth(client_id, client_secret)
+        device_code_response = self.post(
+            device_authorization_endpoint,
+            auth=auth,
+            data={"scope": self.scope},
+        )
+        log.debug(
+            "Request device code from %s with client id %s",
+            device_authorization_endpoint,
+            client_id
+        )
+        try:
+            device_code_response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            log.debug("Failed to authorize:")
+            log.debug("Device code response status: %s", device_code_response.status_code)
+            log.debug("Device code response content: %s", device_code_response.text)
+            raise e
+
+        device_data = device_code_response.json()
+        device_code = device_data["device_code"]
+        user_code = device_data["user_code"]
+        verification_uri = device_data["verification_uri"]
+        expires_in = device_data["expires_in"]
+        start_time = time.time()
+        log.debug("Device code response data: %s", device_data)
+        print(f"Go to: {verification_uri}")
+        print(f"Enter code: {user_code}")
+
+        token = None
+        if interval is None:
+            # RFC8628 specifies that clients MUST use 5 as the default
+            interval = device_data.get("interval", 5)
+        attempts = 0
+        while token is None:
+            if time.time() - start_time > expires_in:
+                raise TimeoutError(
+                    "Device code expired"
+                )
+            attempts += 1
+            time.sleep(interval)
+
+            try:
+                log.debug("Polling token endpoint %s for device code.", token_endpoint)
+                token = self.fetch_token(
+                    token_endpoint,
+                    device_code=device_code,
+                    include_client_id=True,
+                    client_id=client_id,
+                    client_secret=client_secret,
+                    scope=self.scope,
+                )
+            except CustomOAuth2Error as e:
+                if "authorization_pending" in str(e):
+                    print(e.description)
+                elif "slow_down" in str(e):
+                    interval+=5
+                    print(f"Polling too fast, trying again in {interval}s")
+                else:
+                    raise e
+        return token
 
     def refresh_token(
         self,

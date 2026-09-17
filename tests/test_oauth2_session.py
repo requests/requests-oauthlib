@@ -14,6 +14,8 @@ from oauthlib.oauth2 import TokenExpiredError, OAuth2Error
 from oauthlib.oauth2 import MismatchingStateError
 from oauthlib.oauth2 import WebApplicationClient, MobileApplicationClient
 from oauthlib.oauth2 import LegacyApplicationClient, BackendApplicationClient
+from oauthlib.oauth2 import DeviceClient
+from oauthlib.oauth2.rfc6749.errors import CustomOAuth2Error
 from requests_oauthlib import OAuth2Session, TokenUpdated
 import requests
 
@@ -32,6 +34,21 @@ def fake_token(token):
 
     return fake_send
 
+def fake_device_code_response(interval=None, expiry=300):
+    device_code_data = {
+            "device_code": "devicecode123",
+            "user_code": "USER-CODE",
+            "verification_uri": "https://example.com/verify",
+            "expires_in": expiry,
+        }
+    if interval is not None:
+        device_code_data["interval"] = interval
+
+    device_code_resp = requests.Response()
+    device_code_resp.status_code = 200
+    device_code_resp.headers["Content-Type"] = "application/json"
+    device_code_resp._content = json.dumps(device_code_data).encode("utf-8")
+    return device_code_resp
 
 class OAuth2SessionTest(TestCase):
     def setUp(self):
@@ -58,6 +75,9 @@ class OAuth2SessionTest(TestCase):
             self.client_BackendApplication,
         ]
         self.all_clients = self.clients + [self.client_MobileApplication]
+        self.token_endpoint = "https://example.com/token"
+        self.device_authorization_endpoint = "https://example.com/device_authorization"
+
 
     def test_add_token(self):
         token = "Bearer " + self.token["access_token"]
@@ -220,7 +240,7 @@ class OAuth2SessionTest(TestCase):
 
     @mock.patch("time.time", new=lambda: fake_time)
     def test_fetch_token(self):
-        url = "https://example.com/token"
+        url = self.token_endpoint
 
         for client in self.clients:
             sess = OAuth2Session(client=client, token=self.token)
@@ -405,7 +425,7 @@ class OAuth2SessionTest(TestCase):
         now = time.time()
         self.token["expires_at"] = past
         new_token["expires_at"] = now + 3600
-        url = "https://example.com/token"
+        url = self.token_endpoint
 
         with mock.patch("time.time", lambda: now):
             for client in self.clients:
@@ -502,7 +522,7 @@ class OAuth2SessionTest(TestCase):
 
             return fake_send
 
-        url = "https://example.com/token"
+        url = self.token_endpoint
 
         for client in self.clients:
             sess = OAuth2Session(client=client)
@@ -523,6 +543,164 @@ class OAuth2SessionTest(TestCase):
             else:
                 sess.fetch_token(url)
             self.assertTrue(sess.authorized)
+    
+    def test_device_code_client_id_defaults_to_session_client_id(self):
+        sess = OAuth2Session(client=DeviceClient(self.client_id))
+        sess.fetch_token = mock.Mock(return_value=self.token)
+        sess.request = mock.Mock(return_value=fake_device_code_response(15))
+        with mock.patch("requests_oauthlib.oauth2_session.time.sleep"):
+            sess.token_from_device_code(
+                self.device_authorization_endpoint,
+                self.token_endpoint,
+            )
+            # Check the required authentication is used
+            basic_auth = sess.request.call_args.kwargs["auth"]
+            self.assertIsInstance(basic_auth, requests.auth.HTTPBasicAuth)
+            self.assertEqual(basic_auth.username, self.client_id)
+            self.assertIsNone(basic_auth.password)
+            # Ensure thefetch token endpoint is called correctly
+            sess.fetch_token.assert_called_once_with(
+                self.token_endpoint,
+                device_code="devicecode123",
+                include_client_id=True,
+                scope=sess.scope,
+                client_id=self.client_id,
+                client_secret=None
+            )
+
+    def test_explicit_client_id_and_secret_are_used(self):
+        sess = OAuth2Session(client=DeviceClient(self.client_id))
+        sess.fetch_token = mock.Mock(return_value=self.token)
+        sess.request = mock.Mock(return_value=fake_device_code_response(15))
+        with mock.patch("requests_oauthlib.oauth2_session.time.sleep"):
+            sess.token_from_device_code(
+                self.device_authorization_endpoint,
+                self.token_endpoint,
+                client_id="explicit-id",
+                client_secret="explicit-secret",
+            )
+            basic_auth = sess.request.call_args.kwargs["auth"]
+            self.assertIsInstance(basic_auth, requests.auth.HTTPBasicAuth)
+            self.assertEqual(basic_auth.username, "explicit-id")
+            self.assertEqual(basic_auth.password, "explicit-secret")
+            # Ensure thefetch token endpoint is called correctly
+            sess.fetch_token.assert_called_once_with(
+                self.token_endpoint,
+                device_code="devicecode123",
+                include_client_id=True,
+                scope=sess.scope,
+                client_id="explicit-id",
+                client_secret="explicit-secret"
+            )
+
+    def test_device_code_authorization_pending_retries_then_succeeds(self):
+        sess = OAuth2Session(client=DeviceClient(self.client_id))
+        sess.fetch_token = mock.Mock(
+            side_effect=[
+                CustomOAuth2Error(
+                    error="authorization_pending", description="still waiting"
+                ),
+                self.token,
+            ]
+        )
+        # Interval will default to 5
+        sess.request = mock.Mock(return_value=fake_device_code_response())
+        with mock.patch("requests_oauthlib.oauth2_session.time.sleep") as mock_sleep:
+            result = sess.token_from_device_code(
+                self.device_authorization_endpoint,
+                self.token_endpoint,
+            )
+            self.assertEqual(result, self.token)
+            self.assertEqual(sess.fetch_token.call_count, 2)
+            # Interval remains the same between sleep calls
+            mock_sleep.assert_has_calls([mock.call(5), mock.call(5)])
+
+    def test_device_code_slow_down_increases_interval_then_succeeds(self):
+        sess = OAuth2Session(client=DeviceClient(self.client_id))
+        sess.fetch_token = mock.Mock(
+            side_effect=[
+                CustomOAuth2Error(error="slow_down", description="too fast"),
+                self.token,
+            ]
+        )
+        # Interval will default to 5
+        sess.request = mock.Mock(return_value=fake_device_code_response())
+        with mock.patch("requests_oauthlib.oauth2_session.time.sleep") as mock_sleep:
+            result = sess.token_from_device_code(
+                self.device_authorization_endpoint,
+                self.token_endpoint
+            )
+            self.assertEqual(result, self.token)
+            self.assertEqual(sess.fetch_token.call_count, 2)
+            # Interval increases between sleep calls as requested
+            mock_sleep.assert_has_calls([mock.call(5), mock.call(10)])
+    
+    def test_device_code_raises_other_oauth_error(self):
+        sess = OAuth2Session(client=DeviceClient(self.client_id))
+        sess.request = mock.Mock(return_value=fake_device_code_response())
+        sess.fetch_token = mock.Mock(
+            side_effect= CustomOAuth2Error(
+                    error="other", description="function should raise this"
+                )
+        )
+        with mock.patch("requests_oauthlib.oauth2_session.time.sleep"):
+            with self.assertRaises(CustomOAuth2Error) as ctx:
+                sess.token_from_device_code(
+                    self.device_authorization_endpoint,
+                    self.token_endpoint,
+                )
+        self.assertEqual(ctx.exception.error, "other")
+        sess.fetch_token.assert_called_once()
+
+    def test_device_code_expiry_error(self):
+        sess = OAuth2Session(client=DeviceClient(self.client_id))
+        sess.fetch_token = mock.Mock(return_value=self.token)
+        # Expiry 0 to force timeout
+        mock_device_code_resp = fake_device_code_response(15, expiry=0)
+        sess.request = mock.Mock(return_value=mock_device_code_resp)
+        with mock.patch("requests_oauthlib.oauth2_session.time.sleep"):
+            self.assertRaises(
+                TimeoutError,
+                sess.token_from_device_code,
+                self.device_authorization_endpoint,
+                self.token_endpoint,
+            )
+
+    def test_device_code_explicit_interval(self):
+        sess = OAuth2Session(client=DeviceClient(self.client_id))
+        sess.fetch_token = mock.Mock(return_value=self.token)
+        sess.request = mock.Mock(return_value=fake_device_code_response(15))
+        with mock.patch("requests_oauthlib.oauth2_session.time.sleep") as mock_sleep:
+            sess.token_from_device_code(
+                self.device_authorization_endpoint,
+                self.token_endpoint,
+                interval=1
+            )
+            mock_sleep.assert_called_once_with(1)
+
+    def test_device_code_default_interval(self):
+        sess = OAuth2Session(client=DeviceClient(self.client_id))
+        sess.fetch_token = mock.Mock(return_value=self.token)
+        sess.request = mock.Mock(return_value=fake_device_code_response())
+        with mock.patch("requests_oauthlib.oauth2_session.time.sleep") as mock_sleep:
+            sess.token_from_device_code(
+                self.device_authorization_endpoint,
+                self.token_endpoint
+            )
+            mock_sleep.assert_called_once_with(5)
+
+    def test_device_code_http_error_raised(self):
+        sess = OAuth2Session(client=DeviceClient(self.client_id))
+        sess.request = mock.Mock(
+            side_effect=requests.HTTPError("Something Bad")
+        )
+        with mock.patch("requests_oauthlib.oauth2_session.time.sleep"):
+            self.assertRaises(
+                requests.HTTPError,
+                sess.token_from_device_code,
+                self.device_authorization_endpoint,
+                self.token_endpoint
+            )
 
 
 class OAuth2SessionNetrcTest(OAuth2SessionTest):
