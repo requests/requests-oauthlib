@@ -473,15 +473,29 @@ class OAuth2Session(requests.Session):
             log.debug("Invoking refresh_token_request hook %s.", hook)
             token_url, headers, body = hook(token_url, headers, body)
 
+        # Hooks expected body to be a string until now, but if they do need
+        # to output JSON, we need to make Request() use json instead of data.
+        # This is a way to avoid breaking existing hooks. A better approach
+        # would be to do the same as what fetch_token does, and let the hooks
+        # be able to manipulate req_kwargs the way they want.
+        request_kwargs = {}
+        req_data = "data"
+        
+        if headers["Content-Type"] == "application/json":
+            req_data = "json"
+        
+        request_kwargs[req_data] = dict(urldecode(body))
+
+        
         r = self.post(
             token_url,
-            data=dict(urldecode(body)),
             auth=auth,
             timeout=timeout,
             headers=headers,
             verify=verify,
             withhold_token=True,
             proxies=proxies,
+            **request_kwargs
         )
         log.debug("Request to refresh token completed with status %s.", r.status_code)
         log.debug("Response headers were %s and content %s.", r.headers, r.text)
