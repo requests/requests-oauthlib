@@ -44,7 +44,7 @@ setup(
     url="https://github.com/requests/requests-oauthlib",
     packages=["requests_oauthlib", "requests_oauthlib.compliance_fixes"],
     python_requires=">=3.7",
-    install_requires=["oauthlib>=3.0.0", "requests>=2.0.0"],
+    install_requires=["oauthlib>=4.0.0", "requests>=2.0.0"],
     extras_require={"rsa": ["oauthlib[signedtoken]>=3.0.0"]},
     license="ISC",
     classifiers=[
